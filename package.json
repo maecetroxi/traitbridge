@@ -11,6 +11,7 @@
     "@bigfive-org/questions": "^1.2.1",
     "@bigfive-org/results": "^1.2.5",
     "@bigfive-org/score": "^1.0.0",
+    "@supabase/supabase-js": "^2.87.1",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"

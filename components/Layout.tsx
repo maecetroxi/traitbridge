@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useAuth } from "../contexts/AuthContext";
 
 type LayoutProps = {
   children: ReactNode;
@@ -9,13 +10,19 @@ type LayoutProps = {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
+  const { user, signOut, loading } = useAuth();
 
   const navItems = [
     { href: "/", label: "Start" },
     { href: "/community", label: "Community" },
-    { href: "/test", label: "Test" },
-    { href: "/results", label: "Resultate" }
+    { href: "/results", label: "Resultate" },
+    { href: "/test", label: "Test" }
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/");
+  };
 
   return (
     <>
@@ -55,6 +62,40 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
               );
             })}
+            {!loading && (
+              <>
+                {user ? (
+                  <>
+                    <Link 
+                      href="/profile" 
+                      className={router.pathname === "/profile" ? "app-nav-link app-nav-link-active" : "app-nav-link"}
+                      style={{ marginLeft: "1rem" }}
+                    >
+                      Profil
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="app-nav-link"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        fontSize: "inherit",
+                        padding: 0,
+                        marginLeft: "0.5rem",
+                      }}
+                    >
+                      Abmelden
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" className="app-nav-link" style={{ marginLeft: "1rem" }}>
+                    Anmelden
+                  </Link>
+                )}
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -65,7 +106,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
       <footer className="app-footer">
         <div className="app-footer-inner">
-          <span>Version 1 Demo · Keine Login-Funktion · Daten nur lokal im Browser</span>
           <span>Big Five · Fragen · menschenfreundlicher Austausch</span>
         </div>
       </footer>

@@ -29,8 +29,8 @@ Eine moderne Web-Anwendung für Big Five Persönlichkeitstests mit integrierter 
 
 1. Repository klonen:
 ```bash
-git clone https://github.com/dein-username/bigfive-community-app-v2.git
-cd bigfive-community-app-v2
+git clone https://github.com/maecetroxi/traitbridge.git
+cd traitbridge
 ```
 
 2. Abhängigkeiten installieren:

@@ -1,108 +1,133 @@
 import React, { useEffect, useState } from "react";
-
-type Question = {
-  id: string;
-  title: string;
-  body: string;
-  createdAt: string;
-};
-
-type Answer = {
-  id: string;
-  questionId: string;
-  body: string;
-  createdAt: string;
-};
-
-type CommunityState = {
-  questions: Question[];
-  answers: Answer[];
-};
-
-const STORAGE_KEY = "ocean-community-v1";
-
-const loadState = (): CommunityState => {
-  if (typeof window === "undefined") {
-    return { questions: [], answers: [] };
-  }
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { questions: [], answers: [] };
-    return JSON.parse(raw) as CommunityState;
-  } catch {
-    return { questions: [], answers: [] };
-  }
-};
-
-const saveState = (state: CommunityState) => {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-};
+import { useRouter } from "next/router";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  createQuestion,
+  getQuestions,
+  getQuestion,
+  createAnswer,
+  getAnswers,
+  type Question,
+  type Answer,
+} from "../lib/supabase-queries";
 
 const CommunityPage: React.FC = () => {
-  const [state, setState] = useState<CommunityState>({ questions: [], answers: [] });
-  const [loaded, setLoaded] = useState(false);
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [newTitle, setNewTitle] = useState("");
   const [newBody, setNewBody] = useState("");
-  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
   const [answerBody, setAnswerBody] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const initial = loadState();
-    setState(initial);
-    setLoaded(true);
-  }, []);
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
 
+  // Load questions on mount
   useEffect(() => {
-    if (!loaded) return;
-    saveState(state);
-  }, [state, loaded]);
+    if (!user) return;
+    loadQuestions();
+  }, [user]);
 
-  const selectedQuestion =
-    selectedQuestionId && state.questions.find((q) => q.id === selectedQuestionId)
-      ? state.questions.find((q) => q.id === selectedQuestionId)
-      : null;
+  // Load answers when question is selected
+  useEffect(() => {
+    if (selectedQuestion) {
+      loadAnswers(selectedQuestion.id);
+    }
+  }, [selectedQuestion]);
 
-  const answersForSelected = selectedQuestion
-    ? state.answers.filter((a) => a.questionId === selectedQuestion.id)
-    : [];
-
-  const handleCreateQuestion = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !newBody.trim()) return;
-    const id = `q_${Date.now()}`;
-    const question: Question = {
-      id,
-      title: newTitle.trim(),
-      body: newBody.trim(),
-      createdAt: new Date().toISOString()
-    };
-    setState((prev) => ({
-      ...prev,
-      questions: [question, ...prev.questions]
-    }));
-    setNewTitle("");
-    setNewBody("");
-    setSelectedQuestionId(id);
+  const loadQuestions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getQuestions();
+      setQuestions(data);
+    } catch (err: any) {
+      console.error("Fehler beim Laden der Fragen:", err);
+      setError("Fragen konnten nicht geladen werden.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCreateAnswer = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedQuestion || !answerBody.trim()) return;
-    const answer: Answer = {
-      id: `a_${Date.now()}`,
-      questionId: selectedQuestion.id,
-      body: answerBody.trim(),
-      createdAt: new Date().toISOString()
-    };
-    setState((prev) => ({
-      ...prev,
-      answers: [...prev.answers, answer]
-    }));
-    setAnswerBody("");
+  const loadAnswers = async (questionId: string) => {
+    try {
+      const data = await getAnswers(questionId);
+      setAnswers(data);
+    } catch (err: any) {
+      console.error("Fehler beim Laden der Antworten:", err);
+    }
   };
+
+  const handleCreateQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !newTitle.trim() || !newBody.trim()) return;
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      const question = await createQuestion(user.id, newTitle, newBody);
+      setQuestions([question, ...questions]);
+      setNewTitle("");
+      setNewBody("");
+      setSelectedQuestion(question);
+    } catch (err: any) {
+      console.error("Fehler beim Erstellen der Frage:", err);
+      setError("Frage konnte nicht erstellt werden.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCreateAnswer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !selectedQuestion || !answerBody.trim()) return;
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      const answer = await createAnswer(user.id, selectedQuestion.id, answerBody);
+      setAnswers([...answers, answer]);
+      setAnswerBody("");
+    } catch (err: any) {
+      console.error("Fehler beim Erstellen der Antwort:", err);
+      setError("Antwort konnte nicht erstellt werden.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSelectQuestion = async (questionId: string) => {
+    try {
+      const question = await getQuestion(questionId);
+      setSelectedQuestion(question);
+    } catch (err: any) {
+      console.error("Fehler beim Laden der Frage:", err);
+      setError("Frage konnte nicht geladen werden.");
+    }
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="page-card">
+        <div className="page-kicker">Schritt 3</div>
+        <h1 className="page-title">Lädt...</h1>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect
+  }
 
   return (
     <div className="page-card">
@@ -110,8 +135,24 @@ const CommunityPage: React.FC = () => {
       <h1 className="page-title">Fragen & Antworten</h1>
       <p className="page-intro">
         Hier kannst du Fragen stellen und Antworten geben – rund um Themen wie Arbeit, Beziehungen, Kreativität,
-        Entscheidungen oder Alltagsfragen. Alles läuft anonym und bleibt lokal in deinem Browser.
+        Entscheidungen oder Alltagsfragen. Die Community ist für alle angemeldeten Benutzer sichtbar.
       </p>
+
+      {error && (
+        <div
+          style={{
+            padding: "0.75rem",
+            marginBottom: "1rem",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            borderRadius: "6px",
+            color: "#dc2626",
+            fontSize: "0.875rem",
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       <div className="community-grid">
         <section className="stack-lg">
@@ -153,28 +194,28 @@ const CommunityPage: React.FC = () => {
               </div>
               <button
                 type="submit"
-                disabled={!newTitle.trim() || !newBody.trim()}
+                disabled={!newTitle.trim() || !newBody.trim() || submitting}
                 className="btn btn-primary"
               >
-                Frage veröffentlichen
+                {submitting ? "Wird veröffentlicht..." : "Frage veröffentlichen"}
               </button>
             </form>
           </div>
 
           <div className="card-subtle">
             <h2 className="section-title">Alle Fragen</h2>
-            {state.questions.length === 0 ? (
+            {questions.length === 0 ? (
               <p className="section-text">
                 Es wurden noch keine Fragen gestellt. Starte gerne mit der ersten Frage.
               </p>
             ) : (
               <ul className="question-list">
-                {state.questions.map((q) => {
-                  const isActive = selectedQuestionId === q.id;
+                {questions.map((q) => {
+                  const isActive = selectedQuestion?.id === q.id;
                   const itemClass = "question-list-item" + (isActive ? " question-list-item-active" : "");
                   return (
                     <li key={q.id} className={itemClass}>
-                      <button type="button" onClick={() => setSelectedQuestionId(q.id)}>
+                      <button type="button" onClick={() => handleSelectQuestion(q.id)}>
                         <div className="question-list-title">{q.title}</div>
                         <div className="question-list-preview">{q.body}</div>
                       </button>
@@ -210,19 +251,19 @@ const CommunityPage: React.FC = () => {
                   {selectedQuestion.body}
                 </p>
                 <p className="muted" style={{ marginTop: "0.5rem" }}>
-                  Erstellt am {new Date(selectedQuestion.createdAt).toLocaleString()}
+                  Erstellt am {new Date(selectedQuestion.created_at).toLocaleString()}
                 </p>
               </div>
 
               <div>
                 <h4 className="section-title">Antworten</h4>
-                {answersForSelected.length === 0 ? (
+                {answers.length === 0 ? (
                   <p className="section-text">
                     Noch keine Antworten. Teile gerne deine Sicht oder Erfahrungen.
                   </p>
                 ) : (
                   <ul className="stack-md" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                    {answersForSelected.map((a) => (
+                    {answers.map((a) => (
                       <li key={a.id} className="answer-item">
                         <p
                           style={{
@@ -236,7 +277,7 @@ const CommunityPage: React.FC = () => {
                           {a.body}
                         </p>
                         <p className="muted" style={{ marginTop: "0.5rem" }}>
-                          Antwort vom {new Date(a.createdAt).toLocaleString()}
+                          Antwort vom {new Date(a.created_at).toLocaleString()}
                         </p>
                       </li>
                     ))}
@@ -260,10 +301,10 @@ const CommunityPage: React.FC = () => {
                 </div>
                 <button
                   type="submit"
-                  disabled={!answerBody.trim()}
+                  disabled={!answerBody.trim() || submitting}
                   className="btn btn-primary"
                 >
-                  Antwort veröffentlichen
+                  {submitting ? "Wird veröffentlicht..." : "Antwort veröffentlichen"}
                 </button>
               </form>
             </div>

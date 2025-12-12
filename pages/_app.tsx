@@ -2,6 +2,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import "../styles/globals.css";
 import Layout from "../components/Layout";
+import { AuthProvider } from "../contexts/AuthContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -14,9 +15,11 @@ function MyApp({ Component, pageProps }: AppProps) {
           rel="stylesheet"
         />
       </Head>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <AuthProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </AuthProvider>
     </>
   );
 }

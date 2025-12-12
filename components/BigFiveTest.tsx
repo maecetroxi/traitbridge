@@ -4,6 +4,8 @@ import { getItems, getChoices, type Question as PackageQuestion } from "@bigfive
 // @ts-ignore - Package hat keine TypeScript-Definitionen
 import { processAnswers } from "@bigfive-org/score/build/src";
 import type { BigFiveScores } from "./PersonalityBadge";
+import { useAuth } from "../contexts/AuthContext";
+import { savePersonalityResult } from "../lib/supabase-queries";
 
 type Translations = {
   step1: string;
@@ -90,6 +92,7 @@ const createQuickQuestions = (packageQuestions: PackageQuestion[]): PackageQuest
 
 const BigFiveTest: React.FC<BigFiveTestProps> = ({ variant = "quick", language = "de" }) => {
   const router = useRouter();
+  const { user } = useAuth();
   const [questions, setQuestions] = useState<PackageQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -160,7 +163,7 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ variant = "quick", language =
 
   const allAnswered = questions.length > 0 && questions.every((q) => answers[q.id] !== undefined);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!allAnswered) {
       setError(translations.answerAllQuestions);
@@ -169,34 +172,50 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ variant = "quick", language =
     setError(null);
     setSubmitting(true);
 
-    // Bereite Antworten für @bigfive-org/score vor
-    const answerArray = questions.map((q) => {
-      const score = answers[q.id];
-      return {
-        domain: q.domain,
-        facet: q.facet?.toString() || "1",
-        score: score.toString()
-      };
-    });
-
-    // Verwende @bigfive-org/score für die Berechnung
-    const calculatedScores = processAnswers(answerArray);
-
-    // Konvertiere zu BigFiveScores Format (Durchschnittswerte)
-    const scores: BigFiveScores = {
-      O: calculatedScores.O ? calculatedScores.O.score / calculatedScores.O.count : 0,
-      C: calculatedScores.C ? calculatedScores.C.score / calculatedScores.C.count : 0,
-      E: calculatedScores.E ? calculatedScores.E.score / calculatedScores.E.count : 0,
-      A: calculatedScores.A ? calculatedScores.A.score / calculatedScores.A.count : 0,
-      N: calculatedScores.N ? calculatedScores.N.score / calculatedScores.N.count : 0
-    };
-
-    // Speichere auch die vollständigen berechneten Scores für @bigfive-org/results
-    const STORAGE_KEY = variant === "full" 
-      ? "bigfive-results-full-v1" 
-      : "bigfive-results-v1";
-
     try {
+      // Bereite Antworten für @bigfive-org/score vor
+      const answerArray = questions.map((q) => {
+        const score = answers[q.id];
+        return {
+          domain: q.domain,
+          facet: q.facet?.toString() || "1",
+          score: score.toString()
+        };
+      });
+
+      // Verwende @bigfive-org/score für die Berechnung
+      const calculatedScores = processAnswers(answerArray);
+
+      // Konvertiere zu BigFiveScores Format (Durchschnittswerte)
+      const scores: BigFiveScores = {
+        O: calculatedScores.O ? calculatedScores.O.score / calculatedScores.O.count : 0,
+        C: calculatedScores.C ? calculatedScores.C.score / calculatedScores.C.count : 0,
+        E: calculatedScores.E ? calculatedScores.E.score / calculatedScores.E.count : 0,
+        A: calculatedScores.A ? calculatedScores.A.score / calculatedScores.A.count : 0,
+        N: calculatedScores.N ? calculatedScores.N.score / calculatedScores.N.count : 0
+      };
+
+      // Speichere in Supabase, wenn Benutzer eingeloggt ist
+      if (user) {
+        try {
+          await savePersonalityResult(
+            user.id,
+            scores,
+            calculatedScores,
+            variant,
+            language
+          );
+        } catch (supabaseError) {
+          console.error("Fehler beim Speichern in Supabase:", supabaseError);
+          // Weiter mit localStorage als Fallback
+        }
+      }
+
+      // Speichere auch lokal im localStorage als Fallback
+      const STORAGE_KEY = variant === "full" 
+        ? "bigfive-results-full-v1" 
+        : "bigfive-results-v1";
+
       if (typeof window !== "undefined") {
         window.localStorage.setItem(
           STORAGE_KEY,
@@ -209,11 +228,13 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ variant = "quick", language =
           })
         );
       }
-    } catch (err) {
-      console.error("Konnte Resultate nicht speichern", err);
-    }
 
-    router.push("/results");
+      router.push("/results");
+    } catch (err) {
+      console.error("Fehler beim Speichern der Resultate:", err);
+      setError("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+      setSubmitting(false);
+    }
   };
 
   const progress = questions.length > 0 
