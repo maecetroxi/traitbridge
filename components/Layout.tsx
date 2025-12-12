@@ -1,0 +1,76 @@
+import React, { ReactNode } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/router";
+
+type LayoutProps = {
+  children: ReactNode;
+};
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const router = useRouter();
+
+  const navItems = [
+    { href: "/", label: "Start" },
+    { href: "/community", label: "Community" },
+    { href: "/test", label: "Test" },
+    { href: "/results", label: "Resultate" }
+  ];
+
+  return (
+    <>
+      <header className="app-header">
+        <div className="app-header-inner">
+          <div className="app-brand">
+            <Link href="/" className="app-logo" style={{ cursor: 'pointer' }}>
+              <Image
+                src="/traitbridge-logo.png.png"
+                alt="Traitbridge Logo"
+                width={150}
+                height={50}
+                priority
+                style={{ height: '100%', width: 'auto', objectFit: 'cover' }}
+              />
+            </Link>
+            <div>
+              <div className="app-title">OCEAN Community</div>
+              <div className="app-subtitle">Big Five · Fragen · Austausch</div>
+            </div>
+          </div>
+          <nav className="app-nav" aria-label="Hauptnavigation">
+            {navItems.map((item) => {
+              const isActive =
+                item.href === "/"
+                  ? router.pathname === item.href
+                  : router.pathname.startsWith(item.href);
+              const className = [
+                "app-nav-link",
+                isActive ? "app-nav-link-active" : ""
+              ]
+                .filter(Boolean)
+                .join(" ");
+              return (
+                <Link key={item.href} href={item.href} className={className}>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </header>
+      <main>
+        <div className="container">
+          {children}
+        </div>
+      </main>
+      <footer className="app-footer">
+        <div className="app-footer-inner">
+          <span>Version 1 Demo · Keine Login-Funktion · Daten nur lokal im Browser</span>
+          <span>Big Five · Fragen · menschenfreundlicher Austausch</span>
+        </div>
+      </footer>
+    </>
+  );
+};
+
+export default Layout;
