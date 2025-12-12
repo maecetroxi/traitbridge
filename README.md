@@ -127,4 +127,3 @@ Bei Fragen oder Anregungen kannst du ein Issue im Repository erstellen.
 ---
 
 **Hinweis**: Dies ist eine Demo-Plattform. Für produktive Nutzung sollten zusätzliche Features wie Backend-Integration, Authentifizierung und erweiterte Community-Funktionen implementiert werden.
-
