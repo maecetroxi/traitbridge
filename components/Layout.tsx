@@ -15,9 +15,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navItems = [
     { href: "/", label: "Start" },
     { href: "/community", label: "Community" },
-    { href: "/results", label: "Resultate" },
     { href: "/test", label: "Test" }
   ];
+  const visibleNavItems = user ? [...navItems, { href: "/profile", label: "Profil" }] : navItems;
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,7 +45,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
           <nav className="app-nav" aria-label="Hauptnavigation">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive =
                 item.href === "/"
                   ? router.pathname === item.href
@@ -66,13 +66,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <>
                 {user ? (
                   <>
-                    <Link 
-                      href="/profile" 
-                      className={router.pathname === "/profile" ? "app-nav-link app-nav-link-active" : "app-nav-link"}
-                      style={{ marginLeft: "1rem" }}
-                    >
-                      Profil
-                    </Link>
                     <button
                       onClick={handleSignOut}
                       className="app-nav-link"

@@ -7,7 +7,7 @@ export type PersonalityResult = {
   user_id: string
   scores: BigFiveScores
   calculated_scores?: any
-  variant?: 'quick' | 'full'
+  variant?: 'full'
   language?: string
   created_at: string
   updated_at: string
@@ -36,7 +36,7 @@ export const savePersonalityResult = async (
   userId: string,
   scores: BigFiveScores,
   calculatedScores?: any,
-  variant?: 'quick' | 'full',
+  variant?: 'full',
   language?: string
 ) => {
   const { data, error } = await supabase
@@ -72,7 +72,7 @@ export const updatePersonalityResult = async (
   resultId: string,
   scores: BigFiveScores,
   calculatedScores?: any,
-  variant?: 'quick' | 'full'
+  variant?: 'full'
 ) => {
   const { data, error } = await supabase
     .from('personality_results')
@@ -200,4 +200,6 @@ export const deleteAnswer = async (answerId: string) => {
 
   if (error) throw error
 }
+
+
 

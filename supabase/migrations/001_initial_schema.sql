@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS personality_results (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   scores JSONB NOT NULL, -- {O: number, C: number, E: number, A: number, N: number}
   calculated_scores JSONB, -- Vollständige Scores für @bigfive-org/results
-  variant TEXT CHECK (variant IN ('quick', 'full')),
+  variant TEXT CHECK (variant IN ('full')),
   language TEXT DEFAULT 'de',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

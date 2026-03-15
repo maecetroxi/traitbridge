@@ -15,7 +15,7 @@ const FullTestPage: React.FC = () => {
     return <LanguageSelector onSelect={handleLanguageSelect} />;
   }
 
-  return <BigFiveTest variant="full" language={selectedLanguage} />;
+  return <BigFiveTest language={selectedLanguage} />;
 };
 
 export default FullTestPage;
