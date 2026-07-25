@@ -1,0 +1,346 @@
+.page {
+  --guide-ink: #17251f;
+  --guide-soft: #5d6c64;
+  --guide-green: #1f7058;
+  --guide-paper: #f7f2e9;
+  display: grid;
+  gap: 1.4rem;
+  color: var(--guide-ink);
+}
+
+.hero {
+  padding: clamp(1.5rem, 4vw, 3rem) 0 1rem;
+  max-width: 850px;
+}
+
+.kicker,
+.answerKicker {
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  color: #a65335;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  max-width: none;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(2.1rem, 3.4vw, 2.8rem);
+  letter-spacing: -0.05em;
+  line-height: 1.02;
+}
+
+.hero p {
+  max-width: 62ch;
+  margin: 1.2rem 0 0;
+  color: var(--guide-soft);
+  font-size: 1.06rem;
+  line-height: 1.7;
+}
+
+.profilePanel,
+.searchPanel,
+.answerPanel {
+  border: 1px solid rgba(23, 37, 31, 0.12);
+  border-radius: 1.5rem;
+  box-shadow: 0 24px 60px -46px rgba(23, 37, 31, 0.62);
+}
+
+.profilePanel {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(104, 166, 141, 0.2), transparent 30%),
+    #f3f8f5;
+}
+
+.profileHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.profileHeading h2,
+.answerPanel h2,
+.answerPanel h3 {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+}
+
+.profileHeading h2 {
+  font-size: 1.65rem;
+}
+
+.profileHeading p {
+  margin: 0.3rem 0 0;
+  color: var(--guide-soft);
+  font-size: 0.88rem;
+}
+
+.resetButton {
+  flex-shrink: 0;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(23, 37, 31, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--guide-ink);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.traitGrid {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.traitControl {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.traitHeader,
+.traitEnds,
+.questionMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.traitHeader {
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.traitHeader output {
+  color: var(--guide-green);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.traitControl input {
+  width: 100%;
+  accent-color: var(--guide-green);
+  cursor: pointer;
+}
+
+.traitEnds {
+  color: #7a8981;
+  font-size: 0.72rem;
+}
+
+.searchPanel {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--guide-paper);
+}
+
+.searchPanel > label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.searchBox {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.55rem;
+  border: 1.5px solid rgba(23, 37, 31, 0.17);
+  border-radius: 1.25rem;
+  background: #fff;
+  box-shadow: 0 18px 40px -34px rgba(23, 37, 31, 0.8);
+}
+
+.searchBox:focus-within {
+  border-color: var(--guide-green);
+  box-shadow: 0 0 0 4px rgba(31, 112, 88, 0.1);
+}
+
+.searchBox textarea {
+  min-height: 70px;
+  padding: 0.75rem;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+  font-size: 1rem;
+}
+
+.searchBox textarea:focus {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.searchBox button {
+  min-height: 3rem;
+  padding: 0.75rem 1.15rem;
+  border: 0;
+  border-radius: 0.9rem;
+  background: var(--guide-green);
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.searchBox button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.questionMeta {
+  margin-top: 0.45rem;
+  color: #7b837f;
+  font-size: 0.74rem;
+}
+
+.suggestions {
+  margin-top: 1.5rem;
+}
+
+.suggestions > span {
+  display: block;
+  margin-bottom: 0.7rem;
+  color: var(--guide-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.suggestions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.suggestions button {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(23, 37, 31, 0.13);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #44534b;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.suggestions button:hover {
+  color: var(--guide-green);
+  border-color: var(--guide-green);
+  transform: translateY(-1px);
+}
+
+.answerPanel {
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(232, 166, 113, 0.24), transparent 32%),
+    #fffaf2;
+}
+
+.answerPanel h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+.summary {
+  max-width: 65ch;
+  margin: 1rem 0 1.7rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.answerPanel h3 {
+  font-size: 1.25rem;
+}
+
+.answerPanel ol {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding-left: 1.4rem;
+}
+
+.answerPanel li {
+  padding-left: 0.35rem;
+  color: #3d4c44;
+  line-height: 1.65;
+}
+
+.disclaimer {
+  margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(23, 37, 31, 0.1);
+  color: #77817b;
+  font-size: 0.78rem;
+}
+
+.errorBox {
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(190, 62, 52, 0.25);
+  border-radius: 1rem;
+  background: #fff1ee;
+  color: #9e3028;
+  font-size: 0.9rem;
+}
+
+.privacyNote {
+  max-width: 78ch;
+  margin: 0.2rem 0 0;
+  color: #77817b;
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+
+.privacyNote a {
+  color: var(--guide-green);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (min-width: 760px) {
+  .hero h1 {
+    white-space: nowrap;
+  }
+
+  .traitGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+
+  .searchBox {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .searchBox button {
+    min-width: 190px;
+  }
+}
+
+@media (min-width: 1040px) {
+  .traitGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .profileHeading {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suggestions button {
+    transition: none;
+  }
+}

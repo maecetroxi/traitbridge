@@ -1,14 +1,6 @@
-import { GetServerSideProps } from "next";
+import React from "react";
+import BigFiveResults from "../components/BigFiveResults";
 
-const ResultsPage = () => null;
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    redirect: {
-      destination: "/profile?view=details",
-      permanent: false,
-    },
-  };
-};
+const ResultsPage: React.FC = () => <BigFiveResults />;
 
 export default ResultsPage;

@@ -1,39 +1,27 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { useRouter } from "next/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import PersonalityBadge, { BigFiveScores } from "../components/PersonalityBadge";
-// @ts-ignore - Package hat keine TypeScript-Definitionen
-import getResult from "@bigfive-org/results";
+import { useAuth } from "../contexts/AuthContext";
+import { useLocale } from "../contexts/LocaleContext";
+import { DEMO_RESULTS, getDetailedResults, sanitizeStoredResults, STORAGE_KEY_FULL, type StoredResults } from "../lib/bigfive-results";
 import { getPersonalityResult } from "../lib/supabase-queries";
 
-const STORAGE_KEY_FULL = "bigfive-results-full-v1";
-
-type StoredResults = {
-  scores: BigFiveScores;
-  calculatedScores?: any;
-  timestamp: string;
-  variant?: "full";
-  language?: string;
-};
-
-const domainNames: Record<keyof BigFiveScores, string> = {
-  O: "Offenheit",
-  C: "Gewissenhaftigkeit",
-  E: "Extraversion",
-  A: "Vertraeglichkeit",
-  N: "Emotionale Stabilitaet",
-};
-
 const ProfilePage: React.FC = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: isAuthLoading } = useAuth();
+  const { locale, copy } = useLocale();
   const router = useRouter();
-  const [stored, setStored] = useState<StoredResults | null>(null);
-  const [results, setResults] = useState<any[] | null>(null);
+  const [storedResults, setStoredResults] = useState<StoredResults | null>(null);
+  const [detailedResults, setDetailedResults] = useState<any[] | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
+  const applyResults = (nextResults: StoredResults | null) => {
+    setStoredResults(nextResults);
+    setDetailedResults(nextResults ? getDetailedResults(nextResults.calculatedScores, locale) : null);
+  };
+
   useEffect(() => {
-    if (authLoading) {
+    if (isAuthLoading) {
       return;
     }
 
@@ -46,23 +34,23 @@ const ProfilePage: React.FC = () => {
       try {
         const result = await getPersonalityResult(user.id);
         if (result) {
-          const nextStored = {
+          const nextResults = sanitizeStoredResults({
             scores: result.scores as BigFiveScores,
             calculatedScores: result.calculated_scores,
             timestamp: result.created_at,
-            variant: "full" as const,
-            language: result.language || "de",
-          };
-          setStored(nextStored);
+            variant: "full",
+            language: (result.language as "en" | "de") || "en",
+          });
 
-          if (result.calculated_scores) {
-            const lang = result.language || "de";
-            setResults(getResult({ scores: result.calculated_scores, lang }));
+          if (nextResults) {
+            applyResults(nextResults);
+            return;
           }
-          return;
+
+          console.warn("Ignoring invalid Supabase result and falling back to local storage.");
         }
-      } catch (err) {
-        console.error("Fehler beim Laden aus Supabase:", err);
+      } catch (error) {
+        console.error("Failed to load profile data from Supabase:", error);
       }
 
       if (typeof window === "undefined") {
@@ -70,25 +58,24 @@ const ProfilePage: React.FC = () => {
       }
 
       try {
-        const fullRaw = window.localStorage.getItem(STORAGE_KEY_FULL);
-        if (!fullRaw) {
+        const rawResults = window.localStorage.getItem(STORAGE_KEY_FULL);
+        if (!rawResults) {
           return;
         }
 
-        const parsed = JSON.parse(fullRaw) as StoredResults;
-        setStored(parsed);
-
-        if (parsed.calculatedScores) {
-          const lang = parsed.language || "de";
-          setResults(getResult({ scores: parsed.calculatedScores, lang }));
+        const parsedResults = sanitizeStoredResults(JSON.parse(rawResults));
+        if (!parsedResults) {
+          return;
         }
-      } catch (err) {
-        console.error("Konnte Resultate nicht laden", err);
+
+        applyResults(parsedResults);
+      } catch (error) {
+        console.error("Failed to load local Big Five results:", error);
       }
     };
 
     loadResults();
-  }, [user, authLoading, router]);
+  }, [user, isAuthLoading, router, locale]);
 
   useEffect(() => {
     if (router.query.view === "details") {
@@ -97,21 +84,21 @@ const ProfilePage: React.FC = () => {
   }, [router.query.view]);
 
   const topTraits = useMemo(() => {
-    if (!stored) {
+    if (!storedResults) {
       return [] as Array<{ key: keyof BigFiveScores; value: number }>;
     }
 
-    return (Object.entries(stored.scores) as Array<[keyof BigFiveScores, number]>)
-      .sort((a, b) => b[1] - a[1])
+    return (Object.entries(storedResults.scores) as Array<[keyof BigFiveScores, number]>)
+      .sort((firstTrait, secondTrait) => secondTrait[1] - firstTrait[1])
       .slice(0, 2)
       .map(([key, value]) => ({ key, value }));
-  }, [stored]);
+  }, [storedResults]);
 
-  if (authLoading) {
+  if (isAuthLoading) {
     return (
       <div className="page-card">
-        <div className="page-kicker">Profil</div>
-        <h1 className="page-title">Laedt...</h1>
+        <div className="page-kicker">{copy.profile.kicker}</div>
+        <h1 className="page-title">{copy.profile.loadingTitle}</h1>
       </div>
     );
   }
@@ -120,23 +107,24 @@ const ProfilePage: React.FC = () => {
     return null;
   }
 
-  const date = stored ? new Date(stored.timestamp) : null;
+  const dateLocale = locale === "de" ? "de-DE" : "en-US";
+  const testDate = storedResults ? new Date(storedResults.timestamp) : null;
 
   return (
     <div className="page-card">
-      <div className="page-kicker">Profil</div>
-      <h1 className="page-title">Mein Profil</h1>
+      <div className="page-kicker">{copy.profile.kicker}</div>
+      <h1 className="page-title">{copy.profile.title}</h1>
 
       <div className="results-grid" style={{ marginTop: "2rem" }}>
         <section className="card-subtle">
-          <h2 className="section-title">Kontoinformationen</h2>
+          <h2 className="section-title">{copy.profile.accountInfo}</h2>
           <div className="stack-md">
             <div>
               <label
                 className="muted"
                 style={{ display: "block", fontSize: "0.875rem", marginBottom: "0.25rem" }}
               >
-                E-Mail
+                {copy.profile.email}
               </label>
               <p style={{ margin: 0, fontWeight: 500 }}>{user.email}</p>
             </div>
@@ -146,10 +134,10 @@ const ProfilePage: React.FC = () => {
                   className="muted"
                   style={{ display: "block", fontSize: "0.875rem", marginBottom: "0.25rem" }}
                 >
-                  Registriert seit
+                  {copy.profile.registeredSince}
                 </label>
                 <p className="muted" style={{ margin: 0 }}>
-                  {new Date(user.created_at).toLocaleDateString("de-DE", {
+                  {new Date(user.created_at).toLocaleDateString(dateLocale, {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -160,57 +148,57 @@ const ProfilePage: React.FC = () => {
           </div>
         </section>
 
-        {stored ? (
+        {storedResults ? (
           <section className="stack-md">
             <div>
-              <h2 className="section-title">Uebersicht deiner Ergebnisse</h2>
+              <h2 className="section-title">{copy.profile.resultOverview}</h2>
               <p className="section-text" style={{ marginBottom: "1rem" }}>
-                {date ? `Testdatum: ${date.toLocaleDateString("de-DE")}. ` : ""}
-                Du hast den vollstaendigen, wissenschaftlich validierten Test abgeschlossen.
+                {testDate ? `${copy.profile.testDatePrefix}: ${testDate.toLocaleDateString(dateLocale)}. ` : ""}
+                {copy.profile.completedDescription}
+                {storedResults.variant === "demo" ? " Demo-Profil zum schnellen Prüfen." : ""}
               </p>
 
-              <PersonalityBadge scores={stored.scores} />
+              <PersonalityBadge scores={storedResults.scores} />
 
               <div className="card-subtle" style={{ marginTop: "1rem" }}>
                 <h3 className="section-title" style={{ fontSize: "1rem" }}>
-                  Staerkste Auspraegungen
+                  {copy.profile.strongestTraits}
                 </h3>
                 <ul className="section-text" style={{ marginTop: "0.5rem", paddingLeft: "1.25rem" }}>
                   {topTraits.map((trait) => (
                     <li key={trait.key}>
-                      <strong>{domainNames[trait.key]}:</strong> {trait.value.toFixed(2)} / 5
+                      <strong>{copy.traits[trait.key]}:</strong> {trait.value.toFixed(2)} / 5
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {results && results.length > 0 && (
+              {detailedResults && detailedResults.length > 0 && (
                 <div style={{ marginTop: "1.5rem" }}>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setShowDetails((prev) => !prev)}
+                    onClick={() => setShowDetails((currentValue) => !currentValue)}
                   >
-                    {showDetails ? "Detaillierte Auswertung ausblenden" : "Detaillierte Auswertung anzeigen"}
+                    {showDetails ? copy.profile.hideDetails : copy.profile.showDetails}
                   </button>
 
                   {showDetails && (
                     <div style={{ marginTop: "1.5rem" }}>
                       <div className="card-subtle" style={{ marginBottom: "1rem" }}>
                         <h3 className="section-title" style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>
-                          Was bedeuten die Resultate?
+                          {copy.profile.whatResultsMean}
                         </h3>
                         <p className="section-text" style={{ margin: 0 }}>
-                          Die fuenf Dimensionen zeigen, wie stark bestimmte Persoenlichkeitstendenzen bei dir
-                          ausgepraegt sind. Es geht nicht um gut oder schlecht, sondern um Praeferenzen.
+                          {copy.profile.whatResultsMeanText}
                         </p>
                       </div>
 
                       <h3 className="section-title" style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
-                        Detaillierte Interpretation
+                        {copy.profile.interpretationTitle}
                       </h3>
                       <div className="stack-md">
-                        {results.map((result) => (
+                        {detailedResults.map((result) => (
                           <div key={result.domain} className="card-subtle">
                             <h4
                               className="section-title"
@@ -239,25 +227,45 @@ const ProfilePage: React.FC = () => {
           </section>
         ) : (
           <section className="card-subtle">
-            <h2 className="section-title">Persoenlichkeitsprofil</h2>
-            <p className="section-text">
-              Du hast noch keinen Big-Five-Test durchgefuehrt. Starte jetzt den Test, um dein
-              Persoenlichkeitsprofil zu erstellen.
-            </p>
+            <h2 className="section-title">{copy.profile.noProfileTitle}</h2>
+            <p className="section-text">{copy.profile.noProfileText}</p>
             <div style={{ marginTop: "1.5rem" }}>
-              <Link href="/test" className="btn btn-primary">Test starten</Link>
+              <Link href="/test" className="btn btn-primary">
+                {copy.profile.startTest}
+              </Link>
             </div>
           </section>
         )}
 
         <section className="card-subtle">
-          <h2 className="section-title">Schnellzugriff</h2>
+          <h2 className="section-title">{copy.profile.quickAccess}</h2>
           <div style={{ display: "grid", gap: "0.75rem" }}>
             <Link href="/test" className="btn btn-outline" style={{ textAlign: "center" }}>
-              Test erneut machen
+              {copy.profile.retakeTest}
             </Link>
+            <button
+              type="button"
+              className="btn btn-outline"
+              style={{ textAlign: "center" }}
+              onClick={() => {
+                if (typeof window === "undefined") {
+                  return;
+                }
+
+                const demoResults = {
+                  ...DEMO_RESULTS,
+                  timestamp: new Date().toISOString(),
+                  language: locale,
+                };
+
+                window.localStorage.setItem(STORAGE_KEY_FULL, JSON.stringify(demoResults));
+                applyResults(demoResults);
+              }}
+            >
+              {copy.profile.loadDemo}
+            </button>
             <Link href="/community" className="btn btn-outline" style={{ textAlign: "center" }}>
-              Zur Community
+              {copy.profile.toCommunity}
             </Link>
           </div>
         </section>

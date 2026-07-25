@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { useRouter } from "next/router";
 import BigFiveTest from "../../components/BigFiveTest";
-import LanguageSelector, { availableLanguages } from "../../components/LanguageSelector";
+import LanguageSelector from "../../components/LanguageSelector";
+import { Locale } from "../../lib/i18n";
 
 const FullTestPage: React.FC = () => {
-  const router = useRouter();
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<Locale | null>(null);
 
-  const handleLanguageSelect = (languageCode: string) => {
+  const handleLanguageSelect = (languageCode: Locale) => {
     setSelectedLanguage(languageCode);
   };
 
@@ -15,7 +14,12 @@ const FullTestPage: React.FC = () => {
     return <LanguageSelector onSelect={handleLanguageSelect} />;
   }
 
-  return <BigFiveTest language={selectedLanguage} />;
+  return (
+    <BigFiveTest
+      language={selectedLanguage}
+      onChangeLanguage={() => setSelectedLanguage(null)}
+    />
+  );
 };
 
 export default FullTestPage;

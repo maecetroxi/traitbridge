@@ -1,135 +1,86 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getChoices, getItems, type Question as PackageQuestion } from "@bigfive-org/questions";
-// @ts-ignore - Package hat keine TypeScript-Definitionen
+// @ts-ignore - Package does not ship TypeScript declarations
 import { processAnswers } from "@bigfive-org/score/build/src";
 import type { BigFiveScores } from "./PersonalityBadge";
 import { useAuth } from "../contexts/AuthContext";
+import { useLocale } from "../contexts/LocaleContext";
+import { Locale, formatTranslation } from "../lib/i18n";
+import { normalizeCalculatedScores, STORAGE_KEY_FULL } from "../lib/bigfive-results";
 import { savePersonalityResult } from "../lib/supabase-queries";
 
-type Translations = {
-  step1: string;
-  error: string;
-  loadingQuestions: string;
-  loadingQuestionsDescription: string;
-  questionsLoadError: string;
-  questionsLoadErrorDescription: string;
-  questionsLoadErrorHint: string;
-  noQuestionsFound: string;
-  noQuestionsFoundDescription: string;
-  testTitle: string;
-  testIntroduction: string;
-  progress: string;
-  submitButton: string;
-  submitting: string;
-  answerAllQuestions: string;
-};
-
 type BigFiveTestProps = {
-  language?: string;
+  language?: Locale;
+  onChangeLanguage?: () => void;
 };
 
-const defaultTranslations: Translations = {
-  step1: "Schritt 1",
-  error: "Fehler",
-  loadingQuestions: "Lade Fragen...",
-  loadingQuestionsDescription: "Bitte warten, die Fragen werden geladen.",
-  questionsLoadError: "Fragen konnten nicht geladen werden",
-  questionsLoadErrorDescription: "Die vollstaendige Fragenliste konnte nicht geladen werden: {error}",
-  questionsLoadErrorHint: "Bitte stelle sicher, dass die Sprache unterstuetzt wird.",
-  noQuestionsFound: "Keine Fragen gefunden",
-  noQuestionsFoundDescription: "Die vollstaendige Fragenliste konnte nicht geladen werden.",
-  testTitle: "Big-Five-Test",
-  testIntroduction: "Schaetze spontan ein, wie sehr die folgenden Aussagen auf dich zutreffen. Es gibt keine richtigen oder falschen Antworten.",
-  progress: "Fortschritt",
-  submitButton: "Test abschliessen und Resultate ansehen",
-  submitting: "Wird ausgewertet ...",
-  answerAllQuestions: "Bitte beantworte alle Fragen, bevor du fortfaehrst.",
-};
+const supportedQuestionLanguages: Locale[] = ["en", "de"];
 
-const supportedLanguages = [
-  "de", "en", "es", "fr", "it", "pt-br", "nl", "pl", "ru", "zh-cn", "zh-hk",
-  "no", "is", "et", "hr", "fi", "id", "hi", "uk", "ar", "he", "ko", "ro",
-  "ca", "ja", "th", "sv", "da", "sq", "ur", "fa",
-];
-
-const replacePlaceholders = (text: string, replacements: Record<string, string>): string => {
-  let result = text;
-  Object.entries(replacements).forEach(([key, value]) => {
-    result = result.replace(new RegExp(`\\{${key}\\}`, "g"), value);
-  });
-  return result;
-};
-
-const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
+const BigFiveTest: React.FC<BigFiveTestProps> = ({
+  language = "en",
+  onChangeLanguage,
+}) => {
   const router = useRouter();
   const { user } = useAuth();
+  const { copy } = useLocale();
   const [questions, setQuestions] = useState<PackageQuestion[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [translations, setTranslations] = useState<Translations>(defaultTranslations);
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/data/translations.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data[language]) {
-          setTranslations((prev) => ({ ...prev, ...data[language] }));
-        }
-      })
-      .catch((err) => {
-        console.error("Fehler beim Laden der Uebersetzungen:", err);
-      });
-  }, [language]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setLoadError(null);
 
-      const langCode = supportedLanguages.includes(language) ? language : "de";
-      const allQuestions = getItems(langCode, false);
+      const questionLanguage = supportedQuestionLanguages.includes(language) ? language : "en";
+      const loadedQuestions = getItems(questionLanguage, false);
 
-      if (!allQuestions || allQuestions.length === 0) {
-        throw new Error("Keine Fragen gefunden");
+      if (!loadedQuestions || loadedQuestions.length === 0) {
+        throw new Error(copy.test.noQuestionsTitle);
       }
 
-      setQuestions(allQuestions);
-      setLoading(false);
-    } catch (err) {
-      console.error("Fehler beim Laden der Fragen:", err);
-      setLoadError(err instanceof Error ? err.message : "Unbekannter Fehler");
-      setLoading(false);
+      setQuestions(loadedQuestions);
+    } catch (error) {
+      console.error("Failed to load Big Five questions:", error);
+      setLoadError(error instanceof Error ? error.message : "Unknown error");
+    } finally {
+      setIsLoading(false);
     }
-  }, [language]);
+  }, [copy.test.noQuestionsTitle, language]);
 
-  const handleChange = (questionId: string, score: number) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: score }));
+  const handleAnswerChange = (questionId: string, score: number) => {
+    setAnswers((currentAnswers) => ({
+      ...currentAnswers,
+      [questionId]: score,
+    }));
   };
 
-  const allAnswered = questions.length > 0 && questions.every((q) => answers[q.id] !== undefined);
+  const allQuestionsAnswered =
+    questions.length > 0 && questions.every((question) => answers[question.id] !== undefined);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!allAnswered) {
-      setError(translations.answerAllQuestions);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!allQuestionsAnswered) {
+      setSubmitError(copy.test.answerAll);
       return;
     }
 
-    setError(null);
-    setSubmitting(true);
+    setSubmitError(null);
+    setIsSubmitting(true);
 
     try {
-      const answerArray = questions.map((q) => ({
-        domain: q.domain,
-        facet: q.facet?.toString() || "1",
-        score: answers[q.id].toString(),
+      const answerArray = questions.map((question) => ({
+        domain: question.domain,
+        facet: question.facet?.toString() || "1",
+        score: answers[question.id],
       }));
 
-      const calculatedScores = processAnswers(answerArray);
+      const calculatedScores = normalizeCalculatedScores(processAnswers(answerArray)) || {};
       const scores: BigFiveScores = {
         O: calculatedScores.O ? calculatedScores.O.score / calculatedScores.O.count : 0,
         C: calculatedScores.C ? calculatedScores.C.score / calculatedScores.C.count : 0,
@@ -141,29 +92,29 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
       if (user) {
         try {
           await savePersonalityResult(user.id, scores, calculatedScores, "full", language);
-        } catch (supabaseError) {
-          console.error("Fehler beim Speichern in Supabase:", supabaseError);
+        } catch (storageError) {
+          console.error("Failed to store Big Five result in Supabase:", storageError);
         }
       }
 
       if (typeof window !== "undefined") {
         window.localStorage.setItem(
-          "bigfive-results-full-v1",
+          STORAGE_KEY_FULL,
           JSON.stringify({
             scores,
             calculatedScores,
             timestamp: new Date().toISOString(),
             variant: "full",
             language,
-          })
+          }),
         );
       }
 
       router.push("/profile");
-    } catch (err) {
-      console.error("Fehler beim Speichern der Resultate:", err);
-      setError("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
-      setSubmitting(false);
+    } catch (error) {
+      console.error("Failed to save Big Five result:", error);
+      setSubmitError(copy.test.saveError);
+      setIsSubmitting(false);
     }
   };
 
@@ -171,12 +122,12 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
     ? Math.round((Object.keys(answers).length / questions.length) * 100)
     : 0;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="page-card">
-        <div className="page-kicker">{translations.step1}</div>
-        <h1 className="page-title">{translations.loadingQuestions}</h1>
-        <p className="page-intro">{translations.loadingQuestionsDescription}</p>
+        <div className="page-kicker">{copy.test.kicker}</div>
+        <h1 className="page-title">{copy.test.loadingTitle}</h1>
+        <p className="page-intro">{copy.test.loadingDescription}</p>
       </div>
     );
   }
@@ -184,13 +135,13 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
   if (loadError) {
     return (
       <div className="page-card">
-        <div className="page-kicker">{translations.error}</div>
-        <h1 className="page-title">{translations.questionsLoadError}</h1>
+        <div className="page-kicker">{copy.test.errorKicker}</div>
+        <h1 className="page-title">{copy.test.loadErrorTitle}</h1>
         <p className="page-intro">
-          {replacePlaceholders(translations.questionsLoadErrorDescription, { error: loadError })}
+          {formatTranslation(copy.test.loadErrorDescription, { error: loadError })}
         </p>
         <p className="section-text" style={{ marginTop: "1rem" }}>
-          {replacePlaceholders(translations.questionsLoadErrorHint, { language })}
+          {copy.test.loadErrorHint}
         </p>
       </div>
     );
@@ -199,21 +150,37 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
   if (questions.length === 0) {
     return (
       <div className="page-card">
-        <div className="page-kicker">{translations.error}</div>
-        <h1 className="page-title">{translations.noQuestionsFound}</h1>
-        <p className="page-intro">{translations.noQuestionsFoundDescription}</p>
+        <div className="page-kicker">{copy.test.errorKicker}</div>
+        <h1 className="page-title">{copy.test.noQuestionsTitle}</h1>
+        <p className="page-intro">{copy.test.noQuestionsDescription}</p>
       </div>
     );
   }
 
-  const choices = getChoices(language);
-  const choiceArray = choices?.plus || [];
+  const questionChoices = getChoices(language)?.plus || [];
 
   return (
     <div className="page-card">
-      <div className="page-kicker">{translations.step1}</div>
-      <h1 className="page-title">{translations.testTitle}</h1>
-      <p className="page-intro">{translations.testIntroduction}</p>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "1rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <div>
+          <div className="page-kicker">{copy.test.kicker}</div>
+          <h1 className="page-title">{copy.test.title}</h1>
+          <p className="page-intro">{copy.test.introduction}</p>
+        </div>
+        {onChangeLanguage && (
+          <button type="button" className="btn btn-outline" onClick={onChangeLanguage}>
+            {copy.test.changeLanguage}
+          </button>
+        )}
+      </div>
 
       <div style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>
         <div
@@ -222,9 +189,13 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
             justifyContent: "space-between",
             fontSize: "0.875rem",
             marginBottom: "0.5rem",
+            gap: "1rem",
+            flexWrap: "wrap",
           }}
         >
-          <span className="muted" style={{ fontWeight: 500 }}>{translations.progress}</span>
+          <span className="muted" style={{ fontWeight: 500 }}>
+            {copy.test.progress}
+          </span>
           <span className="muted" style={{ fontWeight: 500 }}>
             {progress}% ({Object.keys(answers).length} / {questions.length})
           </span>
@@ -236,29 +207,29 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
 
       <form onSubmit={handleSubmit} className="stack-lg">
         <ol className="questions-list">
-          {questions.map((q) => {
-            const questionChoices = q.choices || choiceArray;
+          {questions.map((question) => {
+            const choices = question.choices || questionChoices;
 
             return (
-              <li key={q.id}>
+              <li key={question.id}>
                 <div className="question-item-text">
-                  <strong>{q.num}.</strong>{" "}
-                  <span>{q.text}</span>
+                  <strong>{question.num}.</strong>{" "}
+                  <span>{question.text}</span>
                 </div>
                 <div className="answer-scale">
-                  {questionChoices.map((choice) => {
-                    const checked = answers[q.id] === choice.score;
+                  {choices.map((choice) => {
+                    const checked = answers[question.id] === choice.score;
                     return (
                       <label
                         key={choice.score}
-                        className={"answer-pill" + (checked ? " answer-pill-selected" : "")}
+                        className={`answer-pill${checked ? " answer-pill-selected" : ""}`}
                       >
                         <input
                           type="radio"
-                          name={`q-${q.id}`}
+                          name={`q-${question.id}`}
                           value={choice.score}
                           checked={checked}
-                          onChange={() => handleChange(q.id, choice.score)}
+                          onChange={() => handleAnswerChange(question.id, choice.score)}
                         />
                         <span>{choice.text}</span>
                       </label>
@@ -270,15 +241,15 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({ language = "de" }) => {
           })}
         </ol>
 
-        {error && <p className="text-danger">{error}</p>}
+        {submitError && <p className="text-danger">{submitError}</p>}
 
         <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem" }}>
           <button
             type="submit"
-            disabled={!allAnswered || submitting}
+            disabled={!allQuestionsAnswered || isSubmitting}
             className="btn btn-primary"
           >
-            {submitting ? translations.submitting : translations.submitButton}
+            {isSubmitting ? copy.test.submitting : copy.test.submit}
           </button>
         </div>
       </form>

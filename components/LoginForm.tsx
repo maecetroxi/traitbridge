@@ -1,156 +1,126 @@
-import React, { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import { useRouter } from 'next/router'
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useAuth } from "../contexts/AuthContext";
+import { useLocale } from "../contexts/LocaleContext";
 
 const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const { signIn, signUp } = useAuth()
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSent, setIsEmailSent] = useState(false);
+  const { user, loading: isAuthLoading, signInWithMagicLink } = useAuth();
+  const { copy } = useLocale();
+  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+  const returnTo = useMemo(() => {
+    const requestedPath = router.query.returnTo;
+
+    if (
+      typeof requestedPath === "string" &&
+      requestedPath.startsWith("/") &&
+      !requestedPath.startsWith("//")
+    ) {
+      return requestedPath;
+    }
+
+    return "/";
+  }, [router.query.returnTo]);
+
+  useEffect(() => {
+    if (!isAuthLoading && user && !user.is_anonymous) {
+      void router.replace(returnTo);
+    }
+  }, [isAuthLoading, returnTo, router, user]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
     try {
-      const { error } = isSignUp
-        ? await signUp(email, password)
-        : await signIn(email, password)
+      const redirectUrl = `${window.location.origin}${returnTo}`;
+      const response = await signInWithMagicLink(email.trim(), redirectUrl);
 
-      if (error) {
-        setError(error.message)
+      if (response.error) {
+        setError(response.error.message);
       } else {
-        // Redirect to home page after successful login/signup
-        router.push('/')
+        setIsEmailSent(true);
       }
-    } catch (err) {
-      setError('Ein unerwarteter Fehler ist aufgetreten.')
+    } catch {
+      setError(copy.login.serviceUnavailable);
     } finally {
-      setLoading(false)
+      setIsLoading(false);
     }
+  };
+
+  if (isEmailSent) {
+    return (
+      <div className="page-card login-card">
+        <div className="page-kicker">{copy.login.kicker}</div>
+        <h1 className="page-title">{copy.login.sentTitle}</h1>
+        <p className="page-intro">{copy.login.sentText}</p>
+        <p className="login-email">{email}</p>
+        <div className="login-actions">
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => {
+              setIsEmailSent(false);
+              setError(null);
+            }}
+          >
+            {copy.login.useDifferentEmail}
+          </button>
+          <Link href={returnTo} className="btn btn-primary">
+            {copy.login.back}
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="page-card" style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <div className="page-kicker">Authentifizierung</div>
-      <h1 className="page-title">
-        {isSignUp ? 'Registrieren' : 'Anmelden'}
-      </h1>
+    <div className="page-card login-card">
+      <div className="page-kicker">{copy.login.kicker}</div>
+      <h1 className="page-title">{copy.login.signInTitle}</h1>
+      <p className="page-intro">{copy.login.intro}</p>
 
-      <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label
-            htmlFor="email"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: 500,
-              color: 'var(--text)',
-            }}
-          >
-            E-Mail
+      <form onSubmit={handleSubmit} className="stack-md" style={{ marginTop: "2rem" }}>
+        <div className="field-group">
+          <label htmlFor="email" className="field-label">
+            {copy.login.emailLabel}
           </label>
           <input
+            className="field-control"
             id="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              fontFamily: 'inherit',
-            }}
-            placeholder="deine@email.de"
-          />
-        </div>
-
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label
-            htmlFor="password"
-            style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: 500,
-              color: 'var(--text)',
-            }}
-          >
-            Passwort
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              fontFamily: 'inherit',
-            }}
-            placeholder="Mindestens 6 Zeichen"
+            autoComplete="email"
+            placeholder={copy.login.emailPlaceholder}
           />
         </div>
 
         {error && (
-          <div
-            style={{
-              padding: '0.75rem',
-              marginBottom: '1rem',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '6px',
-              color: '#dc2626',
-              fontSize: '0.875rem',
-            }}
-          >
+          <div className="text-danger" role="alert">
             {error}
           </div>
         )}
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isLoading || !email.trim()}
           className="btn btn-primary"
-          style={{ width: '100%', marginBottom: '1rem' }}
+          style={{ width: "100%" }}
         >
-          {loading
-            ? 'Wird verarbeitet...'
-            : isSignUp
-            ? 'Registrieren'
-            : 'Anmelden'}
+          {isLoading ? copy.login.submitting : copy.login.submitSignIn}
         </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setIsSignUp(!isSignUp)
-            setError(null)
-          }}
-          className="btn btn-outline"
-          style={{ width: '100%' }}
-        >
-          {isSignUp
-            ? 'Bereits ein Konto? Anmelden'
-            : 'Noch kein Konto? Registrieren'}
-        </button>
+        <p className="muted login-hint">{copy.login.privacyHint}</p>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default LoginForm
-
-
-
+export default LoginForm;
