@@ -1,0 +1,163 @@
+.page {
+  --home-ink: #18211d;
+  --home-paper: #f5f0e7;
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 5rem);
+  padding: clamp(1rem, 4vw, 3.5rem) 0;
+  color: var(--home-ink);
+}
+
+.intro {
+  max-width: 760px;
+}
+
+.kicker {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #9b4f32;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.intro h1 {
+  margin: 0;
+  max-width: 11ch;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(3.2rem, 8vw, 6.8rem);
+  font-weight: 650;
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+}
+
+.intro p {
+  max-width: 52ch;
+  margin: 1.5rem 0 0;
+  color: #5d665f;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  line-height: 1.65;
+}
+
+.optionGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.optionCard {
+  position: relative;
+  min-height: 285px;
+  padding: 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(24, 33, 29, 0.12);
+  border-radius: 1.5rem;
+  background: var(--home-paper);
+  box-shadow: 0 22px 50px -38px rgba(24, 33, 29, 0.45);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.optionCard::after {
+  content: "";
+  position: absolute;
+  right: -3.5rem;
+  bottom: -4.5rem;
+  width: 13rem;
+  height: 13rem;
+  border-radius: 50%;
+  background: var(--card-shape);
+  opacity: 0.52;
+  pointer-events: none;
+}
+
+.optionCard:hover {
+  transform: translateY(-5px);
+  border-color: rgba(24, 33, 29, 0.24);
+  box-shadow: 0 28px 60px -38px rgba(24, 33, 29, 0.62);
+}
+
+.testCard {
+  --card-shape: #e99b72;
+  background: linear-gradient(145deg, #fff5e9, #f3e4cf);
+}
+
+.communityCard {
+  --card-shape: #8db8ac;
+  background: linear-gradient(145deg, #edf7f2, #dcebe5);
+}
+
+.learnCard {
+  --card-shape: #d6b76f;
+  background: linear-gradient(145deg, #f9f4e5, #ede2c4);
+}
+
+.optionNumber {
+  position: relative;
+  z-index: 1;
+  color: rgba(24, 33, 29, 0.52);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.optionCard h2 {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 0.65rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.optionCard p {
+  position: relative;
+  z-index: 1;
+  max-width: 35ch;
+  margin: 0;
+  color: #5c655f;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.optionAction {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.optionAction span {
+  font-size: 1.2rem;
+  transition: transform 180ms ease;
+}
+
+.optionCard:hover .optionAction span {
+  transform: translateX(4px);
+}
+
+@media (min-width: 820px) {
+  .optionGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 819px) {
+  .optionCard {
+    min-height: 230px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .optionCard,
+  .optionAction span {
+    transition: none;
+  }
+}

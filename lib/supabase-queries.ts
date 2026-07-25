@@ -46,7 +46,7 @@ export const savePersonalityResult = async (
       scores,
       calculated_scores: calculatedScores,
       variant,
-      language: language || 'de',
+      language: language || 'en',
     })
     .select()
     .single()
@@ -64,7 +64,7 @@ export const getPersonalityResult = async (userId: string) => {
     .limit(1)
     .single()
 
-  if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
+  if (error && error.code !== 'PGRST116') throw error // PGRST116 means no rows returned
   return data as PersonalityResult | null
 }
 

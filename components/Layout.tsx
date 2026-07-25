@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useAuth } from "../contexts/AuthContext";
+import { useLocale } from "../contexts/LocaleContext";
+import LocaleSwitcher from "./LocaleSwitcher";
 
 type LayoutProps = {
   children: ReactNode;
@@ -11,13 +13,18 @@ type LayoutProps = {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const { user, signOut, loading } = useAuth();
+  const { copy } = useLocale();
 
   const navItems = [
-    { href: "/", label: "Start" },
-    { href: "/community", label: "Community" },
-    { href: "/test", label: "Test" }
+    { href: "/", label: copy.layout.nav.home },
+    { href: "/test", label: copy.layout.nav.test },
+    { href: "/community", label: copy.layout.nav.community },
+    { href: "/learn", label: copy.layout.nav.learn },
   ];
-  const visibleNavItems = user ? [...navItems, { href: "/profile", label: "Profil" }] : navItems;
+  const isRegisteredUser = Boolean(user && !user.is_anonymous);
+  const visibleNavItems = isRegisteredUser
+    ? [...navItems, { href: "/profile", label: copy.layout.nav.profile }]
+    : navItems;
 
   const handleSignOut = async () => {
     await signOut();
@@ -29,43 +36,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <header className="app-header">
         <div className="app-header-inner">
           <div className="app-brand">
-            <Link href="/" className="app-logo" style={{ cursor: 'pointer' }}>
+            <Link href="/" className="app-logo" style={{ cursor: "pointer" }}>
               <Image
                 src="/traitbridge-logo.png.png"
-                alt="Traitbridge Logo"
+                alt="TraitBridge Logo"
                 width={150}
                 height={50}
                 priority
-                style={{ height: '100%', width: 'auto', objectFit: 'cover' }}
+                style={{ height: "100%", width: "auto", objectFit: "cover" }}
               />
             </Link>
             <div>
-              <div className="app-title">OCEAN Community</div>
-              <div className="app-subtitle">Big Five · Fragen · Austausch</div>
+              <div className="app-title">TraitBridge</div>
+              <div className="app-subtitle">{copy.layout.subtitle}</div>
             </div>
           </div>
-          <nav className="app-nav" aria-label="Hauptnavigation">
-            {visibleNavItems.map((item) => {
-              const isActive =
-                item.href === "/"
-                  ? router.pathname === item.href
-                  : router.pathname.startsWith(item.href);
-              const className = [
-                "app-nav-link",
-                isActive ? "app-nav-link-active" : ""
-              ]
-                .filter(Boolean)
-                .join(" ");
-              return (
-                <Link key={item.href} href={item.href} className={className}>
-                  {item.label}
-                </Link>
-              );
-            })}
-            {!loading && (
-              <>
-                {user ? (
-                  <>
+          <div className="app-header-actions">
+            <nav className="app-nav" aria-label="Primary navigation">
+              {visibleNavItems.map((item) => {
+                const isActive =
+                  item.href === "/"
+                    ? router.pathname === item.href
+                    : router.pathname.startsWith(item.href);
+                const className = ["app-nav-link", isActive ? "app-nav-link-active" : ""]
+                  .filter(Boolean)
+                  .join(" ");
+
+                return (
+                  <Link key={item.href} href={item.href} className={className}>
+                    {item.label}
+                  </Link>
+                );
+              })}
+              {!loading && (
+                <>
+                  {isRegisteredUser ? (
                     <button
                       onClick={handleSignOut}
                       className="app-nav-link"
@@ -76,30 +81,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         fontFamily: "inherit",
                         fontSize: "inherit",
                         padding: 0,
-                        marginLeft: "0.5rem",
+                        marginLeft: 0,
                       }}
                     >
-                      Abmelden
+                      {copy.layout.nav.signOut}
                     </button>
-                  </>
-                ) : (
-                  <Link href="/login" className="app-nav-link" style={{ marginLeft: "1rem" }}>
-                    Anmelden
-                  </Link>
-                )}
-              </>
-            )}
-          </nav>
+                  ) : (
+                    <Link href="/login" className="app-nav-link" style={{ marginLeft: 0 }}>
+                      {copy.layout.nav.signIn}
+                    </Link>
+                  )}
+                </>
+              )}
+            </nav>
+            <LocaleSwitcher />
+          </div>
         </div>
       </header>
       <main>
-        <div className="container">
-          {children}
-        </div>
+        <div className="container">{children}</div>
       </main>
       <footer className="app-footer">
         <div className="app-footer-inner">
-          <span>Big Five · Fragen · menschenfreundlicher Austausch</span>
+          <span>{copy.layout.footer}</span>
         </div>
       </footer>
     </>

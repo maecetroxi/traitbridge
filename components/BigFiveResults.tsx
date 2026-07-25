@@ -1,22 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-// @ts-ignore - Package hat keine TypeScript-Definitionen
-import getResult from "@bigfive-org/results";
-import PersonalityBadge, { BigFiveScores } from "./PersonalityBadge";
-
-const STORAGE_KEY_FULL = "bigfive-results-full-v1";
-
-type StoredResults = {
-  scores: BigFiveScores;
-  calculatedScores?: any;
-  timestamp: string;
-  variant?: "full";
-  language?: string;
-};
+import PersonalityBadge from "./PersonalityBadge";
+import { useLocale } from "../contexts/LocaleContext";
+import { formatTranslation } from "../lib/i18n";
+import { getDetailedResults, sanitizeStoredResults, STORAGE_KEY_FULL, type StoredResults } from "../lib/bigfive-results";
 
 const BigFiveResults: React.FC = () => {
-  const [stored, setStored] = useState<StoredResults | null>(null);
-  const [results, setResults] = useState<any[] | null>(null);
+  const { locale, copy } = useLocale();
+  const [storedResults, setStoredResults] = useState<StoredResults | null>(null);
+  const [detailedResults, setDetailedResults] = useState<any[] | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -24,50 +16,51 @@ const BigFiveResults: React.FC = () => {
     }
 
     try {
-      const fullRaw = window.localStorage.getItem(STORAGE_KEY_FULL);
-      if (!fullRaw) {
+      const rawResults = window.localStorage.getItem(STORAGE_KEY_FULL);
+      if (!rawResults) {
         return;
       }
 
-      const parsed = JSON.parse(fullRaw) as StoredResults;
-      setStored(parsed);
-
-      if (parsed.calculatedScores) {
-        const lang = parsed.language || "de";
-        setResults(getResult({ scores: parsed.calculatedScores, lang }));
+      const parsedResults = sanitizeStoredResults(JSON.parse(rawResults));
+      if (!parsedResults) {
+        return;
       }
-    } catch (err) {
-      console.error("Konnte Resultate nicht laden", err);
-    }
-  }, []);
 
-  if (!stored) {
+      setStoredResults(parsedResults);
+      setDetailedResults(getDetailedResults(parsedResults.calculatedScores, locale));
+    } catch (error) {
+      console.error("Failed to load local Big Five results:", error);
+    }
+  }, [locale]);
+
+  if (!storedResults) {
     return (
       <div className="page-card">
-        <div className="page-kicker">Resultate</div>
-        <h1 className="page-title">Noch keine Resultate vorhanden</h1>
-        <p className="page-intro">
-          Es wurden noch keine Big-Five-Resultate im Browser gefunden. Bitte mache zuerst den Test.
-        </p>
+        <div className="page-kicker">{copy.results.kicker}</div>
+        <h1 className="page-title">{copy.results.emptyTitle}</h1>
+        <p className="page-intro">{copy.results.emptyDescription}</p>
         <div style={{ marginTop: "2rem" }}>
           <Link href="/test" className="btn btn-primary">
-            Zum Test
+            {copy.results.toTest}
           </Link>
         </div>
       </div>
     );
   }
 
-  const { scores, timestamp } = stored;
-  const date = new Date(timestamp);
+  const createdAt = new Date(storedResults.timestamp);
+  const dateLocale = locale === "de" ? "de-DE" : "en-US";
+  const scoreLevel = (value: number) => (value >= 4 ? copy.traits.high : value <= 2 ? copy.traits.low : copy.traits.medium);
 
   return (
     <div className="page-card">
-      <div className="page-kicker">Schritt 2</div>
-      <h1 className="page-title">Dein Big-Five-Profil</h1>
+      <div className="page-kicker">{copy.results.stepKicker}</div>
+      <h1 className="page-title">{copy.results.title}</h1>
       <p className="page-intro">
-        Diese Auswertung wurde am {date.toLocaleDateString()} erstellt und lokal im Browser gespeichert.
-        Die Werte liegen zwischen 1 (tief) und 5 (hoch).
+        {formatTranslation(copy.results.createdOn, {
+          date: createdAt.toLocaleDateString(dateLocale),
+        })}{" "}
+        {copy.results.scaleInfo}
       </p>
 
       <div
@@ -82,20 +75,20 @@ const BigFiveResults: React.FC = () => {
         }}
       >
         <p style={{ margin: 0, fontSize: "0.9375rem", color: "var(--text)", lineHeight: "1.6" }}>
-          <strong style={{ color: "var(--info)" }}>Validierter Test:</strong> Diese Auswertung basiert
-          auf dem vollstaendigen IPIP-NEO-PI-R Test mit 120 Fragen.
+          <strong style={{ color: "var(--info)" }}>{copy.results.validatedLabel}</strong>{" "}
+          {copy.results.validatedText}
         </p>
       </div>
 
       <div className="results-grid">
         <section className="stack-md">
-          <PersonalityBadge scores={scores} />
+          <PersonalityBadge scores={storedResults.scores} />
 
-          {results && results.length > 0 ? (
+          {detailedResults && detailedResults.length > 0 ? (
             <div>
-              <h2 className="section-title">Detaillierte Interpretation</h2>
+              <h2 className="section-title">{copy.results.interpretationTitle}</h2>
               <div className="stack-md">
-                {results.map((result) => (
+                {detailedResults.map((result) => (
                   <div key={result.domain} className="card-subtle">
                     <h3 className="section-title" style={{ fontSize: "1.125rem", marginBottom: "0.5rem" }}>
                       {result.title}
@@ -116,37 +109,33 @@ const BigFiveResults: React.FC = () => {
             </div>
           ) : (
             <div>
-              <h2 className="section-title">Verstaendnis deiner Werte</h2>
+              <h2 className="section-title">{copy.results.fallbackTitle}</h2>
               <ul className="section-text" style={{ paddingLeft: "1.5rem", listStyleType: "disc" }}>
-                <li>Offenheit: <strong>{scores.O >= 4 ? "hoch" : scores.O <= 2 ? "tief" : "mittel"}</strong></li>
-                <li>Gewissenhaftigkeit: <strong>{scores.C >= 4 ? "hoch" : scores.C <= 2 ? "tief" : "mittel"}</strong></li>
-                <li>Extraversion: <strong>{scores.E >= 4 ? "hoch" : scores.E <= 2 ? "tief" : "mittel"}</strong></li>
-                <li>Vertraeglichkeit: <strong>{scores.A >= 4 ? "hoch" : scores.A <= 2 ? "tief" : "mittel"}</strong></li>
-                <li>Emotionale Stabilitaet: <strong>{scores.N >= 4 ? "hoch" : scores.N <= 2 ? "tief" : "mittel"}</strong></li>
+                <li>{copy.traits.O}: <strong>{scoreLevel(storedResults.scores.O)}</strong></li>
+                <li>{copy.traits.C}: <strong>{scoreLevel(storedResults.scores.C)}</strong></li>
+                <li>{copy.traits.E}: <strong>{scoreLevel(storedResults.scores.E)}</strong></li>
+                <li>{copy.traits.A}: <strong>{scoreLevel(storedResults.scores.A)}</strong></li>
+                <li>{copy.traits.N}: <strong>{scoreLevel(storedResults.scores.N)}</strong></li>
               </ul>
             </div>
           )}
         </section>
 
         <section className="card-subtle">
-          <h2 className="section-title">Wie geht es weiter?</h2>
-          <p className="section-text">
-            In der Community kannst du Fragen stellen oder beantworten und deine Erfahrungen mit anderen
-            Menschen teilen, die aehnliche Themen oder Herausforderungen haben.
-          </p>
+          <h2 className="section-title">{copy.results.nextStepsTitle}</h2>
+          <p className="section-text">{copy.results.nextStepsText}</p>
 
           <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
             <Link href="/community" className="btn btn-primary">
-              Zur Community
+              {copy.results.toCommunity}
             </Link>
             <Link href="/test" className="btn btn-outline">
-              Test erneut machen
+              {copy.results.retakeTest}
             </Link>
           </div>
 
           <p className="muted" style={{ marginTop: "1.25rem" }}>
-            Dieser Test basiert auf dem wissenschaftlich validierten IPIP-NEO-PI-R Modell.
-            Er ersetzt jedoch keine professionelle psychologische Diagnostik.
+            {copy.results.disclaimer}
           </p>
         </section>
       </div>
