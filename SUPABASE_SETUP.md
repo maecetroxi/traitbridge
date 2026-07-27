@@ -41,12 +41,23 @@ OPENAI_MODEL=gpt-4.1-mini
 3. Fuehre den SQL-Code aus.
 4. Oeffne danach `supabase/migrations/002_public_community_read_registered_write.sql`.
 5. Fuehre auch diesen SQL-Code aus.
+6. Oeffne danach `supabase/migrations/003_community_categories.sql`.
+7. Fuehre auch diese Migration aus. Sie kann bei Bedarf sicher erneut ausgefuehrt werden.
 
 Es werden diese Tabellen erstellt:
 
 - `personality_results`
 - `questions`
 - `answers`
+
+Migration `003_community_categories.sql` ergaenzt:
+
+- die Pflichtspalte `questions.category`
+- den Standardwert `other` fuer bestehende und neue Fragen
+- eine feste, kleine Kategorienliste per Check-Constraint
+- einen Index auf `questions.category`
+
+Bestehende Fragen werden automatisch der Kategorie `other` zugeordnet. Die Antwortanzahl wird aus der bestehenden `answers`-Relation gelesen; dafuer ist keine zusaetzliche Spalte noetig.
 
 ## 4. Testen
 
@@ -73,3 +84,7 @@ Es werden diese Tabellen erstellt:
 - Supabase ist der primaere Speicherort fuer eingeloggte Benutzer.
 - Lokale Daten werden nur noch als Fallback geladen.
 - RLS sollte sicherstellen, dass Benutzer nur ihre eigenen Resultate sehen.
+- Community-Fragen und -Antworten sind mit Migration `002` fuer `anon` und `authenticated` lesbar.
+- Schreiben, Aendern und Loeschen ist durch RLS auf dauerhafte Benutzer und deren eigene Inhalte begrenzt.
+- Nach Migration `003` im Table Editor stichprobenartig pruefen, ob bestehende Fragen `category = 'other'` erhalten haben.
+- Die App fragt keine E-Mail-Adressen fuer Community-Ansichten ab.

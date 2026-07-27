@@ -28,7 +28,7 @@ export default function BookRecommendationsPage() {
 
   return <>
     <Head><title>{copy.metaTitle} | TraitBridge</title><meta name="description" content={copy.intro} /></Head>
-    <main className={styles.page}>
+    <div className={styles.page}>
       <header className={styles.hero}><span>{copy.kicker}</span><h1>{copy.title}</h1><p>{copy.intro}</p></header>
       <section className={styles.profilePanel}>
         <div className={styles.panelHeading}><div><h2>{copy.profileTitle}</h2><p>{hasTestProfile ? copy.profileFromTest : copy.profileManual}</p></div><button type="button" onClick={() => { setScores({ ...NEUTRAL_BOOK_PROFILE }); setHasTestProfile(false); }}>{copy.reset}</button></div>
@@ -42,13 +42,13 @@ export default function BookRecommendationsPage() {
         <div><span className={styles.controlLabel}>{copy.kindTitle}</span><div className={styles.kindSwitch}>{(["nonfiction", "fiction"] as BookKind[]).map((value) => <button key={value} type="button" className={kind === value ? styles.activeKind : ""} onClick={() => setKind(value)} aria-pressed={kind === value}>{copy[value]}</button>)}</div></div>
       </section>
       <section className={styles.results} aria-live="polite">
-        <div className={styles.resultsHeading}><div><span>01 / 06</span><h2>{copy.recommendations}</h2></div><span>{copy.editorial}</span></div>
+        <div className={styles.resultsHeading}><div><h2>{copy.recommendations}</h2></div><span>{copy.editorial}</span></div>
         <div className={styles.bookGrid}>{recommendBooks(scores, kind, mode).map(({ book }, index) => {
           const item = localizeBook(book, locale, mode);
           return <article className={styles.bookCard} key={book.id}><div className={styles.bookNumber}>{String(index + 1).padStart(2, "0")}</div><div className={styles.tags}>{item.themes.map((tag) => <span key={tag}>{tag}</span>)}</div><h3>{item.title}</h3><p className={styles.author}>{item.author}</p><p className={styles.description}>{item.description}</p><div className={styles.reason}><strong>{copy.why}</strong><p>{item.reason}</p></div></article>;
         })}</div>
       </section>
       <aside className={styles.notice}>{copy.notice}</aside><Link className={styles.backLink} href="/learn">← {copy.back}</Link>
-    </main>
+    </div>
   </>;
 }

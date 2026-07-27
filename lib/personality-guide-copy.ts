@@ -18,6 +18,7 @@ export const personalityGuideCopy = {
     answerTitle: "Das Wichtigste zuerst",
     insightsTitle: "Drei praktische Hinweise",
     privacy: "TraitBridge speichert diese Frage und Antwort nicht. Die Anfrage wird zur Verarbeitung an OpenAI übertragen und kann dort gemäß den API-Datenrichtlinien vorübergehend zur Missbrauchsprävention aufbewahrt werden.",
+    scope: "Die KI-Antwort dient der Reflexion und kann Fehler enthalten. Sie ersetzt keine professionelle psychologische, medizinische oder rechtliche Beratung.",
     privacyLink: "OpenAI-Datenrichtlinien",
     errors: {
       invalid_request: "Bitte gib eine Frage mit 10 bis 500 Zeichen und gültige Profilwerte ein.",
@@ -62,6 +63,7 @@ export const personalityGuideCopy = {
     answerTitle: "The main point",
     insightsTitle: "Three practical pointers",
     privacy: "TraitBridge does not store this question or answer. The request is sent to OpenAI for processing and may be temporarily retained there for abuse prevention under its API data policies.",
+    scope: "The AI response is for reflection and may contain mistakes. It does not replace professional psychological, medical or legal advice.",
     privacyLink: "OpenAI data policies",
     errors: {
       invalid_request: "Enter a question of 10 to 500 characters and valid profile values.",

@@ -147,7 +147,9 @@ export const sanitizeStoredResults = (value: unknown): StoredResults | null => {
   }
 
   const timestamp =
-    typeof candidate.timestamp === "string" && candidate.timestamp
+    typeof candidate.timestamp === "string" &&
+    candidate.timestamp &&
+    !Number.isNaN(Date.parse(candidate.timestamp))
       ? candidate.timestamp
       : new Date().toISOString();
 

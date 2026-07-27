@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useLocale } from "../contexts/LocaleContext";
-import styles from "../styles/LearnPage.module.css";
+import {
+  LEARNING_CATEGORIES,
+  filterLearningTopics,
+  type LearningCategory,
+} from "../lib/learning-content";
+import styles from "../styles/LearningContent.module.css";
 
 const LearnPage: React.FC = () => {
-  const { copy } = useLocale();
+  const { locale, copy } = useLocale();
+  const [category, setCategory] = useState<LearningCategory | "all">("all");
+  const [search, setSearch] = useState("");
+  const visibleTopics = useMemo(
+    () => filterLearningTopics(category, search),
+    [category, search],
+  );
 
   return (
     <>
@@ -14,15 +25,121 @@ const LearnPage: React.FC = () => {
         <meta name="description" content={copy.learn.intro} />
       </Head>
 
-      <main className={styles.page}>
-        <header className={styles.hero}><span className={styles.kicker}>{copy.learn.kicker}</span><h1>{copy.learn.title}</h1><p>{copy.learn.intro}</p></header>
-        <section className={styles.primary}><div><span className={styles.eyebrow}>{copy.learn.booksKicker}</span><h2>{copy.learn.booksTitle}</h2><p>{copy.learn.booksText}</p></div><Link href="/learn/books" className={styles.action}>{copy.learn.booksAction}</Link></section>
-        <div className={styles.secondaryGrid}>
-          <article className={styles.card}><span className={styles.eyebrow}>02</span><h2>{copy.learn.profileTitle}</h2><p>{copy.learn.profileText}</p><span className={styles.status}>{copy.learn.comingSoon}</span></article>
-          <article className={styles.card}><span className={styles.eyebrow}>03</span><h2>{copy.learn.experimentsTitle}</h2><p>{copy.learn.experimentsText}</p><span className={styles.status}>{copy.learn.comingSoon}</span></article>
-        </div>
-        <section className={styles.tool}><div><span className={styles.eyebrow}>Tool</span><h2>{copy.learn.toolTitle}</h2><p>{copy.learn.toolText}</p></div><Link href="/tools/personality-guide" className={styles.toolLink}>{copy.learn.toolAction} →</Link></section>
-      </main>
+      <div className={styles.page}>
+        <header className={styles.hero}>
+          <span className="page-kicker">{copy.learn.kicker}</span>
+          <h1>{copy.learn.title}</h1>
+          <p>{copy.learn.intro}</p>
+          <div className={styles.trustLine}>
+            <span>{copy.learn.trustEvidence}</span>
+            <span>{copy.learn.trustEditorial}</span>
+            <span>{copy.learn.trustNoDiagnosis}</span>
+          </div>
+        </header>
+
+        <section className={styles.topicSection} aria-labelledby="learning-topics-title">
+          <div className={styles.sectionHeading}>
+            <div>
+              <span className="page-kicker">{copy.learn.situationsKicker}</span>
+              <h2 id="learning-topics-title">{copy.learn.situationsTitle}</h2>
+              <p>{copy.learn.situationsText}</p>
+            </div>
+            <label className={styles.search}>
+              <span>{copy.learn.searchLabel}</span>
+              <input
+                type="search"
+                value={search}
+                placeholder={copy.learn.searchPlaceholder}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </label>
+          </div>
+
+          <div
+            className={styles.filters}
+            role="group"
+            aria-label={copy.learn.categoryFilterLabel}
+          >
+            <button
+              type="button"
+              aria-pressed={category === "all"}
+              className={category === "all" ? styles.activeFilter : ""}
+              onClick={() => setCategory("all")}
+            >
+              {copy.learn.allCategories}
+            </button>
+            {LEARNING_CATEGORIES.map((categoryValue) => (
+              <button
+                key={categoryValue}
+                type="button"
+                aria-pressed={category === categoryValue}
+                className={category === categoryValue ? styles.activeFilter : ""}
+                onClick={() => setCategory(categoryValue)}
+              >
+                {copy.learn.categories[categoryValue]}
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.resultLine} aria-live="polite">
+            {visibleTopics.length} {copy.learn.topicCountLabel}
+          </div>
+
+          {visibleTopics.length === 0 ? (
+            <div className={styles.empty}>
+              <strong>{copy.learn.noTopicsTitle}</strong>
+              <p>{copy.learn.noTopicsText}</p>
+            </div>
+          ) : (
+            <div className={styles.topicGrid}>
+              {visibleTopics.map((topic) => (
+                <article key={topic.slug} className={styles.topicCard}>
+                  <div className={styles.topicMeta}>
+                    {topic.categories.slice(0, 2).map((categoryValue) => (
+                      <span key={categoryValue}>
+                        {copy.learn.categories[categoryValue]}
+                      </span>
+                    ))}
+                  </div>
+                  <h3>{topic.title[locale]}</h3>
+                  <p>{topic.summary[locale]}</p>
+                  <Link href={`/learn/${topic.slug}`}>
+                    {copy.learn.openTopic}
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className={styles.supporting} aria-labelledby="learning-more-title">
+          <div className={styles.sectionHeading}>
+            <div>
+              <span className="page-kicker">{copy.learn.moreKicker}</span>
+              <h2 id="learning-more-title">{copy.learn.moreTitle}</h2>
+              <p>{copy.learn.moreText}</p>
+            </div>
+          </div>
+
+          <div className={styles.supportingGrid}>
+            <article className={styles.supportCard}>
+              <span>{copy.learn.toolLabel}</span>
+              <h3>{copy.learn.toolTitle}</h3>
+              <p>{copy.learn.toolText}</p>
+              <Link href="/tools/personality-guide">{copy.learn.toolAction} →</Link>
+              <small>{copy.learn.toolTransparency}</small>
+            </article>
+            <article className={styles.supportCard}>
+              <span>{copy.learn.booksLabel}</span>
+              <h3>{copy.learn.booksTitle}</h3>
+              <p>{copy.learn.booksText}</p>
+              <Link href="/learn/books">{copy.learn.booksAction} →</Link>
+              <small>{copy.learn.booksTransparency}</small>
+            </article>
+          </div>
+        </section>
+      </div>
     </>
   );
 };

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "test": "tsx --test tests/personality-guide.test.ts tests/book-recommendations.test.ts",
+    "test": "tsx --test tests/personality-guide.test.ts tests/book-recommendations.test.ts tests/test-draft.test.ts tests/community.test.ts tests/learning-content.test.ts",
     "start": "next start"
   },
   "dependencies": {

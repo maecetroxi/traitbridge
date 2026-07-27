@@ -86,7 +86,7 @@ const LoginForm: React.FC = () => {
       <h1 className="page-title">{copy.login.signInTitle}</h1>
       <p className="page-intro">{copy.login.intro}</p>
 
-      <form onSubmit={handleSubmit} className="stack-md" style={{ marginTop: "2rem" }}>
+      <form onSubmit={handleSubmit} className="stack-md login-form">
         <div className="field-group">
           <label htmlFor="email" className="field-label">
             {copy.login.emailLabel}
@@ -112,8 +112,7 @@ const LoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={isLoading || !email.trim()}
-          className="btn btn-primary"
-          style={{ width: "100%" }}
+          className="btn btn-primary login-submit"
         >
           {isLoading ? copy.login.submitting : copy.login.submitSignIn}
         </button>

@@ -1,10 +1,20 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import PersonalityBadge, { BigFiveScores } from "../components/PersonalityBadge";
+import PersonalityBadge, {
+  type BigFiveScores,
+} from "../components/PersonalityBadge";
+import ProfileInterpretation from "../components/ProfileInterpretation";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
-import { DEMO_RESULTS, getDetailedResults, sanitizeStoredResults, STORAGE_KEY_FULL, type StoredResults } from "../lib/bigfive-results";
+import {
+  getDetailedResults,
+  sanitizeStoredResults,
+  STORAGE_KEY_FULL,
+  type StoredResults,
+} from "../lib/bigfive-results";
+import { getSuggestedLearningSlug } from "../lib/profile-content";
 import { getPersonalityResult } from "../lib/supabase-queries";
 
 const ProfilePage: React.FC = () => {
@@ -12,12 +22,20 @@ const ProfilePage: React.FC = () => {
   const { locale, copy } = useLocale();
   const router = useRouter();
   const [storedResults, setStoredResults] = useState<StoredResults | null>(null);
-  const [detailedResults, setDetailedResults] = useState<any[] | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [detailedResults, setDetailedResults] =
+    useState<ReturnType<typeof getDetailedResults>>(null);
+  const [showDetails, setShowDetails] = useState(
+    router.query.view === "details",
+  );
+  const isRegisteredUser = Boolean(user && !user.is_anonymous);
 
   const applyResults = (nextResults: StoredResults | null) => {
     setStoredResults(nextResults);
-    setDetailedResults(nextResults ? getDetailedResults(nextResults.calculatedScores, locale) : null);
+    setDetailedResults(
+      nextResults
+        ? getDetailedResults(nextResults.calculatedScores, locale)
+        : null,
+    );
   };
 
   useEffect(() => {
@@ -25,8 +43,8 @@ const ProfilePage: React.FC = () => {
       return;
     }
 
-    if (!user) {
-      router.push("/login");
+    if (!isRegisteredUser || !user) {
+      void router.replace("/login");
       return;
     }
 
@@ -47,7 +65,9 @@ const ProfilePage: React.FC = () => {
             return;
           }
 
-          console.warn("Ignoring invalid Supabase result and falling back to local storage.");
+          console.warn(
+            "Ignoring invalid Supabase result and falling back to local storage.",
+          );
         }
       } catch (error) {
         console.error("Failed to load profile data from Supabase:", error);
@@ -59,23 +79,18 @@ const ProfilePage: React.FC = () => {
 
       try {
         const rawResults = window.localStorage.getItem(STORAGE_KEY_FULL);
-        if (!rawResults) {
-          return;
-        }
-
-        const parsedResults = sanitizeStoredResults(JSON.parse(rawResults));
-        if (!parsedResults) {
-          return;
-        }
-
+        const parsedResults = rawResults
+          ? sanitizeStoredResults(JSON.parse(rawResults))
+          : null;
         applyResults(parsedResults);
       } catch (error) {
         console.error("Failed to load local Big Five results:", error);
+        applyResults(null);
       }
     };
 
-    loadResults();
-  }, [user, isAuthLoading, router, locale]);
+    void loadResults();
+  }, [user, isAuthLoading, isRegisteredUser, router, locale]);
 
   useEffect(() => {
     if (router.query.view === "details") {
@@ -83,194 +98,148 @@ const ProfilePage: React.FC = () => {
     }
   }, [router.query.view]);
 
-  const topTraits = useMemo(() => {
-    if (!storedResults) {
-      return [] as Array<{ key: keyof BigFiveScores; value: number }>;
-    }
-
-    return (Object.entries(storedResults.scores) as Array<[keyof BigFiveScores, number]>)
-      .sort((firstTrait, secondTrait) => secondTrait[1] - firstTrait[1])
-      .slice(0, 2)
-      .map(([key, value]) => ({ key, value }));
-  }, [storedResults]);
-
   if (isAuthLoading) {
     return (
-      <div className="page-card">
-        <div className="page-kicker">{copy.profile.kicker}</div>
-        <h1 className="page-title">{copy.profile.loadingTitle}</h1>
+      <div className="content-shell">
+        <div className="surface profile-loading" role="status">
+          <span className="page-kicker">{copy.profile.kicker}</span>
+          <h1 className="page-title">{copy.profile.loadingTitle}</h1>
+        </div>
       </div>
     );
   }
 
-  if (!user) {
+  if (!isRegisteredUser || !user) {
     return null;
   }
 
-  const dateLocale = locale === "de" ? "de-DE" : "en-US";
+  const dateLocale = locale === "de" ? "de-CH" : "en-GB";
   const testDate = storedResults ? new Date(storedResults.timestamp) : null;
+  const learningSlug = storedResults
+    ? getSuggestedLearningSlug(storedResults.scores)
+    : "decisions-with-overthinking";
 
   return (
-    <div className="page-card">
-      <div className="page-kicker">{copy.profile.kicker}</div>
-      <h1 className="page-title">{copy.profile.title}</h1>
+    <>
+      <Head>
+        <title>{copy.profile.title} | TraitBridge</title>
+        <meta name="description" content={copy.profile.whatResultsMeanText} />
+      </Head>
 
-      <div className="results-grid" style={{ marginTop: "2rem" }}>
-        <section className="card-subtle">
-          <h2 className="section-title">{copy.profile.accountInfo}</h2>
-          <div className="stack-md">
-            <div>
-              <label
-                className="muted"
-                style={{ display: "block", fontSize: "0.875rem", marginBottom: "0.25rem" }}
-              >
-                {copy.profile.email}
-              </label>
-              <p style={{ margin: 0, fontWeight: 500 }}>{user.email}</p>
-            </div>
-            {user.created_at && (
-              <div>
-                <label
-                  className="muted"
-                  style={{ display: "block", fontSize: "0.875rem", marginBottom: "0.25rem" }}
-                >
-                  {copy.profile.registeredSince}
-                </label>
-                <p className="muted" style={{ margin: 0 }}>
-                  {new Date(user.created_at).toLocaleDateString(dateLocale, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-            )}
+      <div className="content-shell profile-page">
+        <header className="profile-hero">
+          <span className="page-kicker">{copy.profile.kicker}</span>
+          <h1 className="page-title">{copy.profile.title}</h1>
+        </header>
+
+        <section className="surface profile-account">
+          <div>
+            <span className="muted">{copy.profile.email}</span>
+            <strong>{user.email}</strong>
           </div>
+          {user.created_at && (
+            <div>
+              <span className="muted">{copy.profile.registeredSince}</span>
+              <strong>
+                {new Date(user.created_at).toLocaleDateString(dateLocale, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </strong>
+            </div>
+          )}
         </section>
 
         {storedResults ? (
-          <section className="stack-md">
-            <div>
-              <h2 className="section-title">{copy.profile.resultOverview}</h2>
-              <p className="section-text" style={{ marginBottom: "1rem" }}>
-                {testDate ? `${copy.profile.testDatePrefix}: ${testDate.toLocaleDateString(dateLocale)}. ` : ""}
-                {copy.profile.completedDescription}
-                {storedResults.variant === "demo" ? " Demo-Profil zum schnellen Prüfen." : ""}
-              </p>
-
-              <PersonalityBadge scores={storedResults.scores} />
-
-              <div className="card-subtle" style={{ marginTop: "1rem" }}>
-                <h3 className="section-title" style={{ fontSize: "1rem" }}>
-                  {copy.profile.strongestTraits}
-                </h3>
-                <ul className="section-text" style={{ marginTop: "0.5rem", paddingLeft: "1.25rem" }}>
-                  {topTraits.map((trait) => (
-                    <li key={trait.key}>
-                      <strong>{copy.traits[trait.key]}:</strong> {trait.value.toFixed(2)} / 5
-                    </li>
-                  ))}
-                </ul>
+          <>
+            <section className="results-overview-grid">
+              <div className="surface results-score-panel">
+                <h2 className="section-title">
+                  {copy.profile.resultOverview}
+                </h2>
+                <p className="section-text">
+                  {testDate
+                    ? `${copy.profile.testDatePrefix}: ${testDate.toLocaleDateString(dateLocale)}. `
+                    : ""}
+                  {storedResults.variant === "demo"
+                    ? copy.profile.demoDescription
+                    : copy.profile.completedDescription}
+                </p>
+                <PersonalityBadge scores={storedResults.scores} />
               </div>
 
-              {detailedResults && detailedResults.length > 0 && (
-                <div style={{ marginTop: "1.5rem" }}>
-                  <button
-                    type="button"
+              <aside className="surface results-next-panel">
+                <h2 className="section-title">{copy.profile.quickAccess}</h2>
+                <div className="results-actions">
+                  <Link
+                    href={`/learn/${learningSlug}`}
                     className="btn btn-primary"
-                    onClick={() => setShowDetails((currentValue) => !currentValue)}
                   >
-                    {showDetails ? copy.profile.hideDetails : copy.profile.showDetails}
-                  </button>
+                    {copy.profile.toLearning}
+                  </Link>
+                  <Link
+                    href="/tools/personality-guide"
+                    className="btn btn-outline"
+                  >
+                    {copy.profile.toCompass}
+                  </Link>
+                  <Link href="/community" className="btn btn-outline">
+                    {copy.profile.toCommunity}
+                  </Link>
+                  <Link href="/test" className="btn btn-quiet">
+                    {copy.profile.retakeTest}
+                  </Link>
+                </div>
+              </aside>
+            </section>
 
-                  {showDetails && (
-                    <div style={{ marginTop: "1.5rem" }}>
-                      <div className="card-subtle" style={{ marginBottom: "1rem" }}>
-                        <h3 className="section-title" style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>
-                          {copy.profile.whatResultsMean}
-                        </h3>
-                        <p className="section-text" style={{ margin: 0 }}>
-                          {copy.profile.whatResultsMeanText}
-                        </p>
-                      </div>
+            <section className="profile-details-section">
+              <div className="profile-details-heading">
+                <div>
+                  <h2 className="section-title">
+                    {copy.profile.profileValuesTitle}
+                  </h2>
+                  <p className="section-text">
+                    {copy.profile.profileValuesText}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  aria-expanded={showDetails}
+                  aria-controls="profile-interpretation"
+                  onClick={() =>
+                    setShowDetails((currentValue) => !currentValue)
+                  }
+                >
+                  {showDetails
+                    ? copy.profile.hideDetails
+                    : copy.profile.showDetails}
+                </button>
+              </div>
 
-                      <h3 className="section-title" style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
-                        {copy.profile.interpretationTitle}
-                      </h3>
-                      <div className="stack-md">
-                        {detailedResults.map((result) => (
-                          <div key={result.domain} className="card-subtle">
-                            <h4
-                              className="section-title"
-                              style={{ fontSize: "1rem", marginBottom: "0.5rem" }}
-                            >
-                              {result.title}
-                            </h4>
-                            <p
-                              className="section-text"
-                              style={{ marginBottom: "0.75rem", fontSize: "0.875rem" }}
-                              dangerouslySetInnerHTML={{ __html: result.shortDescription }}
-                            />
-                            <p
-                              className="section-text"
-                              style={{ marginBottom: "0.75rem", fontSize: "0.8125rem" }}
-                              dangerouslySetInnerHTML={{ __html: result.text }}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+              {showDetails && (
+                <div id="profile-interpretation">
+                  <ProfileInterpretation
+                    scores={storedResults.scores}
+                    detailedResults={detailedResults}
+                  />
                 </div>
               )}
-            </div>
-          </section>
+            </section>
+          </>
         ) : (
-          <section className="card-subtle">
+          <section className="surface profile-empty">
             <h2 className="section-title">{copy.profile.noProfileTitle}</h2>
             <p className="section-text">{copy.profile.noProfileText}</p>
-            <div style={{ marginTop: "1.5rem" }}>
-              <Link href="/test" className="btn btn-primary">
-                {copy.profile.startTest}
-              </Link>
-            </div>
+            <Link href="/test" className="btn btn-primary">
+              {copy.profile.startTest}
+            </Link>
           </section>
         )}
-
-        <section className="card-subtle">
-          <h2 className="section-title">{copy.profile.quickAccess}</h2>
-          <div style={{ display: "grid", gap: "0.75rem" }}>
-            <Link href="/test" className="btn btn-outline" style={{ textAlign: "center" }}>
-              {copy.profile.retakeTest}
-            </Link>
-            <button
-              type="button"
-              className="btn btn-outline"
-              style={{ textAlign: "center" }}
-              onClick={() => {
-                if (typeof window === "undefined") {
-                  return;
-                }
-
-                const demoResults = {
-                  ...DEMO_RESULTS,
-                  timestamp: new Date().toISOString(),
-                  language: locale,
-                };
-
-                window.localStorage.setItem(STORAGE_KEY_FULL, JSON.stringify(demoResults));
-                applyResults(demoResults);
-              }}
-            >
-              {copy.profile.loadDemo}
-            </button>
-            <Link href="/community" className="btn btn-outline" style={{ textAlign: "center" }}>
-              {copy.profile.toCommunity}
-            </Link>
-          </div>
-        </section>
       </div>
-    </div>
+    </>
   );
 };
 

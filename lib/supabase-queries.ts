@@ -1,5 +1,9 @@
 import { supabase } from './supabase'
 import { BigFiveScores } from '../components/PersonalityBadge'
+import {
+  isCommunityCategory,
+  type CommunityCategory,
+} from './community'
 
 // Types
 export type PersonalityResult = {
@@ -18,6 +22,8 @@ export type Question = {
   user_id: string
   title: string
   body: string
+  category: CommunityCategory
+  answer_count: number
   created_at: string
   updated_at: string
 }
@@ -91,29 +97,83 @@ export const updatePersonalityResult = async (
 }
 
 // Questions
-export const createQuestion = async (userId: string, title: string, body: string) => {
+const normalizeQuestion = (value: Record<string, any>): Question => ({
+  id: String(value.id),
+  user_id: String(value.user_id),
+  title: String(value.title),
+  body: String(value.body),
+  category: isCommunityCategory(value.category) ? value.category : 'other',
+  answer_count:
+    typeof value.answer_count === 'number'
+      ? value.answer_count
+      : Array.isArray(value.answers) && typeof value.answers[0]?.count === 'number'
+        ? value.answers[0].count
+        : 0,
+  created_at: String(value.created_at),
+  updated_at: String(value.updated_at),
+})
+
+const isMissingQuestionCategoryError = (error: {
+  code?: string
+  message?: string
+}) => {
+  const message = error.message?.toLowerCase() || ''
+
+  return (
+    message.includes('category') &&
+    (
+      error.code === '42703' ||
+      error.code === 'PGRST204' ||
+      message.includes('does not exist') ||
+      message.includes('schema cache')
+    )
+  )
+}
+
+export const createQuestion = async (
+  userId: string,
+  title: string,
+  body: string,
+  category: CommunityCategory,
+) => {
   const { data, error } = await supabase
     .from('questions')
     .insert({
       user_id: userId,
       title: title.trim(),
       body: body.trim(),
+      category,
     })
     .select()
     .single()
 
   if (error) throw error
-  return data as Question
+  return normalizeQuestion(data)
 }
 
 export const getQuestions = async () => {
   const { data, error } = await supabase
     .from('questions')
-    .select('*')
+    .select('id, user_id, title, body, category, created_at, updated_at, answers(count)')
     .order('created_at', { ascending: false })
 
-  if (error) throw error
-  return data as Question[]
+  if (!error) {
+    return (data || []).map((question) => normalizeQuestion(question))
+  }
+
+  // During a rolling deploy, keep public reading available until migration 003
+  // has added the category column. New writes still require the migration.
+  if (isMissingQuestionCategoryError(error)) {
+    const { data: legacyData, error: legacyError } = await supabase
+      .from('questions')
+      .select('id, user_id, title, body, created_at, updated_at, answers(count)')
+      .order('created_at', { ascending: false })
+
+    if (legacyError) throw legacyError
+    return (legacyData || []).map((question) => normalizeQuestion(question))
+  }
+
+  throw error
 }
 
 export const getQuestion = async (questionId: string) => {
@@ -124,7 +184,7 @@ export const getQuestion = async (questionId: string) => {
     .single()
 
   if (error) throw error
-  return data as Question
+  return normalizeQuestion(data)
 }
 
 export const updateQuestion = async (questionId: string, title: string, body: string) => {

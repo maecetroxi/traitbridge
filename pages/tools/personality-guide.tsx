@@ -198,6 +198,7 @@ const PersonalityGuidePage: React.FC = () => {
         )}
 
         <p className={styles.privacyNote}>
+          {copy.scope}{" "}
           {copy.privacy}{" "}
           <a
             href="https://platform.openai.com/docs/models/default-usage-policies-by-endpoint"

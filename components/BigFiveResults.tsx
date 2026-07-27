@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from "react";
+import Head from "next/head";
 import Link from "next/link";
 import PersonalityBadge from "./PersonalityBadge";
+import ProfileInterpretation from "./ProfileInterpretation";
 import { useLocale } from "../contexts/LocaleContext";
 import { formatTranslation } from "../lib/i18n";
-import { getDetailedResults, sanitizeStoredResults, STORAGE_KEY_FULL, type StoredResults } from "../lib/bigfive-results";
+import {
+  getDetailedResults,
+  sanitizeStoredResults,
+  STORAGE_KEY_FULL,
+  type StoredResults,
+} from "../lib/bigfive-results";
+import { getSuggestedLearningSlug } from "../lib/profile-content";
 
 const BigFiveResults: React.FC = () => {
   const { locale, copy } = useLocale();
   const [storedResults, setStoredResults] = useState<StoredResults | null>(null);
-  const [detailedResults, setDetailedResults] = useState<any[] | null>(null);
+  const [detailedResults, setDetailedResults] =
+    useState<ReturnType<typeof getDetailedResults>>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -18,128 +27,127 @@ const BigFiveResults: React.FC = () => {
     try {
       const rawResults = window.localStorage.getItem(STORAGE_KEY_FULL);
       if (!rawResults) {
+        setStoredResults(null);
+        setDetailedResults(null);
         return;
       }
 
       const parsedResults = sanitizeStoredResults(JSON.parse(rawResults));
       if (!parsedResults) {
+        setStoredResults(null);
+        setDetailedResults(null);
         return;
       }
 
       setStoredResults(parsedResults);
-      setDetailedResults(getDetailedResults(parsedResults.calculatedScores, locale));
+      setDetailedResults(
+        getDetailedResults(parsedResults.calculatedScores, locale),
+      );
     } catch (error) {
       console.error("Failed to load local Big Five results:", error);
+      setStoredResults(null);
+      setDetailedResults(null);
     }
   }, [locale]);
 
   if (!storedResults) {
     return (
-      <div className="page-card">
-        <div className="page-kicker">{copy.results.kicker}</div>
-        <h1 className="page-title">{copy.results.emptyTitle}</h1>
-        <p className="page-intro">{copy.results.emptyDescription}</p>
-        <div style={{ marginTop: "2rem" }}>
-          <Link href="/test" className="btn btn-primary">
-            {copy.results.toTest}
-          </Link>
+      <>
+        <Head>
+          <title>{copy.results.emptyTitle} | TraitBridge</title>
+          <meta name="description" content={copy.results.emptyDescription} />
+        </Head>
+        <div className="content-shell results-page">
+          <section className="surface results-empty">
+            <span className="page-kicker">{copy.results.kicker}</span>
+            <h1 className="page-title">{copy.results.emptyTitle}</h1>
+            <p className="page-intro">{copy.results.emptyDescription}</p>
+            <Link href="/test" className="btn btn-primary">
+              {copy.results.toTest}
+            </Link>
+          </section>
         </div>
-      </div>
+      </>
     );
   }
 
   const createdAt = new Date(storedResults.timestamp);
-  const dateLocale = locale === "de" ? "de-DE" : "en-US";
-  const scoreLevel = (value: number) => (value >= 4 ? copy.traits.high : value <= 2 ? copy.traits.low : copy.traits.medium);
+  const dateLocale = locale === "de" ? "de-CH" : "en-GB";
+  const learningSlug = getSuggestedLearningSlug(storedResults.scores);
 
   return (
-    <div className="page-card">
-      <div className="page-kicker">{copy.results.stepKicker}</div>
-      <h1 className="page-title">{copy.results.title}</h1>
-      <p className="page-intro">
-        {formatTranslation(copy.results.createdOn, {
-          date: createdAt.toLocaleDateString(dateLocale),
-        })}{" "}
-        {copy.results.scaleInfo}
-      </p>
+    <>
+      <Head>
+        <title>{copy.results.title} | TraitBridge</title>
+        <meta name="description" content={copy.results.balancedNote} />
+      </Head>
 
-      <div
-        style={{
-          background: "var(--info-soft)",
-          border: "1.5px solid var(--info)",
-          borderRadius: "1rem",
-          padding: "1rem 1.25rem",
-          marginTop: "1.5rem",
-          marginBottom: "1.5rem",
-          boxShadow: "var(--shadow-sm)",
-        }}
-      >
-        <p style={{ margin: 0, fontSize: "0.9375rem", color: "var(--text)", lineHeight: "1.6" }}>
-          <strong style={{ color: "var(--info)" }}>{copy.results.validatedLabel}</strong>{" "}
-          {copy.results.validatedText}
-        </p>
-      </div>
+      <div className="content-shell results-page">
+        <header className="results-hero">
+          <div>
+            <span className="page-kicker">{copy.results.kicker}</span>
+            <h1 className="page-title">{copy.results.title}</h1>
+            <p className="page-intro">
+              {formatTranslation(copy.results.createdOn, {
+                date: createdAt.toLocaleDateString(dateLocale),
+              })}
+            </p>
+          </div>
+          <span className="pill">{copy.results.storageLabel}</span>
+        </header>
 
-      <div className="results-grid">
-        <section className="stack-md">
-          <PersonalityBadge scores={storedResults.scores} />
+        <aside className="trust-note results-balance-note">
+          <strong>
+            {storedResults.variant === "demo"
+              ? copy.results.demoLabel
+              : copy.results.validatedLabel}
+          </strong>
+          <span>
+            {storedResults.variant === "demo"
+              ? copy.results.demoText
+              : copy.results.validatedText}
+          </span>
+          <p>{copy.results.balancedNote}</p>
+        </aside>
 
-          {detailedResults && detailedResults.length > 0 ? (
-            <div>
-              <h2 className="section-title">{copy.results.interpretationTitle}</h2>
-              <div className="stack-md">
-                {detailedResults.map((result) => (
-                  <div key={result.domain} className="card-subtle">
-                    <h3 className="section-title" style={{ fontSize: "1.125rem", marginBottom: "0.5rem" }}>
-                      {result.title}
-                    </h3>
-                    <p
-                      className="section-text"
-                      style={{ marginBottom: "0.75rem" }}
-                      dangerouslySetInnerHTML={{ __html: result.shortDescription }}
-                    />
-                    <p
-                      className="section-text"
-                      style={{ marginBottom: "0.75rem", fontSize: "0.875rem" }}
-                      dangerouslySetInnerHTML={{ __html: result.text }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <h2 className="section-title">{copy.results.fallbackTitle}</h2>
-              <ul className="section-text" style={{ paddingLeft: "1.5rem", listStyleType: "disc" }}>
-                <li>{copy.traits.O}: <strong>{scoreLevel(storedResults.scores.O)}</strong></li>
-                <li>{copy.traits.C}: <strong>{scoreLevel(storedResults.scores.C)}</strong></li>
-                <li>{copy.traits.E}: <strong>{scoreLevel(storedResults.scores.E)}</strong></li>
-                <li>{copy.traits.A}: <strong>{scoreLevel(storedResults.scores.A)}</strong></li>
-                <li>{copy.traits.N}: <strong>{scoreLevel(storedResults.scores.N)}</strong></li>
-              </ul>
-            </div>
-          )}
-        </section>
-
-        <section className="card-subtle">
-          <h2 className="section-title">{copy.results.nextStepsTitle}</h2>
-          <p className="section-text">{copy.results.nextStepsText}</p>
-
-          <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-            <Link href="/community" className="btn btn-primary">
-              {copy.results.toCommunity}
-            </Link>
-            <Link href="/test" className="btn btn-outline">
-              {copy.results.retakeTest}
-            </Link>
+        <section className="results-overview-grid">
+          <div className="surface results-score-panel">
+            <h2 className="section-title">{copy.results.fallbackTitle}</h2>
+            <p className="muted">{copy.results.scaleInfo}</p>
+            <PersonalityBadge scores={storedResults.scores} />
           </div>
 
-          <p className="muted" style={{ marginTop: "1.25rem" }}>
-            {copy.results.disclaimer}
-          </p>
+          <aside className="surface results-next-panel">
+            <h2 className="section-title">{copy.results.nextStepsTitle}</h2>
+            <p className="section-text">{copy.results.nextStepsText}</p>
+            <div className="results-actions">
+              <Link
+                href={`/learn/${learningSlug}`}
+                className="btn btn-primary"
+              >
+                {copy.results.toLearning}
+              </Link>
+              <Link href="/tools/personality-guide" className="btn btn-outline">
+                {copy.results.toCompass}
+              </Link>
+              <Link href="/community" className="btn btn-outline">
+                {copy.results.toCommunity}
+              </Link>
+              <Link href="/test" className="btn btn-quiet">
+                {copy.results.retakeTest}
+              </Link>
+            </div>
+          </aside>
         </section>
+
+        <ProfileInterpretation
+          scores={storedResults.scores}
+          detailedResults={detailedResults}
+        />
+
+        <p className="muted results-disclaimer">{copy.results.disclaimer}</p>
       </div>
-    </div>
+    </>
   );
 };
 
