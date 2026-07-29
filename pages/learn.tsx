@@ -3,20 +3,25 @@ import Head from "next/head";
 import Link from "next/link";
 import { useLocale } from "../contexts/LocaleContext";
 import {
+  BIG_FIVE_TRAITS,
   LEARNING_CATEGORIES,
   filterLearningTopics,
+  type BigFiveTrait,
   type LearningCategory,
+  type TraitLevel,
 } from "../lib/learning-content";
 import styles from "../styles/LearningContent.module.css";
 
 const LearnPage: React.FC = () => {
   const { locale, copy } = useLocale();
   const [category, setCategory] = useState<LearningCategory | "all">("all");
+  const [trait, setTrait] = useState<BigFiveTrait | "all">("all");
   const [search, setSearch] = useState("");
   const visibleTopics = useMemo(
-    () => filterLearningTopics(category, search),
-    [category, search],
+    () => filterLearningTopics(category, search, trait),
+    [category, search, trait],
   );
+  const traitLevelLabel = (level: TraitLevel) => copy.learn.traitLevels[level];
 
   return (
     <>
@@ -55,30 +60,64 @@ const LearnPage: React.FC = () => {
             </label>
           </div>
 
-          <div
-            className={styles.filters}
-            role="group"
-            aria-label={copy.learn.categoryFilterLabel}
-          >
-            <button
-              type="button"
-              aria-pressed={category === "all"}
-              className={category === "all" ? styles.activeFilter : ""}
-              onClick={() => setCategory("all")}
-            >
-              {copy.learn.allCategories}
-            </button>
-            {LEARNING_CATEGORIES.map((categoryValue) => (
-              <button
-                key={categoryValue}
-                type="button"
-                aria-pressed={category === categoryValue}
-                className={category === categoryValue ? styles.activeFilter : ""}
-                onClick={() => setCategory(categoryValue)}
+          <div className={styles.filterArea}>
+            <div className={styles.filterGroup}>
+              <strong>{copy.learn.categoryFilterHeading}</strong>
+              <div
+                className={styles.filters}
+                role="group"
+                aria-label={copy.learn.categoryFilterLabel}
               >
-                {copy.learn.categories[categoryValue]}
-              </button>
-            ))}
+                <button
+                  type="button"
+                  aria-pressed={category === "all"}
+                  className={category === "all" ? styles.activeFilter : ""}
+                  onClick={() => setCategory("all")}
+                >
+                  {copy.learn.allCategories}
+                </button>
+                {LEARNING_CATEGORIES.map((categoryValue) => (
+                  <button
+                    key={categoryValue}
+                    type="button"
+                    aria-pressed={category === categoryValue}
+                    className={category === categoryValue ? styles.activeFilter : ""}
+                    onClick={() => setCategory(categoryValue)}
+                  >
+                    {copy.learn.categories[categoryValue]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.filterGroup}>
+              <strong>{copy.learn.traitFilterHeading}</strong>
+              <div
+                className={styles.filters}
+                role="group"
+                aria-label={copy.learn.traitFilterLabel}
+              >
+                <button
+                  type="button"
+                  aria-pressed={trait === "all"}
+                  className={trait === "all" ? styles.activeFilter : ""}
+                  onClick={() => setTrait("all")}
+                >
+                  {copy.learn.allTraits}
+                </button>
+                {BIG_FIVE_TRAITS.map((traitValue) => (
+                  <button
+                    key={traitValue}
+                    type="button"
+                    aria-pressed={trait === traitValue}
+                    className={trait === traitValue ? styles.activeFilter : ""}
+                    onClick={() => setTrait(traitValue)}
+                  >
+                    {copy.traits[traitValue]}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className={styles.resultLine} aria-live="polite">
@@ -98,6 +137,20 @@ const LearnPage: React.FC = () => {
                     {topic.categories.slice(0, 2).map((categoryValue) => (
                       <span key={categoryValue}>
                         {copy.learn.categories[categoryValue]}
+                      </span>
+                    ))}
+                  </div>
+                  <div
+                    className={styles.traitMeta}
+                    aria-label={copy.learn.traitRelevanceLabel}
+                  >
+                    {topic.traitRelevance.map((relevance) => (
+                      <span
+                        key={`${relevance.trait}-${relevance.level}`}
+                        data-level={relevance.level}
+                      >
+                        {traitLevelLabel(relevance.level)} ·{" "}
+                        {copy.traits[relevance.trait]}
                       </span>
                     ))}
                   </div>

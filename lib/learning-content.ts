@@ -9,7 +9,11 @@ export const LEARNING_CATEGORIES = [
   "habits",
 ] as const;
 
+export const BIG_FIVE_TRAITS = ["O", "C", "E", "A", "N"] as const;
+
 export type LearningCategory = (typeof LEARNING_CATEGORIES)[number];
+export type BigFiveTrait = (typeof BIG_FIVE_TRAITS)[number];
+export type TraitLevel = "low" | "high" | "both";
 export type EvidenceKind =
   | "meta-analysis"
   | "systematic-review"
@@ -18,6 +22,12 @@ export type EvidenceKind =
   | "editorial";
 
 type LocalizedText = Record<Locale, string>;
+
+export type LearningTraitRelevance = {
+  trait: BigFiveTrait;
+  level: TraitLevel;
+  description: LocalizedText;
+};
 
 export type LearningSource = {
   id: string;
@@ -31,7 +41,7 @@ export type LearningSource = {
 export type LearningTopic = {
   slug: string;
   categories: LearningCategory[];
-  relatedTraits: Array<"O" | "C" | "E" | "A" | "N">;
+  traitRelevance: LearningTraitRelevance[];
   title: LocalizedText;
   summary: LocalizedText;
   situation: LocalizedText;
@@ -48,6 +58,16 @@ export type LearningTopic = {
 
 const localized = (en: string, de: string): LocalizedText => ({ en, de });
 const localizedList = (en: string[], de: string[]) => ({ en, de });
+const traitRelevance = (
+  trait: BigFiveTrait,
+  level: TraitLevel,
+  en: string,
+  de: string,
+): LearningTraitRelevance => ({
+  trait,
+  level,
+  description: localized(en, de),
+});
 
 export const LEARNING_SOURCES: Record<string, LearningSource> = {
   johnson2014: {
@@ -114,7 +134,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "decisions-with-overthinking",
     categories: ["decisions", "stress"],
-    relatedTraits: ["O", "C", "N"],
+    traitRelevance: [
+      traitRelevance(
+        "O",
+        "high",
+        "Higher openness can expand the number of interesting possibilities and perspectives under consideration.",
+        "Hohe Offenheit kann die Zahl interessanter Möglichkeiten und Perspektiven vergrössern, die du abwägst.",
+      ),
+      traitRelevance(
+        "C",
+        "high",
+        "Higher conscientiousness can strengthen the wish to choose carefully and avoid preventable mistakes.",
+        "Hohe Gewissenhaftigkeit kann den Wunsch verstärken, sorgfältig zu entscheiden und vermeidbare Fehler auszuschliessen.",
+      ),
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can make uncertainty and the possible consequences of a choice feel more intense.",
+        "Hohe emotionale Empfindlichkeit kann Unsicherheit und mögliche Folgen einer Entscheidung intensiver spürbar machen.",
+      ),
+    ],
     title: localized(
       "Making decisions when you tend to overthink",
       "Entscheidungen treffen, wenn du viel grübelst",
@@ -168,7 +207,20 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "procrastination-and-structure",
     categories: ["work", "habits"],
-    relatedTraits: ["C", "N"],
+    traitRelevance: [
+      traitRelevance(
+        "C",
+        "low",
+        "Lower conscientiousness can make self-created structure, sequencing and a reliable start harder to maintain.",
+        "Niedrige Gewissenhaftigkeit kann es erschweren, selbst geschaffene Struktur, Reihenfolgen und einen verlässlichen Start beizubehalten.",
+      ),
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can increase task aversion and the pull of short-term relief.",
+        "Hohe emotionale Empfindlichkeit kann unangenehme Aufgaben belastender machen und den Wunsch nach kurzfristiger Erleichterung verstärken.",
+      ),
+    ],
     title: localized(
       "Procrastination and missing structure",
       "Aufschieben und fehlende Struktur",
@@ -226,7 +278,20 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "softening-perfectionistic-standards",
     categories: ["work", "stress"],
-    relatedTraits: ["C", "N"],
+    traitRelevance: [
+      traitRelevance(
+        "C",
+        "high",
+        "Higher conscientiousness can support quality while also making demanding standards especially compelling.",
+        "Hohe Gewissenhaftigkeit kann Qualität fördern und zugleich anspruchsvolle Massstäbe besonders verbindlich erscheinen lassen.",
+      ),
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can increase the anticipated cost of mistakes, criticism or uncertainty.",
+        "Hohe emotionale Empfindlichkeit kann die erwartete Belastung durch Fehler, Kritik oder Unsicherheit verstärken.",
+      ),
+    ],
     title: localized(
       "Softening perfectionistic standards",
       "Perfektionistische Ansprüche reduzieren",
@@ -284,7 +349,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "setting-boundaries",
     categories: ["relationships", "communication"],
-    relatedTraits: ["A", "N", "E"],
+    traitRelevance: [
+      traitRelevance(
+        "A",
+        "high",
+        "Higher agreeableness can make preserving harmony and accommodating others feel especially important.",
+        "Hohe Verträglichkeit kann Harmonie und das Entgegenkommen gegenüber anderen besonders wichtig erscheinen lassen.",
+      ),
+      traitRelevance(
+        "E",
+        "low",
+        "Lower extraversion can be accompanied by less spontaneous social assertiveness in some situations.",
+        "Niedrige Extraversion kann in manchen Situationen mit weniger spontaner sozialer Durchsetzung einhergehen.",
+      ),
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can make anticipated tension or a negative reaction feel more costly.",
+        "Hohe emotionale Empfindlichkeit kann erwartete Spannung oder eine negative Reaktion belastender erscheinen lassen.",
+      ),
+    ],
     title: localized(
       "Setting boundaries without becoming unnecessarily harsh",
       "Grenzen setzen, ohne unnötig hart zu wirken",
@@ -342,7 +426,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "preparing-difficult-conversations",
     categories: ["communication", "relationships", "work"],
-    relatedTraits: ["A", "E", "N"],
+    traitRelevance: [
+      traitRelevance(
+        "A",
+        "high",
+        "Higher agreeableness can increase the wish to protect harmony during a difficult conversation.",
+        "Hohe Verträglichkeit kann den Wunsch verstärken, in einem schwierigen Gespräch die Harmonie zu schützen.",
+      ),
+      traitRelevance(
+        "E",
+        "low",
+        "Lower extraversion can make spontaneous verbal assertiveness less natural in some contexts.",
+        "Niedrige Extraversion kann spontane verbale Durchsetzung in manchen Kontexten weniger natürlich machen.",
+      ),
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can intensify anticipation of conflict and possible reactions.",
+        "Hohe emotionale Empfindlichkeit kann die Erwartung von Konflikt und möglichen Reaktionen intensivieren.",
+      ),
+    ],
     title: localized(
       "Preparing a difficult conversation",
       "Ein schwieriges Gespräch vorbereiten",
@@ -396,7 +499,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "addressing-conflict-directly",
     categories: ["communication", "relationships", "work"],
-    relatedTraits: ["A", "E", "N"],
+    traitRelevance: [
+      traitRelevance(
+        "A",
+        "high",
+        "Higher agreeableness can favour waiting or indirectness when direct conflict might threaten harmony.",
+        "Hohe Verträglichkeit kann Abwarten oder Indirektheit begünstigen, wenn ein direkter Konflikt die Harmonie gefährden könnte.",
+      ),
+      traitRelevance(
+        "E",
+        "both",
+        "Lower social assertiveness can support avoidance; higher assertiveness can create a different risk of confronting too quickly.",
+        "Niedrige soziale Durchsetzung kann Vermeidung begünstigen; hohe Durchsetzung birgt eher das andere Risiko einer zu schnellen Konfrontation.",
+      ),
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can make tension more salient before and during a conflict.",
+        "Hohe emotionale Empfindlichkeit kann Spannung vor und während eines Konflikts stärker hervortreten lassen.",
+      ),
+    ],
     title: localized(
       "Addressing conflict directly and respectfully",
       "Konflikte direkter und respektvoll ansprechen",
@@ -450,7 +572,20 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "social-exhaustion",
     categories: ["stress", "relationships"],
-    relatedTraits: ["E", "N"],
+    traitRelevance: [
+      traitRelevance(
+        "E",
+        "low",
+        "Lower extraversion can be associated with preferring less stimulation and needing more recovery after intense social contact.",
+        "Niedrige Extraversion kann mit einer Vorliebe für weniger Stimulation und mehr Erholung nach intensiven sozialen Kontakten einhergehen.",
+      ),
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can add load when social situations contain tension, uncertainty or strong stimulation.",
+        "Hohe emotionale Empfindlichkeit kann bei Spannung, Unsicherheit oder starker Reizung zusätzliche Belastung erzeugen.",
+      ),
+    ],
     title: localized(
       "Responding to social exhaustion",
       "Mit sozialer Erschöpfung umgehen",
@@ -508,7 +643,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "uncertainty-and-change",
     categories: ["stress", "decisions"],
-    relatedTraits: ["N", "O", "C"],
+    traitRelevance: [
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can make uncertainty and possible negative outcomes feel especially present.",
+        "Hohe emotionale Empfindlichkeit kann Unsicherheit und mögliche negative Folgen besonders präsent machen.",
+      ),
+      traitRelevance(
+        "O",
+        "low",
+        "Lower openness can make unfamiliar changes and departures from established routines less appealing.",
+        "Niedrige Offenheit kann unvertraute Veränderungen und Abweichungen von bewährten Routinen weniger attraktiv machen.",
+      ),
+      traitRelevance(
+        "C",
+        "high",
+        "Higher conscientiousness can increase the wish for a dependable plan when circumstances are still fluid.",
+        "Hohe Gewissenhaftigkeit kann den Wunsch nach einem verlässlichen Plan verstärken, obwohl die Umstände noch im Fluss sind.",
+      ),
+    ],
     title: localized(
       "Coping with change and uncertainty",
       "Veränderungen und Unsicherheit bewältigen",
@@ -566,7 +720,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "personality-friendly-habits",
     categories: ["habits", "work"],
-    relatedTraits: ["C", "E", "O"],
+    traitRelevance: [
+      traitRelevance(
+        "C",
+        "low",
+        "Lower conscientiousness can make routines that depend on extensive planning or self-organisation harder to sustain.",
+        "Niedrige Gewissenhaftigkeit kann Routinen erschweren, die viel Planung oder Selbstorganisation voraussetzen.",
+      ),
+      traitRelevance(
+        "E",
+        "both",
+        "Lower and higher extraversion may call for different amounts of social support, stimulation and accountability.",
+        "Niedrige und hohe Extraversion können unterschiedliche Mengen an sozialer Unterstützung, Stimulation und Verbindlichkeit passend machen.",
+      ),
+      traitRelevance(
+        "O",
+        "high",
+        "Higher openness can make variety motivating while highly repetitive routines lose appeal more quickly.",
+        "Hohe Offenheit kann Abwechslung motivierend machen, während stark repetitive Routinen schneller an Reiz verlieren.",
+      ),
+    ],
     title: localized(
       "Adapting habits to your personality",
       "Gewohnheiten an deine Persönlichkeit anpassen",
@@ -620,7 +793,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "self-criticism-after-mistakes",
     categories: ["stress", "work"],
-    relatedTraits: ["N", "C", "A"],
+    traitRelevance: [
+      traitRelevance(
+        "N",
+        "high",
+        "Higher emotional sensitivity can intensify shame, worry or distress after a mistake.",
+        "Hohe emotionale Empfindlichkeit kann Scham, Sorge oder Belastung nach einem Fehler intensivieren.",
+      ),
+      traitRelevance(
+        "C",
+        "high",
+        "Higher conscientiousness can make responsibility and demanding standards central to how a mistake is evaluated.",
+        "Hohe Gewissenhaftigkeit kann Verantwortung und anspruchsvolle Massstäbe in der Bewertung eines Fehlers besonders wichtig machen.",
+      ),
+      traitRelevance(
+        "A",
+        "high",
+        "Higher agreeableness may heighten concern about having disappointed or burdened other people.",
+        "Hohe Verträglichkeit kann die Sorge verstärken, andere enttäuscht oder belastet zu haben.",
+      ),
+    ],
     title: localized(
       "Reducing self-criticism after mistakes",
       "Selbstkritik nach Fehlern reduzieren",
@@ -678,7 +870,32 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "working-across-personality-differences",
     categories: ["work", "communication"],
-    relatedTraits: ["C", "E", "A", "O"],
+    traitRelevance: [
+      traitRelevance(
+        "C",
+        "both",
+        "Lower and higher conscientiousness can differ in preferred structure, planning detail and flexibility.",
+        "Niedrige und hohe Gewissenhaftigkeit können sich in bevorzugter Struktur, Planungstiefe und Flexibilität unterscheiden.",
+      ),
+      traitRelevance(
+        "E",
+        "both",
+        "Lower and higher extraversion can differ in how much preparation, live discussion and stimulation feels useful.",
+        "Niedrige und hohe Extraversion können sich darin unterscheiden, wie viel Vorbereitung, direkte Diskussion und Stimulation hilfreich ist.",
+      ),
+      traitRelevance(
+        "A",
+        "both",
+        "Lower and higher agreeableness can bring different priorities around challenge, accommodation and consensus.",
+        "Niedrige und hohe Verträglichkeit können unterschiedliche Prioritäten bei Widerspruch, Entgegenkommen und Konsens mitbringen.",
+      ),
+      traitRelevance(
+        "O",
+        "both",
+        "Lower and higher openness can differ in their preference for proven processes versus experimentation and change.",
+        "Niedrige und hohe Offenheit können sich in der Vorliebe für bewährte Abläufe gegenüber Experimenten und Veränderung unterscheiden.",
+      ),
+    ],
     title: localized(
       "Working with very different personalities",
       "Mit sehr unterschiedlichen Persönlichkeiten zusammenarbeiten",
@@ -737,6 +954,7 @@ export const getLearningTopic = (slug: string) =>
 export const filterLearningTopics = (
   category: LearningCategory | "all",
   search = "",
+  trait: BigFiveTrait | "all" = "all",
 ) => {
   const normalizedSearch = search.trim().toLocaleLowerCase();
 
@@ -745,15 +963,26 @@ export const filterLearningTopics = (
       return false;
     }
 
+    if (
+      trait !== "all" &&
+      !topic.traitRelevance.some((relevance) => relevance.trait === trait)
+    ) {
+      return false;
+    }
+
     if (!normalizedSearch) {
       return true;
     }
 
-    return (["en", "de"] as const).some((locale) =>
-      `${topic.title[locale]} ${topic.summary[locale]}`
+    return (["en", "de"] as const).some((locale) => {
+      const traitDescriptions = topic.traitRelevance
+        .map((relevance) => relevance.description[locale])
+        .join(" ");
+
+      return `${topic.title[locale]} ${topic.summary[locale]} ${traitDescriptions}`
         .toLocaleLowerCase()
-        .includes(normalizedSearch),
-    );
+        .includes(normalizedSearch);
+    });
   });
 };
 

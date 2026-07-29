@@ -94,6 +94,27 @@
   font-weight: 500;
 }
 
+.filterArea,
+.filterGroup {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.filterArea {
+  gap: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-muted);
+}
+
+.filterGroup > strong {
+  color: var(--text);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -163,6 +184,34 @@
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.traitMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: var(--space-3);
+}
+
+.traitMeta span {
+  padding: 0.3rem 0.58rem;
+  border: 1px solid var(--border-medium);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.traitMeta span[data-level="high"] {
+  border-color: var(--accent-muted);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.traitMeta span[data-level="both"] {
+  border-style: dashed;
 }
 
 .topicCard h3,
@@ -295,6 +344,51 @@
 .supportNote p {
   margin: var(--space-2) 0 0;
   font-size: 0.86rem;
+}
+
+.traitExplanation {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.traitExplanation h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: -0.015em;
+}
+
+.traitExplanation > p {
+  margin: var(--space-2) 0 0;
+  font-size: 0.84rem;
+}
+
+.traitExplanation ul {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.traitExplanation li {
+  display: grid;
+  gap: 0.35rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+
+.traitExplanation li strong {
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+}
+
+.traitExplanation li span {
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.6;
 }
 
 .actionList,

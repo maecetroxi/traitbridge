@@ -7,6 +7,7 @@ import {
   getLearningSources,
   getLearningTopic,
   type EvidenceKind,
+  type TraitLevel,
 } from "../../lib/learning-content";
 import styles from "../../styles/LearningContent.module.css";
 
@@ -47,6 +48,7 @@ const LearningTopicPage: React.FC = () => {
     institution: copy.learn.evidenceKinds.institution,
     editorial: copy.learn.evidenceKinds.editorial,
   };
+  const traitLevelLabel = (level: TraitLevel) => copy.learn.traitLevels[level];
 
   return (
     <>
@@ -67,6 +69,19 @@ const LearningTopicPage: React.FC = () => {
               <span key={category}>{copy.learn.categories[category]}</span>
             ))}
           </div>
+          <div
+            className={styles.traitMeta}
+            aria-label={copy.learn.traitRelevanceLabel}
+          >
+            {topic.traitRelevance.map((relevance) => (
+              <span
+                key={`${relevance.trait}-${relevance.level}`}
+                data-level={relevance.level}
+              >
+                {traitLevelLabel(relevance.level)} · {copy.traits[relevance.trait]}
+              </span>
+            ))}
+          </div>
           <h1>{topic.title[locale]}</h1>
           <p>{topic.summary[locale]}</p>
         </header>
@@ -84,6 +99,21 @@ const LearningTopicPage: React.FC = () => {
             <section>
               <h2>{copy.learn.tendenciesHeading}</h2>
               <p>{topic.tendencies[locale]}</p>
+              <div className={styles.traitExplanation}>
+                <h3>{copy.learn.traitExplanationHeading}</h3>
+                <p>{copy.learn.traitExplanationIntro}</p>
+                <ul>
+                  {topic.traitRelevance.map((relevance) => (
+                    <li key={`${relevance.trait}-${relevance.level}`}>
+                      <strong>
+                        {traitLevelLabel(relevance.level)} ·{" "}
+                        {copy.traits[relevance.trait]}
+                      </strong>
+                      <span>{relevance.description[locale]}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               <aside className={styles.limitNote}>
                 <strong>{copy.learn.limitsHeading}</strong>
                 <p>{topic.limits[locale]}</p>
