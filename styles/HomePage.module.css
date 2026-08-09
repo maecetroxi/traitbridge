@@ -1,112 +1,156 @@
 .page {
-  --home-ink: #18211d;
-  --home-paper: #f5f0e7;
   display: grid;
-  gap: clamp(2.5rem, 6vw, 5rem);
-  padding: clamp(1rem, 4vw, 3.5rem) 0;
-  color: var(--home-ink);
+  gap: var(--space-8);
+  padding: clamp(1.5rem, 5vw, 4rem) 0;
+  color: var(--text);
 }
 
 .intro {
-  max-width: 760px;
-}
-
-.kicker {
-  display: inline-block;
-  margin-bottom: 1rem;
-  color: #9b4f32;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  max-width: 850px;
 }
 
 .intro h1 {
-  margin: 0;
   max-width: 11ch;
-  font-family: "Fraunces", Georgia, serif;
-  font-size: clamp(3.2rem, 8vw, 6.8rem);
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 8vw, 6.8rem);
   font-weight: 650;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.058em;
   line-height: 0.94;
 }
 
 .intro p {
-  max-width: 52ch;
-  margin: 1.5rem 0 0;
-  color: #5d665f;
-  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  max-width: 65ch;
+  margin: var(--space-5) 0 0;
+  color: var(--text-soft);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  line-height: 1.7;
+}
+
+.returning {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--accent-muted);
+  border-radius: var(--radius-lg);
+  background: var(--surface-tint);
+}
+
+.returning > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-2);
+}
+
+.returning > div + div {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.returningLabel {
+  min-width: 170px;
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.returning p {
+  flex: 1;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+}
+
+.returning a {
+  flex: 0 0 auto;
+}
+
+.context {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.context > div {
+  padding: 0 0 0 var(--space-4);
+  border-left: 2px solid var(--accent-muted);
+}
+
+.context h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.context p {
+  max-width: 55ch;
+  margin: var(--space-2) 0 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
   line-height: 1.65;
 }
 
 .optionGrid {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .optionCard {
   position: relative;
-  min-height: 285px;
-  padding: 1.5rem;
-  overflow: hidden;
-  border: 1px solid rgba(24, 33, 29, 0.12);
-  border-radius: 1.5rem;
-  background: var(--home-paper);
-  box-shadow: 0 22px 50px -38px rgba(24, 33, 29, 0.45);
   display: flex;
+  min-height: 260px;
+  padding: var(--space-5);
+  overflow: hidden;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   flex-direction: column;
   justify-content: space-between;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .optionCard::after {
-  content: "";
   position: absolute;
-  right: -3.5rem;
-  bottom: -4.5rem;
+  right: -4rem;
+  bottom: -5rem;
   width: 13rem;
   height: 13rem;
   border-radius: 50%;
   background: var(--card-shape);
-  opacity: 0.52;
+  content: "";
+  opacity: 0.42;
   pointer-events: none;
 }
 
 .optionCard:hover {
-  transform: translateY(-5px);
-  border-color: rgba(24, 33, 29, 0.24);
-  box-shadow: 0 28px 60px -38px rgba(24, 33, 29, 0.62);
+  border-color: var(--accent-muted);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
 }
 
 .testCard {
-  --card-shape: #e99b72;
-  background: linear-gradient(145deg, #fff5e9, #f3e4cf);
+  --card-shape: #e7a77f;
+  background: linear-gradient(145deg, #fff8ef, #f5e7d6);
 }
 
 .communityCard {
-  --card-shape: #8db8ac;
-  background: linear-gradient(145deg, #edf7f2, #dcebe5);
+  --card-shape: #8fb9aa;
+  background: linear-gradient(145deg, #f0f8f3, #dfece6);
 }
 
 .learnCard {
-  --card-shape: #d6b76f;
-  background: linear-gradient(145deg, #f9f4e5, #ede2c4);
-}
-
-.optionNumber {
-  position: relative;
-  z-index: 1;
-  color: rgba(24, 33, 29, 0.52);
-  font-family: "Fraunces", Georgia, serif;
-  font-size: 0.95rem;
-  font-weight: 700;
+  --card-shape: #d8bd7f;
+  background: linear-gradient(145deg, #fbf7ea, #eee4c9);
 }
 
 .optionCard h2 {
   position: relative;
   z-index: 1;
-  margin: 0 0 0.65rem;
-  font-family: "Fraunces", Georgia, serif;
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
   font-size: clamp(1.8rem, 3vw, 2.4rem);
   letter-spacing: -0.025em;
   line-height: 1.05;
@@ -115,11 +159,11 @@
 .optionCard p {
   position: relative;
   z-index: 1;
-  max-width: 35ch;
+  max-width: 36ch;
   margin: 0;
-  color: #5c655f;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.65;
 }
 
 .optionAction {
@@ -128,36 +172,47 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  font-size: 0.86rem;
   font-weight: 800;
 }
 
-.optionAction span {
-  font-size: 1.2rem;
-  transition: transform 180ms ease;
+@media (min-width: 760px) {
+  .returning,
+  .context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .returning > div + div {
+    border-top: 0;
+    border-left: 1px solid var(--border-subtle);
+  }
 }
 
-.optionCard:hover .optionAction span {
-  transform: translateX(4px);
-}
-
-@media (min-width: 820px) {
+@media (min-width: 900px) {
   .optionGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 819px) {
+@media (max-width: 680px) {
+  .returning > div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .returningLabel {
+    min-width: 0;
+  }
+
   .optionCard {
-    min-height: 230px;
+    min-height: 220px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .optionCard,
-  .optionAction span {
+  .optionCard {
     transition: none;
   }
 }

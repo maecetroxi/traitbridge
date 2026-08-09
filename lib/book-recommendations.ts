@@ -12,6 +12,9 @@ export type CuratedBook = {
   title: LocalizedText;
   originalTitle?: string;
   author: string;
+  year?: number;
+  sourceLabel?: string;
+  sourceUrl?: string;
   kind: BookKind;
   themes: LocalizedText[];
   description: LocalizedText;
@@ -218,6 +221,246 @@ export const CURATED_BOOKS: CuratedBook[] = [
     mirrorProfile: { O: 4.2, N: 4.1 }, growthProfile: { N: 4.3, C: 3.5 },
     mirrorReason: text("Its many possible lives may resonate with imagination and intensive reflection.", "Die vielen möglichen Leben können Fantasie und intensives Nachdenken spiegeln."),
     growthReason: text("It offers a gentle counterweight to rumination about perfect choices and missed paths.", "Es bietet ein sanftes Gegengewicht zum Grübeln über perfekte Entscheidungen und verpasste Wege."),
+  },
+  {
+    id: "range",
+    title: text("Range", "Range"),
+    author: "David Epstein",
+    year: 2019,
+    sourceLabel: "Penguin Random House",
+    sourceUrl: "https://www.penguinrandomhouse.com/books/550188/range-by-david-epstein/9780735214507/",
+    kind: "nonfiction",
+    themes: [theme("Learning", "Lernen"), theme("Exploration", "Erkunden")],
+    description: text(
+      "A research-led case for breadth, experimentation, and later specialization in complex fields.",
+      "Ein forschungsnahes Plädoyer für Breite, Experimente und spätere Spezialisierung in komplexen Feldern.",
+    ),
+    mirrorProfile: { O: 4.4, C: 2.7 },
+    growthProfile: { O: 2.0, C: 4.1 },
+    mirrorReason: text(
+      "Its appetite for detours may mirror a curious style that connects ideas across domains.",
+      "Die Freude an Umwegen kann einen neugierigen Stil spiegeln, der Ideen über Fachgrenzen hinweg verbindet.",
+    ),
+    growthReason: text(
+      "It can make carefully bounded experiments feel useful without dismissing the value of dependable routines.",
+      "Es kann klar begrenzte Experimente zugänglich machen, ohne den Wert verlässlicher Routinen abzuwerten.",
+    ),
+  },
+  {
+    id: "scout-mindset",
+    title: text("The Scout Mindset", "The Scout Mindset"),
+    author: "Julia Galef",
+    year: 2021,
+    sourceLabel: "Penguin Random House",
+    sourceUrl: "https://www.penguinrandomhouse.com/books/555240/the-scout-mindset-by-julia-galef/",
+    kind: "nonfiction",
+    themes: [theme("Judgment", "Urteilen"), theme("Curiosity", "Neugier")],
+    description: text(
+      "A practical exploration of noticing motivated reasoning and updating beliefs with care.",
+      "Eine praktische Erkundung davon, wie man motiviertes Denken bemerkt und Überzeugungen sorgfältig aktualisiert.",
+    ),
+    mirrorProfile: { O: 4.3, A: 2.8 },
+    growthProfile: { O: 2.0, A: 4.1 },
+    mirrorReason: text(
+      "Questioning your own first explanation may fit an exploratory, evidence-seeking outlook.",
+      "Die eigene erste Erklärung zu hinterfragen, kann zu einer erkundenden und evidenzsuchenden Haltung passen.",
+    ),
+    growthReason: text(
+      "Its concrete questions offer a structured way to examine unfamiliar views without demanding instant agreement.",
+      "Die konkreten Fragen bieten einen strukturierten Weg, ungewohnte Sichtweisen zu prüfen, ohne sofortige Zustimmung zu verlangen.",
+    ),
+  },
+  {
+    id: "checklist-manifesto",
+    title: text("The Checklist Manifesto", "The Checklist Manifesto"),
+    author: "Atul Gawande",
+    year: 2009,
+    sourceLabel: "Macmillan",
+    sourceUrl: "https://us.macmillan.com/books/9780312430009/thechecklistmanifesto/",
+    kind: "nonfiction",
+    themes: [theme("Reliability", "Verlässlichkeit"), theme("Teamwork", "Teamarbeit")],
+    description: text(
+      "How simple shared checks can support expert work in situations where complexity invites mistakes.",
+      "Wie einfache gemeinsame Prüfungen fachliche Arbeit unterstützen können, wenn Komplexität Fehler begünstigt.",
+    ),
+    mirrorProfile: { C: 4.6, A: 3.7 },
+    growthProfile: { C: 1.8, E: 3.4 },
+    mirrorReason: text(
+      "The focus on reliable follow-through may resonate with a structured and quality-conscious style.",
+      "Der Fokus auf verlässliche Umsetzung kann einen strukturierten und qualitätsbewussten Stil spiegeln.",
+    ),
+    growthReason: text(
+      "A short shared checklist can add support at critical moments without turning everyday life into a rigid system.",
+      "Eine kurze gemeinsame Checkliste kann an kritischen Stellen Halt geben, ohne den Alltag in ein starres System zu verwandeln.",
+    ),
+  },
+  {
+    id: "emotional-agility",
+    title: text("Emotional Agility", "Emotionale Agilität"),
+    author: "Susan David",
+    year: 2016,
+    sourceLabel: "Penguin Random House",
+    sourceUrl: "https://www.penguinrandomhouse.com/books/318298/emotional-agility-by-susan-david/",
+    kind: "nonfiction",
+    themes: [theme("Emotion", "Gefühle"), theme("Values", "Werte")],
+    description: text(
+      "A values-oriented approach to noticing difficult inner experiences without letting them dictate every action.",
+      "Ein werteorientierter Ansatz, schwierige innere Erfahrungen wahrzunehmen, ohne jede Handlung von ihnen bestimmen zu lassen.",
+    ),
+    mirrorProfile: { N: 4.3, O: 3.7 },
+    growthProfile: { N: 1.8, A: 3.8 },
+    mirrorReason: text(
+      "Its respect for emotional information may feel familiar when you notice tension and inner shifts early.",
+      "Der Respekt vor emotionalen Informationen kann vertraut wirken, wenn du Spannungen und innere Veränderungen früh bemerkst.",
+    ),
+    growthReason: text(
+      "It can help a steady style treat emotions as useful signals without assuming every signal requires immediate action.",
+      "Es kann einem stabilen Stil helfen, Gefühle als nützliche Signale zu betrachten, ohne aus jedem Signal sofort handeln zu müssen.",
+    ),
+  },
+  {
+    id: "righteous-mind",
+    title: text("The Righteous Mind", "The Righteous Mind"),
+    author: "Jonathan Haidt",
+    year: 2012,
+    sourceLabel: "Penguin Random House",
+    sourceUrl: "https://www.penguinrandomhouse.com/books/73535/the-righteous-mind-by-jonathan-haidt/9780307455772/",
+    kind: "nonfiction",
+    themes: [theme("Morality", "Moral"), theme("Differences", "Unterschiede")],
+    description: text(
+      "An account of moral intuition and why sincere people can reach sharply different judgments.",
+      "Eine Darstellung moralischer Intuition und der Frage, warum aufrichtige Menschen zu sehr unterschiedlichen Urteilen gelangen können.",
+    ),
+    mirrorProfile: { A: 2.0, O: 4.0 },
+    growthProfile: { A: 4.3, O: 3.7 },
+    mirrorReason: text(
+      "Its willingness to examine disagreement may suit a direct style that values intellectual friction.",
+      "Die Bereitschaft, Widerspruch zu untersuchen, kann zu einem direkten Stil passen, der intellektuelle Reibung schätzt.",
+    ),
+    growthReason: text(
+      "It can help a harmony-seeking reader stay curious when disagreement cannot be resolved quickly.",
+      "Es kann harmonieorientierten Lesenden helfen, neugierig zu bleiben, wenn sich ein Widerspruch nicht schnell auflösen lässt.",
+    ),
+  },
+  {
+    id: "psalm-wild-built",
+    title: text("A Psalm for the Wild-Built", "A Psalm for the Wild-Built"),
+    author: "Becky Chambers",
+    year: 2021,
+    sourceLabel: "Tor Publishing Group",
+    sourceUrl: "https://torpublishinggroup.com/a-psalm-for-the-wild-built/?format=hardback&isbn=9781250236210",
+    kind: "fiction",
+    themes: [theme("Purpose", "Sinn"), theme("Care", "Fürsorge")],
+    description: text(
+      "A hopeful, quiet journey that asks what people need when usefulness is not the measure of a life.",
+      "Eine hoffnungsvolle, ruhige Reise über die Frage, was Menschen brauchen, wenn Nützlichkeit nicht der Maßstab eines Lebens ist.",
+    ),
+    mirrorProfile: { A: 4.4, E: 2.1, O: 4.0 },
+    growthProfile: { C: 4.3, A: 3.8 },
+    mirrorReason: text(
+      "Its attentive conversations may mirror a caring, inward way of making space for others.",
+      "Die aufmerksamen Gespräche können eine fürsorgliche, nach innen gerichtete Art spiegeln, anderen Raum zu geben.",
+    ),
+    growthReason: text(
+      "The story offers a counterweight when achievement and reliable output have become the main source of worth.",
+      "Die Geschichte bietet ein Gegengewicht, wenn Leistung und verlässlicher Output zur wichtigsten Quelle des eigenen Werts geworden sind.",
+    ),
+  },
+  {
+    id: "left-hand-darkness",
+    title: text("The Left Hand of Darkness", "Die linke Hand der Dunkelheit"),
+    author: "Ursula K. Le Guin",
+    year: 1969,
+    sourceLabel: "Ursula K. Le Guin archive",
+    sourceUrl: "https://www.ursulakleguin.com/foreword-the-birthday-of-the-world",
+    kind: "fiction",
+    themes: [theme("Difference", "Anderssein"), theme("Trust", "Vertrauen")],
+    description: text(
+      "A science-fiction classic about encountering unfamiliar social worlds, loyalty, and the limits of interpretation.",
+      "Ein Science-Fiction-Klassiker über ungewohnte soziale Welten, Loyalität und die Grenzen der eigenen Deutung.",
+    ),
+    mirrorProfile: { O: 4.7, E: 2.5 },
+    growthProfile: { O: 1.8, A: 3.8 },
+    mirrorReason: text(
+      "Its unfamiliar world may reward a reader who enjoys revising categories and testing assumptions.",
+      "Die ungewohnte Welt kann Lesende ansprechen, die Kategorien gern neu betrachten und Annahmen prüfen.",
+    ),
+    growthReason: text(
+      "Its human relationship offers a narrative bridge into ambiguity while keeping loyalty and practical stakes visible.",
+      "Die menschliche Beziehung baut eine erzählerische Brücke zur Mehrdeutigkeit, während Loyalität und konkrete Folgen sichtbar bleiben.",
+    ),
+  },
+  {
+    id: "old-man-sea",
+    title: text("The Old Man and the Sea", "Der alte Mann und das Meer"),
+    author: "Ernest Hemingway",
+    year: 1952,
+    sourceLabel: "Penguin Random House",
+    sourceUrl: "https://www.penguinrandomhouse.com/books/643048/el-viejo-y-el-mar--the-old-man-and-the-sea-by-ernest-hemingway/",
+    kind: "fiction",
+    themes: [theme("Endurance", "Ausdauer"), theme("Dignity", "Würde")],
+    description: text(
+      "A spare story about persistence, loss, craft, and dignity under pressure.",
+      "Eine reduzierte Geschichte über Ausdauer, Verlust, Können und Würde unter Druck.",
+    ),
+    mirrorProfile: { N: 1.5, C: 4.4, E: 2.2 },
+    growthProfile: { N: 4.2, C: 3.6 },
+    mirrorReason: text(
+      "The protagonist's composure and practiced focus may echo steadiness in demanding moments.",
+      "Die Ruhe und geübte Konzentration der Hauptfigur können Stabilität in fordernden Momenten spiegeln.",
+    ),
+    growthReason: text(
+      "Its narrow horizon can offer an emotionally sensitive reader a contained reflection on acting amid uncertainty.",
+      "Der enge Horizont kann emotional sensiblen Lesenden eine begrenzte Reflexion über Handeln unter Unsicherheit bieten.",
+    ),
+  },
+  {
+    id: "anne-green-gables",
+    title: text("Anne of Green Gables", "Anne auf Green Gables"),
+    author: "L. M. Montgomery",
+    year: 1908,
+    sourceLabel: "Penguin Random House",
+    sourceUrl: "https://www.penguinrandomhouse.com/books/557098/anne-of-green-gables-by-l-m-montgomery/",
+    kind: "fiction",
+    themes: [theme("Imagination", "Fantasie"), theme("Belonging", "Zugehörigkeit")],
+    description: text(
+      "A coming-of-age story about imagination, expressive energy, mistakes, and finding belonging.",
+      "Eine Entwicklungsgeschichte über Fantasie, Ausdruckskraft, Fehler und das Finden von Zugehörigkeit.",
+    ),
+    mirrorProfile: { E: 4.5, O: 4.6, N: 3.8 },
+    growthProfile: { E: 1.8, O: 2.2 },
+    mirrorReason: text(
+      "Anne's expressive curiosity may feel familiar to people who think aloud and animate shared spaces.",
+      "Annes ausdrucksstarke Neugier kann Menschen vertraut vorkommen, die laut denken und gemeinsame Räume beleben.",
+    ),
+    growthReason: text(
+      "Her warmth can make experimentation and visible enthusiasm approachable from a quieter starting point.",
+      "Ihre Wärme kann Experimente und sichtbare Begeisterung von einem ruhigeren Ausgangspunkt aus zugänglich machen.",
+    ),
+  },
+  {
+    id: "klara-sun",
+    title: text("Klara and the Sun", "Klara und die Sonne"),
+    author: "Kazuo Ishiguro",
+    year: 2021,
+    sourceLabel: "Penguin Random House",
+    sourceUrl: "https://www.penguinrandomhouse.com/books/653825/klara-and-the-sun-by-kazuo-ishiguro/",
+    kind: "fiction",
+    themes: [theme("Observation", "Beobachtung"), theme("Care", "Fürsorge")],
+    description: text(
+      "A restrained speculative novel about close observation, attachment, and what care can and cannot promise.",
+      "Ein zurückhaltender spekulativer Roman über genaue Beobachtung, Bindung und darüber, was Fürsorge versprechen kann und was nicht.",
+    ),
+    mirrorProfile: { A: 4.5, E: 1.8, N: 3.7 },
+    growthProfile: { A: 1.9, N: 2.0 },
+    mirrorReason: text(
+      "Klara's attentive concern may mirror a quiet style that notices other people's needs.",
+      "Klaras aufmerksame Anteilnahme kann einen ruhigen Stil spiegeln, der die Bedürfnisse anderer wahrnimmt.",
+    ),
+    growthReason: text(
+      "The novel can invite a more skeptical or steady reader to examine the limits and costs of care.",
+      "Der Roman kann skeptischere oder stabilere Lesende dazu einladen, Grenzen und Kosten von Fürsorge genauer zu betrachten.",
+    ),
   },
 ];
 

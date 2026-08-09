@@ -1,4 +1,5 @@
 import React from "react";
+import Head from "next/head";
 import Link from "next/link";
 import { useLocale } from "../contexts/LocaleContext";
 
@@ -6,7 +7,12 @@ const BackgroundPage: React.FC = () => {
   const { copy } = useLocale();
 
   return (
-    <div className="page-card">
+    <>
+      <Head>
+        <title>{copy.background.title} | TraitBridge</title>
+        <meta name="description" content={copy.background.intro} />
+      </Head>
+      <div className="page-card">
       <div className="page-kicker">{copy.background.kicker}</div>
       <h1 className="page-title">{copy.background.title}</h1>
       <p className="page-intro">{copy.background.intro}</p>
@@ -25,7 +31,7 @@ const BackgroundPage: React.FC = () => {
         ))}
       </div>
 
-      <section className="card-subtle" style={{ marginTop: "2rem" }}>
+      <section className="card-subtle background-reading">
         <h2 className="section-title">{copy.background.readingTitle}</h2>
         <div className="stack-md">
           {copy.background.readingParagraphs.map((paragraph) => (
@@ -36,7 +42,7 @@ const BackgroundPage: React.FC = () => {
         </div>
       </section>
 
-      <div className="test-action-row" style={{ marginTop: "2rem" }}>
+      <div className="test-action-row background-actions">
         <Link href="/test" className="btn btn-outline">
           {copy.background.backToTest}
         </Link>
@@ -44,7 +50,8 @@ const BackgroundPage: React.FC = () => {
           {copy.background.directToTest}
         </Link>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

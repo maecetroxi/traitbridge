@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -14,6 +14,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const { user, signOut, loading } = useAuth();
   const { copy } = useLocale();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [router.asPath]);
 
   const navItems = [
     { href: "/", label: copy.layout.nav.home },
@@ -28,79 +33,90 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleSignOut = async () => {
     await signOut();
-    router.push("/");
+    await router.push("/");
   };
 
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        {copy.layout.skipToContent}
+      </a>
       <header className="app-header">
         <div className="app-header-inner">
-          <div className="app-brand">
-            <Link href="/" className="app-logo" style={{ cursor: "pointer" }}>
+          <Link href="/" className="app-brand" aria-label="TraitBridge">
+            <span className="app-logo">
               <Image
                 src="/traitbridge-logo.png.png"
-                alt="TraitBridge Logo"
-                width={150}
-                height={50}
+                alt=""
+                width={58}
+                height={58}
                 priority
-                style={{ height: "100%", width: "auto", objectFit: "cover" }}
               />
-            </Link>
-            <div>
-              <div className="app-title">TraitBridge</div>
-              <div className="app-subtitle">{copy.layout.subtitle}</div>
-            </div>
-          </div>
-          <div className="app-header-actions">
-            <nav className="app-nav" aria-label="Primary navigation">
-              {visibleNavItems.map((item) => {
-                const isActive =
-                  item.href === "/"
-                    ? router.pathname === item.href
-                    : router.pathname.startsWith(item.href);
-                const className = ["app-nav-link", isActive ? "app-nav-link-active" : ""]
-                  .filter(Boolean)
-                  .join(" ");
+            </span>
+            <span>
+              <span className="app-title">TraitBridge</span>
+              <span className="app-subtitle">{copy.layout.subtitle}</span>
+            </span>
+          </Link>
 
-                return (
-                  <Link key={item.href} href={item.href} className={className}>
-                    {item.label}
-                  </Link>
-                );
-              })}
-              {!loading && (
-                <>
-                  {isRegisteredUser ? (
-                    <button
-                      onClick={handleSignOut}
-                      className="app-nav-link"
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontFamily: "inherit",
-                        fontSize: "inherit",
-                        padding: 0,
-                        marginLeft: 0,
-                      }}
-                    >
-                      {copy.layout.nav.signOut}
-                    </button>
-                  ) : (
-                    <Link href="/login" className="app-nav-link" style={{ marginLeft: 0 }}>
-                      {copy.layout.nav.signIn}
-                    </Link>
-                  )}
-                </>
-              )}
-            </nav>
+          <div className="app-header-utilities">
             <LocaleSwitcher />
+            <button
+              type="button"
+              className="app-menu-button"
+              aria-expanded={isMenuOpen}
+              aria-controls="primary-navigation"
+              aria-label={isMenuOpen ? copy.layout.closeMenu : copy.layout.openMenu}
+              onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+            >
+              <span aria-hidden="true">{isMenuOpen ? "×" : "☰"}</span>
+            </button>
           </div>
+
+          <nav
+            id="primary-navigation"
+            className={`app-nav${isMenuOpen ? " app-nav-open" : ""}`}
+            aria-label={copy.layout.navigationLabel}
+          >
+            {visibleNavItems.map((item) => {
+              const isActive =
+                item.href === "/"
+                  ? router.pathname === item.href
+                  : router.pathname.startsWith(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`app-nav-link${isActive ? " app-nav-link-active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+            {!loading &&
+              (isRegisteredUser ? (
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="app-nav-link app-nav-button"
+                >
+                  {copy.layout.nav.signOut}
+                </button>
+              ) : (
+                <Link href="/login" className="app-nav-link">
+                  {copy.layout.nav.signIn}
+                </Link>
+              ))}
+          </nav>
         </div>
       </header>
-      <main>
+
+      <main id="main-content" className="app-main">
         <div className="container">{children}</div>
       </main>
+
       <footer className="app-footer">
         <div className="app-footer-inner">
           <span>{copy.layout.footer}</span>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useLocale } from "../../contexts/LocaleContext";
-import { sanitizeStoredResults, STORAGE_KEY_FULL } from "../../lib/bigfive-results";
+import { loadPreferredStoredResults } from "../../lib/bigfive-results";
 import {
   NEUTRAL_PERSONALITY_SCORES,
   PERSONALITY_TRAITS,
@@ -23,8 +23,7 @@ const PersonalityGuidePage: React.FC = () => {
 
   useEffect(() => {
     try {
-      const rawResults = window.localStorage.getItem(STORAGE_KEY_FULL);
-      const storedResults = rawResults ? sanitizeStoredResults(JSON.parse(rawResults)) : null;
+      const storedResults = loadPreferredStoredResults(window.localStorage);
 
       if (storedResults) {
         setScores(storedResults.scores);
@@ -198,6 +197,7 @@ const PersonalityGuidePage: React.FC = () => {
         )}
 
         <p className={styles.privacyNote}>
+          {copy.scope}{" "}
           {copy.privacy}{" "}
           <a
             href="https://platform.openai.com/docs/models/default-usage-policies-by-endpoint"

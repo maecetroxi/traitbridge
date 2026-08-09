@@ -1,11 +1,20 @@
-import React from 'react'
-import LoginForm from '../components/LoginForm'
+import React from "react";
+import Head from "next/head";
+import LoginForm from "../components/LoginForm";
+import { useLocale } from "../contexts/LocaleContext";
 
 const LoginPage: React.FC = () => {
-  return <LoginForm />
-}
+  const { copy } = useLocale();
 
-export default LoginPage
+  return (
+    <>
+      <Head>
+        <title>{copy.login.signInTitle} | TraitBridge</title>
+        <meta name="description" content={copy.login.intro} />
+      </Head>
+      <LoginForm />
+    </>
+  );
+};
 
-
-
+export default LoginPage;
