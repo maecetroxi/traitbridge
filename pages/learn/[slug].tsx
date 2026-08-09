@@ -9,11 +9,13 @@ import {
   type EvidenceKind,
   type TraitLevel,
 } from "../../lib/learning-content";
+import { learningHubCopy } from "../../lib/learning-hub-copy";
 import styles from "../../styles/LearningContent.module.css";
 
 const LearningTopicPage: React.FC = () => {
   const router = useRouter();
   const { locale, copy } = useLocale();
+  const articleCopy = learningHubCopy[locale].articles;
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const topic = getLearningTopic(slug);
 
@@ -138,6 +140,18 @@ const LearningTopicPage: React.FC = () => {
                   <li key={question}>{question}</li>
                 ))}
               </ul>
+              <aside className={styles.communityBridge}>
+                <strong>{articleCopy.communityTitle}</strong>
+                <p>{articleCopy.communityText}</p>
+                <Link
+                  href={{
+                    pathname: "/community",
+                    query: { category: topic.categories[0] },
+                  }}
+                >
+                  {articleCopy.communityAction} →
+                </Link>
+              </aside>
             </section>
           </article>
 

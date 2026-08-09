@@ -2,9 +2,50 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { CURATED_BOOKS, localizeBook, recommendBooks } from "../lib/book-recommendations";
 
-test("contains twelve curated titles for each shelf", () => {
-  assert.equal(CURATED_BOOKS.filter((book) => book.kind === "nonfiction").length, 12);
-  assert.equal(CURATED_BOOKS.filter((book) => book.kind === "fiction").length, 12);
+test("keeps the original shelves and adds five verified titles to each", () => {
+  assert.equal(CURATED_BOOKS.filter((book) => book.kind === "nonfiction").length, 17);
+  assert.equal(CURATED_BOOKS.filter((book) => book.kind === "fiction").length, 17);
+
+  const originalIds = [
+    "quiet",
+    "atomic-habits",
+    "mindset",
+    "four-thousand-weeks",
+    "nonviolent-communication",
+    "thinking-fast-slow",
+    "highly-sensitive-person",
+    "essentialism",
+    "daring-greatly",
+    "flow",
+    "art-of-loving",
+    "digital-minimalism",
+    "stoner",
+    "stranger",
+    "jane-eyre",
+    "gatsby",
+    "pride-prejudice",
+    "remains-day",
+    "convenience-store-woman",
+    "little-prince",
+    "circe",
+    "man-called-ove",
+    "eleanor-oliphant",
+    "midnight-library",
+  ];
+
+  assert.ok(
+    originalIds.every((id) => CURATED_BOOKS.some((book) => book.id === id)),
+  );
+});
+
+test("new titles expose publication metadata without changing the legacy shape", () => {
+  const additions = CURATED_BOOKS.filter((book) => book.year);
+
+  assert.equal(additions.length, 10);
+  assert.ok(additions.every((book) => Number.isInteger(book.year)));
+  assert.ok(
+    additions.every((book) => book.sourceUrl?.startsWith("https://")),
+  );
 });
 
 test("returns six deterministic recommendations of the selected kind", () => {

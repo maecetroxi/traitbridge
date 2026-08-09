@@ -5,9 +5,11 @@ TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practic
 ## What is included
 
 - IPIP-NEO-120 assessment in English and German
+- Embedded ten-item quick orientation in English and German
 - Ten questionnaire stages with actual-answer progress, local autosave, resume and restart
 - Local results for visitors and Supabase-backed results for registered users
-- Public Community reading with search, categories and sorting
+- Public Community reading with questions, experiences, search, categories and sorting
+- Public three-band OCEAN profiles for contributors; exact scores and email addresses stay private
 - Direct question routes at `/community/[id]`
 - Email magic-link sign-in for writing Community content
 - Eleven bilingual, situation-based learning topics at `/learn/[slug]`
@@ -24,8 +26,8 @@ TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practic
 | `/test/full` | Staged IPIP-NEO-120 questionnaire | No |
 | `/results` | Locally stored result | No |
 | `/profile` | Latest Supabase result with local fallback | Yes |
-| `/community` | Searchable and filterable question feed | Read: no; write: yes |
-| `/community/[id]` | Direct question and answer view | Read: no; answer: yes |
+| `/community` | Searchable feed for questions and experiences | Read: no; write: account + test |
+| `/community/[id]` | Direct post and perspective view | Read: no; answer: account + test |
 | `/learn` | Practical learning topic overview | No |
 | `/learn/[slug]` | Structured topic with evidence notes and sources | No |
 | `/learn/books` | Editorial book suggestions | No |
@@ -83,7 +85,7 @@ The tests cover stored profile validation, AI request/response validation, book 
 - An unfinished test is versioned and stored per language in `localStorage`.
 - A visitor’s completed result remains in `localStorage`.
 - For a permanent signed-in user, the completed result is also sent to Supabase.
-- Community content is publicly readable. Only permanent signed-in users can write.
+- Community content is publicly readable. Writing requires a permanent account, a short or full test result, and consent to a public three-band OCEAN profile.
 - Compass questions are sent to the server-side OpenAI route with `store: false`; TraitBridge does not persist questions or responses.
 - The assessment is a self-reflection tool, not a clinical diagnosis.
 - Learning exercises and book matches are clearly separated from scientific evidence.

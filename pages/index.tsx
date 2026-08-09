@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useLocale } from "../contexts/LocaleContext";
-import { sanitizeStoredResults, STORAGE_KEY_FULL } from "../lib/bigfive-results";
+import { loadPreferredStoredResults } from "../lib/bigfive-results";
 import { formatTranslation } from "../lib/i18n";
 import { getTestDraftSummary, type TestDraftSummary } from "../lib/test-draft";
 import styles from "../styles/HomePage.module.css";
@@ -15,10 +15,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     try {
       setDraft(getTestDraftSummary(window.localStorage));
-      const rawResult = window.localStorage.getItem(STORAGE_KEY_FULL);
-      setHasLocalResult(
-        Boolean(rawResult && sanitizeStoredResults(JSON.parse(rawResult))),
-      );
+      setHasLocalResult(Boolean(loadPreferredStoredResults(window.localStorage)));
     } catch {
       setDraft(null);
       setHasLocalResult(false);

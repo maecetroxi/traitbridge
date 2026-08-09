@@ -5,12 +5,20 @@ import { useRouter } from "next/router";
 import { useLocale } from "../contexts/LocaleContext";
 import { DEMO_RESULTS, STORAGE_KEY_FULL } from "../lib/bigfive-results";
 import { getTestDraftSummary, type TestDraftSummary } from "../lib/test-draft";
+import ShortBigFiveTest from "../components/ShortBigFiveTest";
 
 const TestPage: React.FC = () => {
-  const { copy } = useLocale();
+  const { locale, copy } = useLocale();
   const router = useRouter();
   const [draft, setDraft] = useState<TestDraftSummary | null>(null);
+  const [isShortTestOpen, setIsShortTestOpen] = useState(false);
   const showDemo = router.query.demo === "1";
+  const requestedReturnTo =
+    typeof router.query.returnTo === "string" &&
+    router.query.returnTo.startsWith("/") &&
+    !router.query.returnTo.startsWith("//")
+      ? router.query.returnTo
+      : undefined;
 
   useEffect(() => {
     try {
@@ -19,6 +27,25 @@ const TestPage: React.FC = () => {
       setDraft(null);
     }
   }, []);
+
+  useEffect(() => {
+    if (router.isReady && router.query.short === "1") {
+      setIsShortTestOpen(true);
+    }
+  }, [router.isReady, router.query.short]);
+
+  const closeShortTest = () => {
+    setIsShortTestOpen(false);
+
+    if (router.query.short === "1") {
+      const { short: _short, ...remainingQuery } = router.query;
+      void router.replace(
+        { pathname: router.pathname, query: remainingQuery },
+        undefined,
+        { shallow: true },
+      );
+    }
+  };
 
   const loadDemoResults = () => {
     window.localStorage.setItem(
@@ -76,6 +103,13 @@ const TestPage: React.FC = () => {
               <Link href="/background" className="btn btn-outline">
                 {copy.testOverview.backgroundButton}
               </Link>
+              <button
+                type="button"
+                className="btn btn-quiet"
+                onClick={() => setIsShortTestOpen(true)}
+              >
+                {locale === "de" ? "Kurztest · ca. 2 Minuten" : "Quick test · about 2 minutes"}
+              </button>
               {showDemo && (
                 <button type="button" className="btn btn-quiet" onClick={loadDemoResults}>
                   {copy.testOverview.demoButton}
@@ -123,6 +157,12 @@ const TestPage: React.FC = () => {
           </article>
         </section>
       </div>
+
+      <ShortBigFiveTest
+        open={isShortTestOpen}
+        onClose={closeShortTest}
+        returnTo={requestedReturnTo}
+      />
     </>
   );
 };

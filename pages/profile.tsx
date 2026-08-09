@@ -10,8 +10,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
 import {
   getDetailedResults,
+  loadPreferredStoredResults,
   sanitizeStoredResults,
-  STORAGE_KEY_FULL,
   type StoredResults,
 } from "../lib/bigfive-results";
 import { getSuggestedLearningSlug } from "../lib/profile-content";
@@ -56,7 +56,7 @@ const ProfilePage: React.FC = () => {
             scores: result.scores as BigFiveScores,
             calculatedScores: result.calculated_scores,
             timestamp: result.created_at,
-            variant: "full",
+            variant: result.variant || "full",
             language: (result.language as "en" | "de") || "en",
           });
 
@@ -78,10 +78,7 @@ const ProfilePage: React.FC = () => {
       }
 
       try {
-        const rawResults = window.localStorage.getItem(STORAGE_KEY_FULL);
-        const parsedResults = rawResults
-          ? sanitizeStoredResults(JSON.parse(rawResults))
-          : null;
+        const parsedResults = loadPreferredStoredResults(window.localStorage);
         applyResults(parsedResults);
       } catch (error) {
         console.error("Failed to load local Big Five results:", error);
@@ -164,7 +161,9 @@ const ProfilePage: React.FC = () => {
                     : ""}
                   {storedResults.variant === "demo"
                     ? copy.profile.demoDescription
-                    : copy.profile.completedDescription}
+                    : storedResults.variant === "short"
+                      ? copy.profile.shortDescription
+                      : copy.profile.completedDescription}
                 </p>
                 <PersonalityBadge scores={storedResults.scores} />
               </div>

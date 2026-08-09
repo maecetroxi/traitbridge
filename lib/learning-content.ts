@@ -1,4 +1,5 @@
 import type { Locale } from "./i18n";
+import { ADDITIONAL_LEARNING_TOPICS } from "./additional-learning-content";
 
 export const LEARNING_CATEGORIES = [
   "work",
@@ -13,6 +14,8 @@ export const BIG_FIVE_TRAITS = ["O", "C", "E", "A", "N"] as const;
 
 export type LearningCategory = (typeof LEARNING_CATEGORIES)[number];
 export type BigFiveTrait = (typeof BIG_FIVE_TRAITS)[number];
+// `both` describes editorial content that applies to both ends of a trait.
+// It is deliberately distinct from a person's middle score.
 export type TraitLevel = "low" | "high" | "both";
 export type EvidenceKind =
   | "meta-analysis"
@@ -130,7 +133,7 @@ export const LEARNING_SOURCES: Record<string, LearningSource> = {
   },
 };
 
-export const LEARNING_TOPICS: LearningTopic[] = [
+const CORE_LEARNING_TOPICS: LearningTopic[] = [
   {
     slug: "decisions-with-overthinking",
     categories: ["decisions", "stress"],
@@ -948,6 +951,11 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   },
 ];
 
+export const LEARNING_TOPICS: LearningTopic[] = [
+  ...CORE_LEARNING_TOPICS,
+  ...ADDITIONAL_LEARNING_TOPICS,
+];
+
 export const getLearningTopic = (slug: string) =>
   LEARNING_TOPICS.find((topic) => topic.slug === slug) || null;
 
@@ -955,6 +963,7 @@ export const filterLearningTopics = (
   category: LearningCategory | "all",
   search = "",
   trait: BigFiveTrait | "all" = "all",
+  level: TraitLevel | "all" = "all",
 ) => {
   const normalizedSearch = search.trim().toLocaleLowerCase();
 
@@ -966,6 +975,21 @@ export const filterLearningTopics = (
     if (
       trait !== "all" &&
       !topic.traitRelevance.some((relevance) => relevance.trait === trait)
+    ) {
+      return false;
+    }
+
+    if (
+      level !== "all" &&
+      !topic.traitRelevance.some((relevance) => {
+        if (trait !== "all" && relevance.trait !== trait) {
+          return false;
+        }
+
+        return level === "both"
+          ? relevance.level === "both"
+          : relevance.level === level || relevance.level === "both";
+      })
     ) {
       return false;
     }

@@ -1,12 +1,22 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
+import CommunityParticipationGate from "../components/community/CommunityParticipationGate";
+import {
+  CommunityProfileBadge,
+  CommunityProfileLegend,
+} from "../components/community/CommunityProfileBadge";
+import { useCommunityParticipation } from "../components/community/useCommunityParticipation";
 import {
   COMMUNITY_CATEGORIES,
+  COMMUNITY_POST_TYPES,
   filterAndSortQuestions,
+  parseCommunityQuery,
   type CommunityCategory,
+  type CommunityPostType,
   type CommunitySort,
 } from "../lib/community";
 import { formatTranslation } from "../lib/i18n";
@@ -17,6 +27,7 @@ import {
 } from "../lib/supabase-queries";
 
 const CommunityPage: React.FC = () => {
+  const router = useRouter();
   const { user, loading: isAuthLoading } = useAuth();
   const { locale, copy } = useLocale();
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -31,9 +42,11 @@ const CommunityPage: React.FC = () => {
   const [newQuestionBody, setNewQuestionBody] = useState("");
   const [newQuestionCategory, setNewQuestionCategory] =
     useState<CommunityCategory>("self-understanding");
+  const [newPostType, setNewPostType] = useState<CommunityPostType>("question");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const registeredUser = user && !user.is_anonymous ? user : null;
+  const participation = useCommunityParticipation(user);
+  const registeredUser = participation.permanentUser;
 
   const loadQuestions = useCallback(async () => {
     try {
@@ -51,6 +64,16 @@ const CommunityPage: React.FC = () => {
   useEffect(() => {
     void loadQuestions();
   }, [loadQuestions]);
+
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
+
+    const initialFilters = parseCommunityQuery(router.query);
+    setCategoryFilter(initialFilters.category);
+    setSearch(initialFilters.search);
+  }, [router.isReady, router.query.category, router.query.search]);
 
   const visibleQuestions = useMemo(
     () =>
@@ -72,16 +95,19 @@ const CommunityPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       setFormError(null);
+      await participation.syncProfile();
       const createdQuestion = await createQuestion(
         registeredUser.id,
         newQuestionTitle,
         newQuestionBody,
         newQuestionCategory,
+        newPostType,
       );
       setQuestions((currentQuestions) => [createdQuestion, ...currentQuestions]);
       setNewQuestionTitle("");
       setNewQuestionBody("");
       setNewQuestionCategory("self-understanding");
+      setNewPostType("question");
       setIsComposerOpen(false);
     } catch (createQuestionError) {
       console.error("Failed to create question:", createQuestionError);
@@ -130,22 +156,12 @@ const CommunityPage: React.FC = () => {
           <section
             id="community-question-composer"
             className="surface community-composer"
-            aria-labelledby="community-composer-title"
+            aria-label={copy.community.newQuestionTitle}
           >
-            {!registeredUser ? (
-              <div className="community-auth-prompt">
-                <div>
-                  <h2 id="community-composer-title">{copy.community.signInTitle}</h2>
-                  <p>{copy.community.signInDescription}</p>
-                </div>
-                <Link
-                  href={{ pathname: "/login", query: { returnTo: "/community" } }}
-                  className="btn btn-primary"
-                >
-                  {copy.community.signInAction}
-                </Link>
-              </div>
-            ) : (
+            <CommunityParticipationGate
+              participation={participation}
+              returnTo="/community"
+            >
               <form onSubmit={handleCreateQuestion} className="community-question-form">
                 <div className="community-composer-heading">
                   <div>
@@ -155,7 +171,25 @@ const CommunityPage: React.FC = () => {
                   <p>{copy.community.composerGuidance}</p>
                 </div>
 
-                <div className="community-form-grid">
+                <div className="community-form-grid community-form-grid-three">
+                  <div className="field-group">
+                    <label htmlFor="community-post-type" className="field-label">
+                      {copy.community.postTypeLabel}
+                    </label>
+                    <select
+                      id="community-post-type"
+                      value={newPostType}
+                      onChange={(event) =>
+                        setNewPostType(event.target.value as CommunityPostType)
+                      }
+                    >
+                      {COMMUNITY_POST_TYPES.map((postType) => (
+                        <option key={postType} value={postType}>
+                          {copy.community.postTypes[postType]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="field-group">
                     <label htmlFor="community-category" className="field-label">
                       {copy.community.categoryLabel}
@@ -231,7 +265,7 @@ const CommunityPage: React.FC = () => {
                   <span className="muted">{copy.community.publicPostingNote}</span>
                 </div>
               </form>
-            )}
+            </CommunityParticipationGate>
           </section>
         )}
 
@@ -291,6 +325,8 @@ const CommunityPage: React.FC = () => {
           ))}
         </div>
 
+        <CommunityProfileLegend />
+
         {loadError && (
           <div className="community-status community-status-error" role="alert">
             <div>
@@ -341,13 +377,19 @@ const CommunityPage: React.FC = () => {
               {visibleQuestions.map((question) => (
                 <article key={question.id} className="surface community-question-card">
                   <div className="community-question-meta">
-                    <span className="category-label">
-                      {copy.community.categories[question.category]}
-                    </span>
+                    <div className="community-post-labels">
+                      <span className="category-label">
+                        {copy.community.postTypes[question.post_type]}
+                      </span>
+                      <span className="category-label">
+                        {copy.community.categories[question.category]}
+                      </span>
+                    </div>
                     <time dateTime={question.created_at}>
                       {compactDate.format(new Date(question.created_at))}
                     </time>
                   </div>
+                  <CommunityProfileBadge profile={question.author_profile} />
                   <h3>
                     <Link href={`/community/${question.id}`}>{question.title}</Link>
                   </h3>

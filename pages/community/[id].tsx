@@ -4,6 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
+import CommunityParticipationGate from "../../components/community/CommunityParticipationGate";
+import {
+  CommunityProfileBadge,
+  CommunityProfileLegend,
+} from "../../components/community/CommunityProfileBadge";
+import { useCommunityParticipation } from "../../components/community/useCommunityParticipation";
 import { formatTranslation } from "../../lib/i18n";
 import {
   createAnswer,
@@ -23,7 +29,8 @@ const CommunityQuestionPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const registeredUser = user && !user.is_anonymous ? user : null;
+  const participation = useCommunityParticipation(user);
+  const registeredUser = participation.permanentUser;
   const questionId = typeof router.query.id === "string" ? router.query.id : null;
 
   useEffect(() => {
@@ -62,6 +69,7 @@ const CommunityQuestionPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
+      await participation.syncProfile();
       const createdAnswer = await createAnswer(
         registeredUser.id,
         question.id,
@@ -121,13 +129,19 @@ const CommunityQuestionPage: React.FC = () => {
           <>
             <article className="surface community-detail-question">
               <div className="community-question-meta">
-                <span className="category-label">
-                  {copy.community.categories[question.category]}
-                </span>
+                <div className="community-post-labels">
+                  <span className="category-label">
+                    {copy.community.postTypes[question.post_type]}
+                  </span>
+                  <span className="category-label">
+                    {copy.community.categories[question.category]}
+                  </span>
+                </div>
                 <time dateTime={question.created_at}>
                   {dateFormatter.format(new Date(question.created_at))}
                 </time>
               </div>
+              <CommunityProfileBadge profile={question.author_profile} />
               <h1>{question.title}</h1>
               <p>{question.body}</p>
             </article>
@@ -145,6 +159,8 @@ const CommunityQuestionPage: React.FC = () => {
                 </span>
               </div>
 
+              <CommunityProfileLegend />
+
               {answers.length === 0 ? (
                 <div className="surface community-empty">
                   <strong>{copy.community.noAnswers}</strong>
@@ -159,10 +175,13 @@ const CommunityQuestionPage: React.FC = () => {
                           number: String(index + 1),
                         })}
                       </div>
-                      <p>{answer.body}</p>
-                      <time dateTime={answer.created_at}>
-                        {dateFormatter.format(new Date(answer.created_at))}
-                      </time>
+                      <div className="community-answer-content">
+                        <CommunityProfileBadge profile={answer.author_profile} />
+                        <p>{answer.body}</p>
+                        <time dateTime={answer.created_at}>
+                          {dateFormatter.format(new Date(answer.created_at))}
+                        </time>
+                      </div>
                     </li>
                   ))}
                 </ol>
@@ -173,24 +192,16 @@ const CommunityQuestionPage: React.FC = () => {
               <h2>{copy.community.yourAnswerLabel}</h2>
               <p>{copy.community.answerGuidance}</p>
 
-              {!isAuthLoading && !registeredUser ? (
-                <div className="community-auth-prompt">
-                  <div>
-                    <h3>{copy.community.signInTitle}</h3>
-                    <p>{copy.community.signInDescription}</p>
-                  </div>
-                  <Link
-                    href={{
-                      pathname: "/login",
-                      query: { returnTo: `/community/${question.id}` },
-                    }}
-                    className="btn btn-primary"
-                  >
-                    {copy.community.signInAction}
-                  </Link>
-                </div>
-              ) : registeredUser ? (
-                <form onSubmit={handleAnswerSubmit} className="stack-md">
+              {isAuthLoading ? (
+                <p className="muted" role="status">
+                  {copy.community.checkingSession}
+                </p>
+              ) : (
+                <CommunityParticipationGate
+                  participation={participation}
+                  returnTo={`/community/${question.id}`}
+                >
+                  <form onSubmit={handleAnswerSubmit} className="stack-md">
                   <div className="field-group">
                     <label htmlFor="community-answer" className="field-label">
                       {copy.community.yourAnswerLabel}
@@ -219,11 +230,8 @@ const CommunityQuestionPage: React.FC = () => {
                       ? copy.community.publishing
                       : copy.community.publishAnswer}
                   </button>
-                </form>
-              ) : (
-                <p className="muted" role="status">
-                  {copy.community.checkingSession}
-                </p>
+                  </form>
+                </CommunityParticipationGate>
               )}
             </section>
           </>

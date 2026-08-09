@@ -7,8 +7,7 @@ import { useLocale } from "../contexts/LocaleContext";
 import { formatTranslation } from "../lib/i18n";
 import {
   getDetailedResults,
-  sanitizeStoredResults,
-  STORAGE_KEY_FULL,
+  loadPreferredStoredResults,
   type StoredResults,
 } from "../lib/bigfive-results";
 import { getSuggestedLearningSlug } from "../lib/profile-content";
@@ -25,14 +24,7 @@ const BigFiveResults: React.FC = () => {
     }
 
     try {
-      const rawResults = window.localStorage.getItem(STORAGE_KEY_FULL);
-      if (!rawResults) {
-        setStoredResults(null);
-        setDetailedResults(null);
-        return;
-      }
-
-      const parsedResults = sanitizeStoredResults(JSON.parse(rawResults));
+      const parsedResults = loadPreferredStoredResults(window.localStorage);
       if (!parsedResults) {
         setStoredResults(null);
         setDetailedResults(null);
@@ -100,12 +92,16 @@ const BigFiveResults: React.FC = () => {
           <strong>
             {storedResults.variant === "demo"
               ? copy.results.demoLabel
-              : copy.results.validatedLabel}
+              : storedResults.variant === "short"
+                ? copy.results.shortLabel
+                : copy.results.validatedLabel}
           </strong>
           <span>
             {storedResults.variant === "demo"
               ? copy.results.demoText
-              : copy.results.validatedText}
+              : storedResults.variant === "short"
+                ? copy.results.shortText
+                : copy.results.validatedText}
           </span>
           <p>{copy.results.balancedNote}</p>
         </aside>

@@ -4,7 +4,7 @@ Diese Anleitung erklaert, wie du die Supabase-Datenbank fuer TraitBridge einrich
 
 ## Community-Zugang
 
-Fragen und Antworten sind ohne Anmeldung lesbar. Zum Erstellen von Fragen oder Antworten ist ein dauerhaftes Konto erforderlich. Die Anmeldung funktioniert passwortlos ueber einen einmaligen E-Mail-Link.
+Fragen, Erfahrungen und Perspektiven sind ohne Anmeldung lesbar. Zum Schreiben sind ein dauerhaftes Konto, ein Kurz- oder Volltest und ein öffentlich freigegebenes Community-Profil erforderlich. Die Anmeldung funktioniert passwortlos über einen einmaligen E-Mail-Link.
 
 Einmalige Einstellungen im Supabase-Dashboard:
 
@@ -43,12 +43,15 @@ OPENAI_MODEL=gpt-4.1-mini
 5. Fuehre auch diesen SQL-Code aus.
 6. Oeffne danach `supabase/migrations/003_community_categories.sql`.
 7. Fuehre auch diese Migration aus. Sie kann bei Bedarf sicher erneut ausgefuehrt werden.
+8. Oeffne danach `supabase/migrations/004_short_test_and_community_profiles.sql`.
+9. Fuehre die Migration aus, um Kurztests, Beitragstypen, öffentliche OCEAN-Profile und die zugehörigen RLS-Regeln zu aktivieren.
 
 Es werden diese Tabellen erstellt:
 
 - `personality_results`
 - `questions`
 - `answers`
+- `community_profiles`
 
 Migration `003_community_categories.sql` ergaenzt:
 
@@ -58,6 +61,15 @@ Migration `003_community_categories.sql` ergaenzt:
 - einen Index auf `questions.category`
 
 Bestehende Fragen werden automatisch der Kategorie `other` zugeordnet. Die Antwortanzahl wird aus der bestehenden `answers`-Relation gelesen; dafuer ist keine zusaetzliche Spalte noetig.
+
+Migration `004_short_test_and_community_profiles.sql` ergänzt:
+
+- `short` als zulässige Testvariante
+- `questions.post_type` mit `question` und `experience`
+- öffentliche Community-Anzeigenamen und ausschließlich die Stufen `low`, `middle`, `high`
+- Schreibregeln, die ein Testergebnis und Community-Profil voraussetzen
+
+Bestehende Beiträge erhalten automatisch `post_type = 'question'` und bleiben auch ohne öffentliches Profil lesbar.
 
 ## 4. Testen
 
@@ -74,7 +86,7 @@ Bestehende Fragen werden automatisch der Kategorie `other` zugeordnet. Die Antwo
 - `user_id`: UUID
 - `scores`: JSONB
 - `calculated_scores`: JSONB
-- `variant`: TEXT (`full`)
+- `variant`: TEXT (`full` oder `short`)
 - `language`: TEXT (`de` als Standard)
 - `created_at`: TIMESTAMPTZ
 - `updated_at`: TIMESTAMPTZ
@@ -87,4 +99,5 @@ Bestehende Fragen werden automatisch der Kategorie `other` zugeordnet. Die Antwo
 - Community-Fragen und -Antworten sind mit Migration `002` fuer `anon` und `authenticated` lesbar.
 - Schreiben, Aendern und Loeschen ist durch RLS auf dauerhafte Benutzer und deren eigene Inhalte begrenzt.
 - Nach Migration `003` im Table Editor stichprobenartig pruefen, ob bestehende Fragen `category = 'other'` erhalten haben.
+- Nach Migration `004` prüfen, ob bestehende Beiträge `post_type = 'question'` erhalten haben.
 - Die App fragt keine E-Mail-Adressen fuer Community-Ansichten ab.

@@ -7,8 +7,8 @@ import {
   getLearningTopic,
 } from "../lib/learning-content";
 
-test("provides at least ten bilingual practical learning topics", () => {
-  assert.ok(LEARNING_TOPICS.length >= 10);
+test("provides at least twenty-one bilingual practical learning topics", () => {
+  assert.ok(LEARNING_TOPICS.length >= 21);
 
   for (const topic of LEARNING_TOPICS) {
     assert.ok(topic.title.en && topic.title.de);
@@ -26,6 +26,18 @@ test("provides at least ten bilingual practical learning topics", () => {
   }
 });
 
+test("covers the lower and higher pole of every Big Five dimension", () => {
+  for (const trait of ["O", "C", "E", "A", "N"] as const) {
+    const levels = LEARNING_TOPICS.flatMap((topic) =>
+      topic.traitRelevance
+        .filter((relevance) => relevance.trait === trait)
+        .map((relevance) => relevance.level),
+    );
+    assert.ok(levels.includes("low") || levels.includes("both"), `${trait} low missing`);
+    assert.ok(levels.includes("high") || levels.includes("both"), `${trait} high missing`);
+  }
+});
+
 test("filters learning topics by category, text and Big Five trait", () => {
   assert.ok(filterLearningTopics("communication").length >= 3);
   assert.deepEqual(
@@ -40,6 +52,20 @@ test("filters learning topics by category, text and Big Five trait", () => {
   assert.deepEqual(
     filterLearningTopics("habits", "", "N").map(({ slug }) => slug),
     ["procrastination-and-structure"],
+  );
+  assert.ok(
+    filterLearningTopics("all", "", "A", "low").some(
+      ({ slug }) => slug === "challenging-ideas-with-respect",
+    ),
+  );
+  assert.ok(
+    filterLearningTopics("all", "", "O", "low").every((topic) =>
+      topic.traitRelevance.some(
+        (relevance) =>
+          relevance.trait === "O" &&
+          (relevance.level === "low" || relevance.level === "both"),
+      ),
+    ),
   );
 });
 

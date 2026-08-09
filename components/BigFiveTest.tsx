@@ -43,6 +43,12 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const stageStartRef = useRef<HTMLDivElement>(null);
+  const requestedReturnTo =
+    typeof router.query.returnTo === "string" &&
+    router.query.returnTo.startsWith("/") &&
+    !router.query.returnTo.startsWith("//")
+      ? router.query.returnTo
+      : null;
 
   useEffect(() => {
     try {
@@ -237,7 +243,7 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
         clearTestDraft(window.localStorage, language);
       }
 
-      await router.push(permanentUser ? "/profile" : "/results");
+      await router.push(requestedReturnTo || (permanentUser ? "/profile" : "/results"));
     } catch (error) {
       console.error("Failed to save Big Five result:", error);
       setFormError(copy.test.saveError);

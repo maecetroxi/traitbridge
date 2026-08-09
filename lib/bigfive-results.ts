@@ -1,8 +1,11 @@
 import getResult from "@bigfive-org/results";
 import type { BigFiveScores } from "../components/PersonalityBadge";
 import type { Locale } from "./i18n";
+import { getTraitPole, type TraitBand } from "./trait-bridges";
 
 export const STORAGE_KEY_FULL = "bigfive-results-full-v1";
+export const STORAGE_KEY_SHORT = "bigfive-results-short-v1";
+export type PersonalityResultVariant = "full" | "short" | "demo";
 
 export type CalculatedDomainScore = {
   score: number;
@@ -17,11 +20,18 @@ export type StoredResults = {
   scores: BigFiveScores;
   calculatedScores?: CalculatedScores;
   timestamp: string;
-  variant?: "full" | "demo";
+  variant?: PersonalityResultVariant;
   language?: Locale;
 };
 
 const TRAITS: Array<keyof BigFiveScores> = ["O", "C", "E", "A", "N"];
+
+export const getScoreBand = (score: number): TraitBand => getTraitPole(score);
+
+export const getScoreBands = (scores: BigFiveScores): Record<keyof BigFiveScores, TraitBand> =>
+  Object.fromEntries(
+    TRAITS.map((trait) => [trait, getScoreBand(scores[trait])]),
+  ) as Record<keyof BigFiveScores, TraitBand>;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -159,7 +169,9 @@ export const sanitizeStoredResults = (value: unknown): StoredResults | null => {
       : "en";
 
   const variant =
-    candidate.variant === "demo" || candidate.variant === "full"
+    candidate.variant === "demo" ||
+    candidate.variant === "full" ||
+    candidate.variant === "short"
       ? candidate.variant
       : "full";
 
@@ -174,6 +186,46 @@ export const sanitizeStoredResults = (value: unknown): StoredResults | null => {
     variant,
     language,
   };
+};
+
+const variantPriority = (variant: StoredResults["variant"]) =>
+  variant === "full" ? 3 : variant === "short" ? 2 : 1;
+
+export const choosePreferredStoredResults = (
+  candidates: Array<StoredResults | null | undefined>,
+) =>
+  candidates
+    .filter((candidate): candidate is StoredResults => Boolean(candidate))
+    .sort((left, right) => {
+      const priorityDifference =
+        variantPriority(right.variant) - variantPriority(left.variant);
+
+      if (priorityDifference !== 0) {
+        return priorityDifference;
+      }
+
+      return Date.parse(right.timestamp) - Date.parse(left.timestamp);
+    })[0] ?? null;
+
+export const loadPreferredStoredResults = (storage: Pick<Storage, "getItem">) => {
+  const read = (key: string) => {
+    const rawValue = storage.getItem(key);
+
+    if (!rawValue) {
+      return null;
+    }
+
+    try {
+      return sanitizeStoredResults(JSON.parse(rawValue));
+    } catch {
+      return null;
+    }
+  };
+
+  return choosePreferredStoredResults([
+    read(STORAGE_KEY_FULL),
+    read(STORAGE_KEY_SHORT),
+  ]);
 };
 
 export const getDetailedResults = (calculatedScores: CalculatedScores | undefined, locale: Locale) => {

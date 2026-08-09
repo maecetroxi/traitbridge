@@ -3,7 +3,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import type { BigFiveScores } from "../../components/PersonalityBadge";
 import { useLocale } from "../../contexts/LocaleContext";
-import { sanitizeStoredResults, STORAGE_KEY_FULL } from "../../lib/bigfive-results";
+import { loadPreferredStoredResults } from "../../lib/bigfive-results";
 import { localizeBook, NEUTRAL_BOOK_PROFILE, recommendBooks, type BookKind, type RecommendationMode } from "../../lib/book-recommendations";
 import { bookRecommendationsCopy } from "../../lib/book-recommendations-copy";
 import styles from "../../styles/BookRecommendations.module.css";
@@ -20,8 +20,7 @@ export default function BookRecommendationsPage() {
 
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY_FULL);
-      const result = raw ? sanitizeStoredResults(JSON.parse(raw)) : null;
+      const result = loadPreferredStoredResults(window.localStorage);
       if (result) { setScores(result.scores); setHasTestProfile(true); }
     } catch { setScores({ ...NEUTRAL_BOOK_PROFILE }); setHasTestProfile(false); }
   }, []);

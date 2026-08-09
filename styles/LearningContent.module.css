@@ -391,6 +391,27 @@
   line-height: 1.6;
 }
 
+.communityBridge {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--accent-muted);
+  border-radius: var(--radius-md);
+  background: var(--surface-tint);
+}
+
+.communityBridge p {
+  margin: var(--space-2) 0 0;
+  font-size: 0.86rem;
+}
+
+.communityBridge a {
+  display: inline-block;
+  margin-top: var(--space-3);
+  color: var(--accent-strong);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
 .actionList,
 .reflectionList {
   display: grid;

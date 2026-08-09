@@ -9,14 +9,19 @@ export const COMMUNITY_CATEGORIES = [
   "other",
 ] as const;
 
+export const COMMUNITY_POST_TYPES = ["question", "experience"] as const;
+
 export type CommunityCategory = (typeof COMMUNITY_CATEGORIES)[number];
+export type CommunityPostType = (typeof COMMUNITY_POST_TYPES)[number];
 export type CommunitySort = "newest" | "most-answers" | "unanswered";
+export type CommunityQueryValue = string | string[] | undefined;
 
 export type CommunityQuestionListItem = {
   id: string;
   title: string;
   body: string;
   category: CommunityCategory;
+  post_type: CommunityPostType;
   answer_count: number;
   created_at: string;
 };
@@ -24,6 +29,29 @@ export type CommunityQuestionListItem = {
 export const isCommunityCategory = (value: unknown): value is CommunityCategory =>
   typeof value === "string" &&
   (COMMUNITY_CATEGORIES as readonly string[]).includes(value);
+
+export const isCommunityPostType = (value: unknown): value is CommunityPostType =>
+  typeof value === "string" &&
+  (COMMUNITY_POST_TYPES as readonly string[]).includes(value);
+
+const firstQueryValue = (value: CommunityQueryValue) =>
+  Array.isArray(value) ? value[0] : value;
+
+export const parseCommunityQuery = (query: {
+  category?: CommunityQueryValue;
+  search?: CommunityQueryValue;
+}) => {
+  const categoryValue = firstQueryValue(query.category);
+  const searchValue = firstQueryValue(query.search);
+
+  return {
+    category: isCommunityCategory(categoryValue) ? categoryValue : "all",
+    search: typeof searchValue === "string" ? searchValue.trim().slice(0, 160) : "",
+  } satisfies {
+    category: CommunityCategory | "all";
+    search: string;
+  };
+};
 
 const normalizeSearchText = (value: string) =>
   value.trim().toLocaleLowerCase().normalize("NFKD");
