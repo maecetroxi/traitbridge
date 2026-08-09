@@ -7,6 +7,7 @@ import {
   type CommunityPostType,
 } from "./community";
 import { supabase } from "./supabase";
+import type { Json } from "./database.types";
 import type { TraitBand } from "./trait-bridges";
 
 export type AssessmentVariant = Exclude<PersonalityResultVariant, "demo">;
@@ -107,22 +108,6 @@ const normalizeCommunityProfile = (
   };
 };
 
-const isMissingSchemaObjectError = (error: {
-  code?: string;
-  message?: string;
-}) => {
-  const message = error.message?.toLowerCase() || "";
-
-  return (
-    error.code === "42703" ||
-    error.code === "42P01" ||
-    error.code === "PGRST204" ||
-    error.code === "PGRST205" ||
-    message.includes("does not exist") ||
-    message.includes("schema cache")
-  );
-};
-
 export const savePersonalityResult = async (
   userId: string,
   scores: BigFiveScores,
@@ -134,8 +119,8 @@ export const savePersonalityResult = async (
     .from("personality_results")
     .insert({
       user_id: userId,
-      scores,
-      calculated_scores: calculatedScores,
+      scores: scores as Json,
+      calculated_scores: calculatedScores as Json | undefined,
       variant,
       language,
     })
@@ -173,8 +158,8 @@ export const updatePersonalityResult = async (
   const { data, error } = await supabase
     .from("personality_results")
     .update({
-      scores,
-      calculated_scores: calculatedScores,
+      scores: scores as Json,
+      calculated_scores: calculatedScores as Json | undefined,
       variant,
       updated_at: new Date().toISOString(),
     })
@@ -193,10 +178,7 @@ export const getCommunityProfile = async (userId: string) => {
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (error) {
-    if (isMissingSchemaObjectError(error)) return null;
-    throw error;
-  }
+  if (error) throw error;
 
   return normalizeCommunityProfile(data);
 };
@@ -213,7 +195,7 @@ export const upsertCommunityProfile = async (
       {
         user_id: userId,
         display_name: displayName.trim(),
-        bands,
+        bands: bands as Json,
         test_variant: testVariant,
         updated_at: new Date().toISOString(),
       },
@@ -251,10 +233,7 @@ const getCommunityProfiles = async (userIds: string[]) => {
     .select("*")
     .in("user_id", uniqueUserIds);
 
-  if (error) {
-    if (isMissingSchemaObjectError(error)) return profiles;
-    throw error;
-  }
+  if (error) throw error;
 
   for (const value of data || []) {
     const profile = normalizeCommunityProfile(value);
@@ -337,30 +316,20 @@ export const createQuestion = async (
 };
 
 export const getQuestions = async () => {
-  const selectCandidates = [
-    "id, user_id, title, body, category, post_type, created_at, updated_at, answers(count)",
-    "id, user_id, title, body, category, created_at, updated_at, answers(count)",
-    "id, user_id, title, body, created_at, updated_at, answers(count)",
-  ];
+  const { data, error } = await supabase
+    .from("questions")
+    .select(
+      "id, user_id, title, body, category, post_type, created_at, updated_at, answers(count)",
+    )
+    .order("created_at", { ascending: false });
 
-  for (const selection of selectCandidates) {
-    const { data, error } = await supabase
-      .from("questions")
-      .select(selection)
-      .order("created_at", { ascending: false });
+  if (error) throw error;
 
-    if (!error) {
-      return attachQuestionProfiles(
-        (data || []).map((question) =>
-          normalizeQuestion(question as unknown as Record<string, unknown>),
-        ),
-      );
-    }
-
-    if (!isMissingSchemaObjectError(error)) throw error;
-  }
-
-  throw new Error("The Community schema is unavailable.");
+  return attachQuestionProfiles(
+    (data || []).map((question) =>
+      normalizeQuestion(question as unknown as Record<string, unknown>),
+    ),
+  );
 };
 
 export const getQuestion = async (questionId: string) => {

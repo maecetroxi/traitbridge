@@ -10,8 +10,9 @@ Einmalige Einstellungen im Supabase-Dashboard:
 
 1. `Authentication` oeffnen.
 2. Unter `Sign In / Providers` sicherstellen, dass E-Mail-Anmeldungen aktiviert sind.
-3. Unter `URL Configuration` die lokale und die produktive Web-App-URL als erlaubte Redirect URLs eintragen.
-4. `Anonymous Sign-Ins` werden fuer die Community nicht benoetigt und koennen deaktiviert werden.
+3. Unter `URL Configuration` die `Site URL` auf `http://localhost:3000` setzen.
+4. Unter `Redirect URLs` `http://localhost:3000/**` eintragen.
+5. `Anonymous Sign-Ins` deaktivieren; TraitBridge verwendet nur dauerhafte E-Mail-Konten.
 
 Die RLS-Regeln pruefen serverseitig, dass anonyme Auth-Nutzer keine Community-Inhalte veroeffentlichen koennen.
 
@@ -26,7 +27,9 @@ Lege im Projektroot eine `.env.local` Datei an:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=deine-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=dein-supabase-anon-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=dein-supabase-publishable-key
+# Nur als voruebergehender Kompatibilitaets-Fallback:
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=dein-alter-anon-key
 OPENAI_API_KEY=dein-serverseitiger-openai-api-key
 # Optional; Standard ist gpt-4.1-mini
 OPENAI_MODEL=gpt-4.1-mini
@@ -101,3 +104,23 @@ Bestehende Beiträge erhalten automatisch `post_type = 'question'` und bleiben a
 - Nach Migration `003` im Table Editor stichprobenartig pruefen, ob bestehende Fragen `category = 'other'` erhalten haben.
 - Nach Migration `004` prüfen, ob bestehende Beiträge `post_type = 'question'` erhalten haben.
 - Die App fragt keine E-Mail-Adressen fuer Community-Ansichten ab.
+
+## Migrationen 005 und 006
+
+Nach Migration `004` sind auch diese beiden Migrationen in numerischer Reihenfolge erforderlich:
+
+1. `supabase/migrations/005_data_api_grants_and_rls_hardening.sql`
+2. `supabase/migrations/006_optimize_community_rls_auth_calls.sql`
+
+Migration `005` vergibt die Data-API-Rechte explizit: Besucher duerfen nur Community-Inhalte und oeffentliche Profile lesen. Testresultate bleiben fuer `anon` vollstaendig gesperrt. Migration `006` wertet Auth-Informationen in den Community-Richtlinien einmal pro Anfrage statt einmal pro Zeile aus.
+
+## GitHub-Aktivitaet
+
+Lege im GitHub-Repository unter `Settings > Secrets and variables > Actions` zwei Secrets an:
+
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+
+Der Workflow `.github/workflows/supabase-keepalive.yml` liest um `05:17`, `13:17` und `21:17` UTC maximal eine oeffentliche Frage. Er schreibt keine Daten und gibt weder Antwortdaten noch Schluessel aus. Er kann auf der Actions-Seite auch manuell gestartet werden.
+
+Geplante Workflows laufen nur von `main` und koennen bei oeffentlichen Repositories nach 60 Tagen ohne Repository-Aktivitaet deaktiviert werden. Die drei taeglichen Anfragen senken beim kostenlosen Supabase-Tarif das Pausenrisiko; eine Garantie bietet nur ein Bezahlplan.

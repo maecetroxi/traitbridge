@@ -55,7 +55,9 @@ No client-side OpenAI key is used. Community email addresses are never queried o
 
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your-project-url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+   # Temporary compatibility fallback only:
+   # NEXT_PUBLIC_SUPABASE_ANON_KEY=your-legacy-anon-key
    OPENAI_API_KEY=your-server-side-openai-key
    # Optional; defaults to gpt-4.1-mini
    OPENAI_MODEL=gpt-4.1-mini
@@ -79,6 +81,12 @@ npm start
 ```
 
 The tests cover stored profile validation, AI request/response validation, book matching, test-draft stages and persistence, Community filtering/sorting, and learning-content structure/source resolution.
+
+## Supabase keepalive
+
+The GitHub Actions workflow `.github/workflows/supabase-keepalive.yml` performs one read-only Data API request at `05:17`, `13:17`, and `21:17` UTC. Configure the repository secrets `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; never commit either value.
+
+Scheduled workflows run from the default branch. GitHub can disable schedules in a public repository after 60 days without repository activity, so check the Actions page after longer maintenance breaks. Regular activity reduces the chance of a free Supabase project being paused, but only a paid plan guarantees that it remains available.
 
 ## Data and trust boundaries
 
