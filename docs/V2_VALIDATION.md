@@ -1,0 +1,32 @@
+# TraitBridge V2 – Prüfprotokoll
+
+15. November 2026, lokal unter Windows / Node.js 22.13.1. Ausschliesslich fiktive Daten in den Schreibtests.
+
+| Prüfung | Ergebnis |
+|---|---|
+| V1-Bestand | 47 Tests bestanden; Webpack-Produktionsbuild bestanden. |
+| `npm test` | **66 Tests bestanden**, einschliesslich SQL-Gateway in einer frisch aus der Migration aufgebauten PGlite-Datenbank. |
+| TypeScript / `npm run build` | Produktionsbuild mit Next.js 16.4.6 und Webpack bestanden; alle 24 statisch erzeugten Seiten sowie API-Routen erstellt. |
+| `npm run audit:prod` | **0 bekannte Schwachstellen** im abschliessenden npm-Audit. Der vorherige Next.js-Stand war betroffen und wurde in V2 aktualisiert. |
+| Native PostgreSQL-Transaktionen | PostgreSQL 18.6, zehn unabhängige Verbindungen: acht zeitgleiche Reservierungen ergeben genau drei Plätze; drei zeitgleiche Antworten ergeben genau drei Zustellungen; doppelte Übermittlungen erzeugen keine weiteren Antworten; Blockieren vor einer wartenden Antwort verhindert deren Speicherung. |
+| Browserablauf | Onboarding mit Rohantworten und Einwilligungen → Avatar → private Frage → zweites Konto reserviert und antwortet → erstes Konto liest und bedankt sich. Über die tatsächliche Next.js-API, kein gemockter Frontend-Posteingang. |
+| Fehlerfälle im Browser | Simulierter HTTP-503 beim Antworten: Text bleibt erhalten und erneutes Senden funktioniert. Fehlende Authentifizierung wird abgewiesen. Kontolöschung widerruft Sitzungen, entfernt Datensätze und macht den alten Zugangstoken unbrauchbar. |
+| Datenschutz | Nicht freigegebene Frage erscheint nicht in Entdecken; fremdes drittes Konto kann private Antworten nicht lesen. Browserrollen können weder Gateway noch private Tabellen direkt verwenden. Service-Rolle funktioniert ohne `SELECT` auf `auth.users`. |
+| Sprache | Neue Oberfläche wechselt erfolgreich von Deutsch zu Englisch; Test-Item-Identitäten und vorhandene Scoringregeln sind in beiden Sprachen stabil. |
+| Responsive | 375, 390, 768, 1024, 1280, 1440 und 1920 px: kein horizontales Überlaufen auf Start, Gast-Nachrichten, Ich, Onboarding, ausführlichem Test und Lernen. Angemeldete Nachrichten, Profil, Entdecken und Onboarding zusätzlich mit Smartphone-/Desktop-Screenshots geprüft. |
+| Browserfehler | Abschliessender vollständiger Browserlauf: **keine JavaScript-Seitenfehler**. |
+| Client-Bundles | 38 JavaScript-Bundles geprüft: keine Referenz auf das Service-Secret oder den internen SQL-Gateway im Browser-Bundle. |
+| Produktions-Smoke-Test | Acht Routen des fertigen Builds liefern HTTP 200 ohne JavaScript-Fehler. Unangemeldeter API-Aufruf liefert 401 mit `no-store`; Manifest und App-Icon werden ausgeliefert. Externe Browseranfragen waren gesperrt. |
+| Bestehendes Supabase-Projekt | Nur Systemkataloge, Grants, Policies und Security Advisors gelesen. RLS auf allen vier V1-Tabellen bestätigt. Keine Nutzerinhalte gelesen und keine Remote-Schreiboperation ausgeführt. Details und verbleibende Advisor-Hinweise stehen in `V2.md`. |
+
+SQL-Tests decken ausserdem Ablauf/Erneuerung/Freigabe von Reservierungen, falsche Reservierungsinhaber, eigene Antworten, übersprungene und geschlossene Fragen, beidseitige Blockierungen, öffentliche Freigabe, Benachrichtigungspräferenzen, echtes Danke, Moderatorberechtigungen, Inhalts-/Kontosperren, Löschkaskaden, dauerhaftes Drei-Antworten-Limit nach Inhaltslöschung, Angebots-/Schreiblimits und das Stilllegen alter V1-Schreibrechte ab. Pure Tests prüfen Avatar-Reproduzierbarkeit, Eingabevalidierung und alle drei Matching-Suchstufen.
+
+## Aussagegrenzen
+
+Die lokale Supabase-HTTP-Testumgebung benutzt echte SQL-Operationen, simuliert aber Auth und E-Mail-Zustellung. Ein echter Magic-Link-/Turnstile-/Session-Test auf einer getrennten Supabase-Staging-Instanz steht vor Einladungen noch aus. Es wurde keine produktive Migration angewendet und kein öffentlicher V2-Release durchgeführt.
+
+Die Browserprüfung verwendet Desktop-Chrome mit verschiedenen Viewports. Sie ersetzt keinen Test auf echten iPhones/Android-Geräten, mit Screenreader oder bei instabiler Mobilfunkverbindung. Das PWA-Manifest ist vorhanden; tatsächliche Installation auf Geräten bleibt zu prüfen. Es gibt keine Offline-Zustellung, keine Push- oder Antwort-E-Mail-Prüfung, weil diese Funktionen nicht implementiert sind.
+
+Matching-Gewichte, ausgewählte Themen und die vorhandene Zehn-Item-Orientierung sind keine wissenschaftlich validierte Kombination für soziale Kompatibilität. Die fachlichen/redaktionellen Inhaltslücken und die notwendigen Betriebs-/Moderationsprüfungen bleiben in der Roadmap sichtbar.
+
+Reproduktionsbefehle: `docs/V2.md`. Screenshots: `docs/archive/v1/screenshots/` und `docs/screenshots/v2/`. Flüchtige Testberichte: `test-results/v2-browser.json` und `test-results/v2-concurrency.json` (bewusst nicht versioniert).

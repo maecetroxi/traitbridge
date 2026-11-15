@@ -7,10 +7,10 @@ import PersonalityBadge, {
 } from "../components/PersonalityBadge";
 import ProfileInterpretation from "../components/ProfileInterpretation";
 import { useAuth } from "../contexts/AuthContext";
+import { useBridge } from "../contexts/BridgeContext";
 import { useLocale } from "../contexts/LocaleContext";
 import {
   getDetailedResults,
-  loadPreferredStoredResults,
   sanitizeStoredResults,
   type StoredResults,
 } from "../lib/bigfive-results";
@@ -20,9 +20,12 @@ import { getPersonalityResult } from "../lib/supabase-queries";
 
 const ProfilePage: React.FC = () => {
   const { user, loading: isAuthLoading } = useAuth();
+  const { snapshot } = useBridge();
   const { locale, copy } = useLocale();
   const router = useRouter();
-  const [storedResults, setStoredResults] = useState<StoredResults | null>(null);
+  const [storedResults, setStoredResults] = useState<StoredResults | null>(
+    null,
+  );
   const [detailedResults, setDetailedResults] =
     useState<ReturnType<typeof getDetailedResults>>(null);
   const [showDetails, setShowDetails] = useState(
@@ -65,30 +68,35 @@ const ProfilePage: React.FC = () => {
             applyResults(nextResults);
             return;
           }
-
-          console.warn(
-            "Ignoring invalid Supabase result and falling back to local storage.",
-          );
         }
       } catch (error) {
         console.error("Failed to load profile data from Supabase:", error);
       }
 
-      if (typeof window === "undefined") {
-        return;
-      }
-
-      try {
-        const parsedResults = loadPreferredStoredResults(window.localStorage);
-        applyResults(parsedResults);
-      } catch (error) {
-        console.error("Failed to load local Big Five results:", error);
-        applyResults(null);
-      }
+      // Account views must never fall back to another person's device-local
+      // visitor result. The V2 snapshot has already been authorised by the API.
+      applyResults(
+        snapshot.profile
+          ? {
+              scores: snapshot.profile.scores,
+              variant: snapshot.profile.variant,
+              language: snapshot.profile.language,
+              timestamp: new Date().toISOString(),
+            }
+          : null,
+      );
     };
 
     void loadResults();
-  }, [user, isAuthLoading, isRegisteredUser, router, router.asPath, locale]);
+  }, [
+    user,
+    isAuthLoading,
+    isRegisteredUser,
+    router,
+    router.asPath,
+    locale,
+    snapshot.profile,
+  ]);
 
   useEffect(() => {
     if (router.query.view === "details") {
@@ -160,9 +168,7 @@ const ProfilePage: React.FC = () => {
           <>
             <section className="results-overview-grid">
               <div className="surface results-score-panel">
-                <h2 className="section-title">
-                  {copy.profile.resultOverview}
-                </h2>
+                <h2 className="section-title">{copy.profile.resultOverview}</h2>
                 <p className="section-text">
                   {testDate
                     ? `${copy.profile.testDatePrefix}: ${testDate.toLocaleDateString(dateLocale)}. `

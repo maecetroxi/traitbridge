@@ -1,264 +1,76 @@
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { useAuth } from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
-import CommunityParticipationGate from "../../components/community/CommunityParticipationGate";
 import {
-  CommunityProfileBadge,
-  CommunityProfileLegend,
-} from "../../components/community/CommunityProfileBadge";
-import { useCommunityParticipation } from "../../components/community/useCommunityParticipation";
-import { formatTranslation } from "../../lib/i18n";
-import {
-  createAnswer,
-  getAnswers,
   getQuestion,
-  type Answer,
+  getAnswers,
   type Question,
+  type Answer,
 } from "../../lib/supabase-queries";
-
-const CommunityQuestionPage: React.FC = () => {
+export default function LegacyQuestion() {
   const router = useRouter();
-  const { user, loading: isAuthLoading } = useAuth();
-  const { locale, copy } = useLocale();
+  const { locale } = useLocale();
+  const de = locale === "de";
   const [question, setQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [answerBody, setAnswerBody] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const participation = useCommunityParticipation(user);
-  const registeredUser = participation.permanentUser;
-  const questionId = typeof router.query.id === "string" ? router.query.id : null;
-
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    if (!router.isReady || !questionId) {
-      return;
-    }
-
-    const loadQuestion = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const [loadedQuestion, loadedAnswers] = await Promise.all([
-          getQuestion(questionId),
-          getAnswers(questionId),
-        ]);
-        setQuestion(loadedQuestion);
-        setAnswers(loadedAnswers);
-      } catch (loadError) {
-        console.error("Failed to load Community question:", loadError);
-        setError(copy.community.detailLoadError);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void loadQuestion();
-  }, [copy.community.detailLoadError, questionId, router.isReady]);
-
-  const handleAnswerSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!registeredUser || !question || !answerBody.trim()) {
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      setError(null);
-      await participation.syncProfile();
-      const createdAnswer = await createAnswer(
-        registeredUser.id,
-        question.id,
-        answerBody,
-      );
-      setAnswers((currentAnswers) => [...currentAnswers, createdAnswer]);
-      setAnswerBody("");
-    } catch (answerError) {
-      console.error("Failed to create answer:", answerError);
-      setError(copy.community.createAnswerError);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const dateLocale = locale === "de" ? "de-CH" : "en-GB";
-  const dateFormatter = new Intl.DateTimeFormat(dateLocale, {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-  const reportLabel = locale === "de" ? "Inhalt melden" : "Report content";
-  const reportHref = (contentId: string) =>
-    `mailto:privacy@traitbridge.com?subject=${encodeURIComponent(`TraitBridge content report: ${contentId}`)}&body=${encodeURIComponent(`Content: https://traitbridge.com/community/${questionId}\nItem: ${contentId}\nReason:`)}`;
-
+    if (typeof router.query.id !== "string") return;
+    void Promise.all([
+      getQuestion(router.query.id),
+      getAnswers(router.query.id),
+    ])
+      .then(([q, a]) => {
+        setQuestion(q);
+        setAnswers(a);
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [router.query.id]);
   return (
-    <>
+    <div className="tb-page">
       <Head>
-        <title>{`${question?.title || copy.community.detailTitle} | TraitBridge`}</title>
-        <meta
-          name="description"
-          content={question?.body.slice(0, 155) || copy.community.intro}
-        />
-        <meta
-          key="og-title"
-          property="og:title"
-          content={`${question?.title || copy.community.detailTitle} | TraitBridge`}
-        />
-        <meta
-          key="og-description"
-          property="og:description"
-          content={question?.body.slice(0, 155) || copy.community.intro}
-        />
+        <title>{(question?.title || "V1 Community") + " | TraitBridge"}</title>
       </Head>
-
-      <div className="community-detail-page">
-        <Link href="/community" className="back-link">
-          <span aria-hidden="true">←</span>
-          {copy.community.backToOverview}
-        </Link>
-
-        {isLoading ? (
-          <div className="surface community-empty" role="status">
-            <strong>{copy.community.loadingTitle}</strong>
-            <p>{copy.community.loadingDescription}</p>
-          </div>
-        ) : error && !question ? (
-          <div className="community-status community-status-error" role="alert">
-            <div>
-              <strong>{error}</strong>
-              <p>{copy.community.serviceUnavailable}</p>
-            </div>
-            <button type="button" className="btn btn-outline" onClick={() => router.reload()}>
-              {copy.community.retry}
-            </button>
-          </div>
-        ) : question ? (
-          <>
-            <article className="surface community-detail-question">
-              <div className="community-question-meta">
-                <div className="community-post-labels">
-                  <span className="category-label">
-                    {copy.community.postTypes[question.post_type]}
-                  </span>
-                  <span className="category-label">
-                    {copy.community.categories[question.category]}
-                  </span>
-                </div>
-                <time dateTime={question.created_at}>
-                  {dateFormatter.format(new Date(question.created_at))}
-                </time>
-              </div>
-              <CommunityProfileBadge profile={question.author_profile} />
-              <h1>{question.title}</h1>
-              <p>{question.body}</p>
-              <a href={reportHref(question.id)} className="app-footer-link">
-                {reportLabel}
-              </a>
+      <span className="tb-eyebrow">
+        {de
+          ? "ÖFFENTLICHES V1-ARCHIV · NUR LESEN"
+          : "PUBLIC V1 ARCHIVE · READ ONLY"}
+      </span>
+      {loading ? (
+        <p role="status">{de ? "Wird geladen …" : "Loading …"}</p>
+      ) : error || !question ? (
+        <p role="alert">
+          {de
+            ? "Dieser V1-Beitrag konnte nicht geladen werden."
+            : "This V1 post could not be loaded."}
+        </p>
+      ) : (
+        <>
+          <h1>{question.title}</h1>
+          <article className="tb-panel tb-legacy-body">
+            <p>{question.body}</p>
+            <small>{question.author_profile?.display_name || "V1"}</small>
+          </article>
+          {answers.map((a) => (
+            <article className="tb-panel tb-legacy-body" key={a.id}>
+              <p>{a.body}</p>
+              <small>{a.author_profile?.display_name || "V1"}</small>
             </article>
-
-            <section className="community-answers" aria-labelledby="community-answers-title">
-              <div className="community-feed-heading">
-                <div>
-                  <span className="page-kicker">{copy.community.perspectivesKicker}</span>
-                  <h2 id="community-answers-title">{copy.community.answersTitle}</h2>
-                </div>
-                <span className="muted">
-                  {formatTranslation(
-                    answers.length === 1
-                      ? copy.community.answerCountSingular
-                      : copy.community.answerCount,
-                    { count: String(answers.length) },
-                  )}
-                </span>
-              </div>
-
-              <CommunityProfileLegend />
-
-              {answers.length === 0 ? (
-                <div className="surface community-empty">
-                  <strong>{copy.community.noAnswers}</strong>
-                  <p>{copy.community.noAnswersDescription}</p>
-                </div>
-              ) : (
-                <ol className="community-answer-list">
-                  {answers.map((answer, index) => (
-                    <li key={answer.id} className="surface community-answer-card">
-                      <div className="community-answer-index">
-                        {formatTranslation(copy.community.perspectiveNumber, {
-                          number: String(index + 1),
-                        })}
-                      </div>
-                      <div className="community-answer-content">
-                        <CommunityProfileBadge profile={answer.author_profile} />
-                        <p>{answer.body}</p>
-                        <time dateTime={answer.created_at}>
-                          {dateFormatter.format(new Date(answer.created_at))}
-                        </time>
-                        <a href={reportHref(answer.id)} className="app-footer-link">
-                          {reportLabel}
-                        </a>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </section>
-
-            <section className="surface community-answer-composer">
-              <h2>{copy.community.yourAnswerLabel}</h2>
-              <p>{copy.community.answerGuidance}</p>
-
-              {isAuthLoading ? (
-                <p className="muted" role="status">
-                  {copy.community.checkingSession}
-                </p>
-              ) : (
-                <CommunityParticipationGate
-                  participation={participation}
-                  returnTo={`/community/${question.id}`}
-                >
-                  <form onSubmit={handleAnswerSubmit} className="stack-md">
-                  <div className="field-group">
-                    <label htmlFor="community-answer" className="field-label">
-                      {copy.community.yourAnswerLabel}
-                    </label>
-                    <textarea
-                      id="community-answer"
-                      rows={5}
-                      maxLength={5000}
-                      required
-                      value={answerBody}
-                      placeholder={copy.community.yourAnswerPlaceholder}
-                      onChange={(event) => setAnswerBody(event.target.value)}
-                    />
-                  </div>
-                  {error && (
-                    <p className="text-danger" role="alert">
-                      {error}
-                    </p>
-                  )}
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={!answerBody.trim() || isSubmitting}
-                  >
-                    {isSubmitting
-                      ? copy.community.publishing
-                      : copy.community.publishAnswer}
-                  </button>
-                  </form>
-                </CommunityParticipationGate>
-              )}
-            </section>
-          </>
-        ) : null}
-      </div>
-    </>
+          ))}
+        </>
+      )}
+      <p>
+        {de
+          ? "Dieser Austausch war in V1 öffentlich. Für neue persönliche Fragen nutze V2."
+          : "This conversation was public in V1. Use V2 for new personal questions."}
+      </p>
+      <Link className="tb-text-link" href="/community">
+        ← {de ? "V1-Beiträge" : "V1 posts"}
+      </Link>
+    </div>
   );
-};
-
-export default CommunityQuestionPage;
+}

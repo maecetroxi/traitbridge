@@ -1,139 +1,118 @@
-import React, { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
+import { useBridge } from "../contexts/BridgeContext";
 import LocaleSwitcher from "./LocaleSwitcher";
-
-type LayoutProps = {
-  children: ReactNode;
-};
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+import Icon from "./v2/Icon";
+export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, signOut, loading } = useAuth();
-  const { copy, locale } = useLocale();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [router.asPath]);
-
-  const navItems = [
-    { href: "/", label: copy.layout.nav.home },
-    { href: "/test", label: copy.layout.nav.test },
-    { href: "/learn", label: copy.layout.nav.learn },
-    { href: "/community", label: copy.layout.nav.community },
-  ];
-  const isRegisteredUser = Boolean(user && !user.is_anonymous);
-  const visibleNavItems = isRegisteredUser
-    ? [...navItems, { href: "/profile", label: copy.layout.nav.profile }]
-    : navItems;
-
-  const handleSignOut = async () => {
-    await signOut();
-    await router.push("/");
-  };
-
+  const { locale } = useLocale();
+  const { user } = useAuth();
+  const { snapshot } = useBridge();
+  const de = locale === "de";
+  const unread = snapshot.notifications.filter((n) => !n.read_at).length;
+  const section =
+    router.pathname === "/messages"
+      ? "messages"
+      : [
+            "/me",
+            "/profile",
+            "/test",
+            "/results",
+            "/learn",
+            "/background",
+            "/onboarding",
+            "/privacy",
+            "/moderation",
+          ].some((p) => router.pathname.startsWith(p))
+        ? "me"
+        : "home";
   return (
-    <>
+    <div className="tb-app">
       <a className="skip-link" href="#main-content">
-        {copy.layout.skipToContent}
+        {de ? "Zum Inhalt" : "Skip to content"}
       </a>
-      <header className="app-header">
-        <div className="app-header-inner">
-          <Link href="/" className="app-brand" aria-label="TraitBridge">
-            <span className="app-logo">
-              <Image
-                src="/traitbridge-logo.png.png"
-                alt=""
-                width={138}
-                height={71}
-                priority
-              />
+      <header className="tb-header">
+        <div className="tb-header-inner">
+          <Link className="tb-brand" href="/" aria-label="TraitBridge Start">
+            <span className="tb-brand-symbol" aria-hidden="true">
+              <i />
+              <i />
+              <b />
             </span>
-            <span className="app-brand-copy">
-              <span className="app-subtitle">{copy.layout.subtitle}</span>
-            </span>
+            traitbridge<span className="tb-beta">BETA</span>
           </Link>
-
-          <div className="app-header-utilities">
-            <LocaleSwitcher />
-            <button
-              type="button"
-              className="app-menu-button"
-              aria-expanded={isMenuOpen}
-              aria-controls="primary-navigation"
-              aria-label={isMenuOpen ? copy.layout.closeMenu : copy.layout.openMenu}
-              onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
-            >
-              <span aria-hidden="true">{isMenuOpen ? "×" : "☰"}</span>
-            </button>
-          </div>
-
           <nav
-            id="primary-navigation"
-            className={`app-nav${isMenuOpen ? " app-nav-open" : ""}`}
-            aria-label={copy.layout.navigationLabel}
+            className="tb-nav"
+            aria-label={de ? "Hauptnavigation" : "Main navigation"}
           >
-            {visibleNavItems.map((item) => {
-              const isActive =
-                item.href === "/"
-                  ? router.pathname === item.href
-                  : router.pathname.startsWith(item.href);
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`app-nav-link${isActive ? " app-nav-link-active" : ""}`}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-            {!loading &&
-              (isRegisteredUser ? (
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="app-nav-link app-nav-button"
-                >
-                  {copy.layout.nav.signOut}
-                </button>
-              ) : (
-                <Link href="/login" className="app-nav-link">
-                  {copy.layout.nav.signIn}
-                </Link>
-              ))}
+            {[
+              { id: "home", href: "/", label: de ? "Start" : "Home" },
+              {
+                id: "messages",
+                href: "/messages",
+                label: de ? "Nachrichten" : "Messages",
+              },
+              { id: "me", href: "/me", label: de ? "Ich" : "Me" },
+            ].map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={section === item.id ? "active" : ""}
+                aria-current={section === item.id ? "page" : undefined}
+              >
+                <Icon name={item.id} />
+                <span>{item.label}</span>
+                {item.id === "messages" && unread > 0 && (
+                  <span
+                    className="tb-unread"
+                    aria-label={`${unread} ${de ? "ungelesen" : "unread"}`}
+                  >
+                    {unread}
+                  </span>
+                )}
+              </Link>
+            ))}
           </nav>
+          <div className="tb-utilities">
+            <LocaleSwitcher />
+            {!user && (
+              <Link href="/login?returnTo=%2Fonboarding" className="tb-login">
+                {de ? "Anmelden" : "Sign in"}
+                <Icon name="arrow" size={17} />
+              </Link>
+            )}
+            {user && (
+              <Link
+                href="/me"
+                className="tb-account"
+                aria-label={de ? "Mein Konto" : "My account"}
+              >
+                <Icon name="me" size={20} />
+              </Link>
+            )}
+          </div>
         </div>
       </header>
-
-      <main id="main-content" className="app-main">
+      <main id="main-content" className="tb-main">
         <div className="container">{children}</div>
       </main>
-
-      <footer className="app-footer">
-        <div className="app-footer-inner">
-          <span>{copy.layout.footer}</span>
-          <div className="app-footer-links">
-            <Link href="/community-guidelines" className="app-footer-link">
-              {locale === "de" ? "Community-Regeln" : "Community guidelines"}
-            </Link>
-            <Link href="/privacy" className="app-footer-link">
-              {locale === "de" ? "Datenschutz" : "Privacy"}
-            </Link>
-            <Link href="/imprint" className="app-footer-link">
-              {locale === "de" ? "Impressum" : "Legal notice"}
-            </Link>
-          </div>
+      <footer className="tb-footer">
+        <span>
+          traitbridge <span aria-hidden="true">·</span>{" "}
+          {de
+            ? "Menschen. Gemeinsam weiter."
+            : "People. Moving forward together."}
+        </span>
+        <div>
+          <Link href="/community-guidelines">
+            {de ? "Unser Miteinander" : "Our guidelines"}
+          </Link>
+          <Link href="/privacy">{de ? "Datenschutz" : "Privacy"}</Link>
+          <Link href="/imprint">{de ? "Impressum" : "Legal notice"}</Link>
         </div>
       </footer>
-    </>
+    </div>
   );
-};
-
-export default Layout;
+}

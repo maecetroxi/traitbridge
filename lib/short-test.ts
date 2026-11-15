@@ -50,7 +50,7 @@ export const calculateShortTestScores = (
     const traitQuestions = selected.filter((question) => question.domain === trait);
     const values = traitQuestions.map((question) => answers[question.id]);
 
-    if (values.some((value) => !Number.isFinite(value) || value < 1 || value > 5)) {
+    if (values.some((value) => !Number.isInteger(value) || value < 1 || value > 5)) {
       throw new Error("Please answer every short-test statement.");
     }
 

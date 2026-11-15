@@ -1,5 +1,7 @@
 # TraitBridge release status
 
+> V2-Hinweis (15. November 2026): Der folgende Bericht dokumentiert den bisherigen V1-Betrieb. V2 liegt lokal auf `feature/traitbridge-v2` und ist noch nicht veröffentlicht. Einrichtung und Freigabeschritte stehen in [docs/V2.md](docs/V2.md) und [docs/V2_ROADMAP.md](docs/V2_ROADMAP.md). V1 bleibt unter `archive/v1` / `v1.0-archive` gesichert.
+
 Status date: 2 September 2026
 
 ## Release decision

@@ -1,115 +1,51 @@
-# TraitBridge
+# TraitBridge V2
 
-TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practical learning content and an open community. Test, Community and Learn are independent entry points; visitors do not need to complete them in a fixed order.
+Persönliche Fragen, echte menschliche Erfahrungen und eine Vermittlung über relevante Big-Five-Ähnlichkeiten. Eine zweisprachige, responsive Next.js-App mit drei Bereichen: **Start**, **Nachrichten**, **Ich**.
 
-## What is included
+V2 ist für eine **geschlossene Beta ab 18** vorbereitet. Der Kern braucht keine OpenAI-API. Neue private Fragen sind von der bisherigen öffentlichen V1-Community getrennt. V1 wurde vor der Entwicklung mit allen vorgefundenen Änderungen archiviert.
 
-- IPIP-NEO-120 assessment in English and German
-- Embedded ten-item quick orientation in English and German
-- Ten questionnaire stages with actual-answer progress, local autosave, resume and restart
-- Local results for visitors and Supabase-backed results for registered users
-- Public Community reading with questions, experiences, search, categories and sorting
-- Public three-band OCEAN profiles for contributors; exact scores and email addresses stay private
-- Direct question routes at `/community/[id]`
-- Email magic-link sign-in for writing Community content
-- Eleven bilingual, situation-based learning topics at `/learn/[slug]`
-- Editorial book suggestions with “might feel familiar” and “might widen my view” modes
-- Neutral profile interpretation that presents possible benefits and friction equally
+## Dokumentation
 
-## Main routes
+- [V1-Archiv, Commit, Screenshots und Wiederherstellung](docs/archive/v1/README.md)
+- [V2: Funktionen, Architektur, Datenbank, Einrichtung und Kosten](docs/V2.md)
+- [Prüfergebnisse und Grenzen der Prüfung](docs/V2_VALIDATION.md)
+- [Roadmap und Schritte vor Beta/öffentlichem Release](docs/V2_ROADMAP.md)
 
-| Route | Purpose | Sign-in |
-| --- | --- | --- |
-| `/` | Equal overview of all entry points and valid saved work | No |
-| `/test` | Assessment context, data use and scientific background | No |
-| `/test/full` | Staged IPIP-NEO-120 questionnaire | No |
-| `/results` | Locally stored result | No |
-| `/profile` | Latest Supabase result with local fallback | Yes |
-| `/community` | Searchable feed for questions and experiences | Read: no; write: account + test |
-| `/community/[id]` | Direct post and perspective view | Read: no; answer: account + test |
-| `/learn` | Practical learning topic overview | No |
-| `/learn/[slug]` | Structured topic with evidence notes and sources | No |
-| `/learn/library` | Editorial book and film suggestions | No |
+## Lokal starten
 
-## Technology
+Node.js 22 verwenden. `.env.example` nach `.env.local` kopieren und eigene Werte einsetzen. Keine echten Zugangsdaten committen.
 
-- Next.js Pages Router
-- React and TypeScript
-- `@bigfive-org/questions`, `@bigfive-org/score`, `@bigfive-org/results`
-- Supabase Auth and Postgres
-Community email addresses are never queried or rendered.
+```sh
+npm ci
+npm run dev
+```
 
-## Local setup
+Magic-Link-Login und Tests verwenden die bestehende Supabase-Konfiguration. Für den privaten V2-Austausch zusätzlich die neue Migration **zuerst in Staging** anwenden, das ausschliesslich serverseitige `SUPABASE_SERVICE_ROLE_KEY` setzen, ausgewählte Konten in `tb_private.beta_members` einladen und erst dann `TRAITBRIDGE_V2_ENABLED=true` aktivieren. Die ausführliche Anleitung steht in [docs/V2.md](docs/V2.md). Ohne Freischaltung bleiben die privaten Schreibfunktionen geschlossen; die Oberfläche zeigt dies verständlich an.
 
-1. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-2. Create `.env.local`:
-
-   ```env
-   NEXT_PUBLIC_SITE_URL=https://traitbridge.com
-   NEXT_PUBLIC_SUPABASE_URL=your-project-url
-   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
-   ```
-
-3. Apply the Supabase migrations in numeric order. See [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
-
-4. Start the app:
-
-   ```bash
-   npm run dev
-   ```
-
-## Commands
-
-```bash
+```sh
 npm test
 npm run typecheck
 npm run build
 npm run audit:prod
-npm run dev
 npm start
 ```
 
-The tests cover stored profile validation, book matching, test-draft stages and persistence, Community filtering/sorting, and learning-content structure/source resolution.
+## Enthalten
 
-Production deployment details and the Hostinger inventory are documented in [HOSTINGER_DEPLOYMENT.md](HOSTINGER_DEPLOYMENT.md). The current go-live gates and verification results are tracked in [RELEASE_STATUS.md](RELEASE_STATUS.md).
+- Kurzes Onboarding mit bestehender zehnteiliger, ausdrücklich grober Orientierung
+- Vollständiger IPIP-NEO-120 mit Entwurfsfortschritt und Ergebnissen
+- Reproduzierbarer, veränderbarer SVG-Avatar ohne Generierungskosten
+- Deterministisches, themenbezogenes Matching mit gestufter Suche
+- Private Fragen, freiwilliges Entdecken und persönlicher Nachrichtenaustausch
+- Transaktionssichere Reservierungen und höchstens drei Zustellungen pro Frage
+- Freiwilliges Danke, In-App-Benachrichtigungen, Melden und Blockieren
+- Geschützte Moderationsoberfläche, Inhalts- und Beta-Kontosperren
+- Eigene Inhalte und Konto löschen, Vermittlung pausieren
+- Bestehende Lerninhalte, wissenschaftliche Hintergründe, Buch- und Filmempfehlungen
+- Deutscher und englischer Inhalt, adaptive Desktop-/Tablet-/Mobilansichten und PWA-Manifest
 
-The bilingual `/imprint` page is deliberately marked `noindex,nofollow` while its postal address and final wording remain under review. Remove that directive and add the route to the sitemap only after approval.
+## Technische Grundlage
 
-## Supabase keepalive
+Next.js Pages Router, React, TypeScript und Supabase Auth/Postgres. V2 verarbeitet private Daten ausschliesslich über eine authentifizierte Next.js-API und ein serverexklusives SQL-Gateway; Browserrollen können die neuen Tabellen nicht direkt lesen. PGlite und Playwright dienen nur der Entwicklung. Alle Abhängigkeiten sind fest versioniert. Webpack wird wegen einer reproduzierten Turbopack-Junction-Einschränkung in der Windows-Sandbox verwendet.
 
-The GitHub Actions workflow `.github/workflows/supabase-keepalive.yml` performs a minimal read-only Data API request three times daily. It is intentionally kept to reduce the risk that the Supabase Free project is paused because of inactivity. It creates or changes no application data.
-
-The workflow requires the GitHub repository secrets `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`. Scheduled workflows run from the default branch and can be disabled by GitHub after prolonged repository inactivity, so the workflow status should be checked periodically. Only an appropriate paid Supabase plan guarantees that a project will not be paused.
-
-## Data and trust boundaries
-
-- An unfinished test is versioned and stored per language in `localStorage`.
-- A visitor’s completed result remains in `localStorage`.
-- For a permanent signed-in user, the completed result is also sent to Supabase.
-- Community content is publicly readable. Writing requires a permanent account, a short or full test result, and consent to a public three-band OCEAN profile.
-- The site loads no third-party web fonts and uses no analytics, advertising or social-media trackers.
-- The assessment is a self-reflection tool, not a clinical diagnosis.
-- Learning exercises and book matches are clearly separated from scientific evidence.
-
-## Content quality
-
-Learning sources are kept in `lib/learning-content.ts` and shown on each topic route. Editorial gaps and requested subject-matter review are tracked in [docs/LEARNING_CONTENT_GAPS.md](docs/LEARNING_CONTENT_GAPS.md). Book covers and excerpts are not included.
-
-## Key project areas
-
-```text
-components/test/            Staged questionnaire UI
-lib/test-draft.ts           Versioned, language-specific draft logic
-lib/community.ts            Community categories, filtering and sorting
-lib/learning-content.ts     Bilingual topics and verified source registry
-lib/profile-content.ts      Neutral contextual profile interpretation
-pages/community/[id].tsx    Direct Community detail route
-pages/learn/[slug].tsx      Learning topic route
-supabase/migrations/        Database schema and RLS changes
-tests/                      Pure-logic tests
-```
+Bestehende V1-Deployment-Unterlagen bleiben in `HOSTINGER_DEPLOYMENT.md`, `SUPABASE_SETUP.md` und `RELEASE_STATUS.md` nachvollziehbar. Sie beschreiben den bisherigen Betrieb und ersetzen nicht die V2-Cutover-Anleitung. Es wurde weder ein Remote-Push noch eine produktive Migration oder V2-Veröffentlichung ausgeführt.

@@ -32,6 +32,7 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  devIndicators: false,
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
