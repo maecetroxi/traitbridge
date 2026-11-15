@@ -54,8 +54,16 @@ export default function LearningArticlesPage() {
     <>
       <Head>
         <title>{`${pageCopy.metaTitle} | TraitBridge`}</title>
-        <meta key="og-title" property="og:title" content={`${pageCopy.metaTitle} | TraitBridge`} />
-        <meta key="og-description" property="og:description" content={pageCopy.intro} />
+        <meta
+          key="og-title"
+          property="og:title"
+          content={`${pageCopy.metaTitle} | TraitBridge`}
+        />
+        <meta
+          key="og-description"
+          property="og:description"
+          content={pageCopy.intro}
+        />
         <meta name="description" content={pageCopy.intro} />
       </Head>
 
@@ -102,97 +110,122 @@ export default function LearningArticlesPage() {
           <details className={styles.advancedFilters}>
             <summary>{pageCopy.advancedFilters}</summary>
 
-          <div className={styles.filterBlock}>
-            <strong>{pageCopy.situationLabel}</strong>
-            <div className={styles.chips} role="group" aria-label={pageCopy.situationLabel}>
-              <button
-                type="button"
-                aria-pressed={category === "all"}
-                onClick={() => setCategory("all")}
+            <div className={styles.filterBlock}>
+              <strong>{pageCopy.situationLabel}</strong>
+              <div
+                className={styles.chips}
+                role="group"
+                aria-label={pageCopy.situationLabel}
               >
-                {pageCopy.allSituations}
-              </button>
-              {LEARNING_CATEGORIES.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={category === value}
-                  onClick={() => setCategory(value)}
-                >
-                  {copy.learn.categories[value]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.filterGrid}>
-            <div className={styles.filterBlock}>
-              <strong>{pageCopy.traitLabel}</strong>
-              <div className={styles.chips} role="group" aria-label={pageCopy.traitLabel}>
                 <button
                   type="button"
-                  aria-pressed={trait === "all"}
-                  onClick={() => setTrait("all")}
+                  aria-pressed={category === "all"}
+                  onClick={() => setCategory("all")}
                 >
-                  {pageCopy.allTraits}
+                  {pageCopy.allSituations}
                 </button>
-                {BIG_FIVE_TRAITS.map((value) => (
+                {LEARNING_CATEGORIES.map((value) => (
                   <button
                     key={value}
                     type="button"
-                    aria-pressed={trait === value}
-                    onClick={() => setTrait(value)}
+                    aria-pressed={category === value}
+                    onClick={() => setCategory(value)}
                   >
-                    {copy.traits[value]}
+                    {copy.learn.categories[value]}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className={styles.filterBlock}>
-              <strong>{pageCopy.poleLabel}</strong>
-              <div className={styles.chips} role="group" aria-label={pageCopy.poleLabel}>
-                {(["all", "low", "high", "both"] as const).map((value) => (
+            <div className={styles.filterGrid}>
+              <div className={styles.filterBlock}>
+                <strong>{pageCopy.traitLabel}</strong>
+                <div
+                  className={styles.chips}
+                  role="group"
+                  aria-label={pageCopy.traitLabel}
+                >
+                  <button
+                    type="button"
+                    aria-pressed={trait === "all"}
+                    onClick={() => setTrait("all")}
+                  >
+                    {pageCopy.allTraits}
+                  </button>
+                  {BIG_FIVE_TRAITS.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={trait === value}
+                      onClick={() => setTrait(value)}
+                    >
+                      {copy.traits[value]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.filterBlock}>
+                <strong>{pageCopy.poleLabel}</strong>
+                <div
+                  className={styles.chips}
+                  role="group"
+                  aria-label={pageCopy.poleLabel}
+                >
+                  {(["all", "low", "high", "both"] as const).map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={level === value}
+                      onClick={() => setLevel(value)}
+                    >
+                      {value === "all"
+                        ? pageCopy.allPoles
+                        : traitLevelLabel(value)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modeBlock}>
+              <strong>{pageCopy.perspectiveLabel}</strong>
+              <div
+                className={styles.modeSwitch}
+                role="group"
+                aria-label={pageCopy.perspectiveLabel}
+              >
+                {(["mirror", "growth"] as const).map((value) => (
                   <button
                     key={value}
                     type="button"
-                    aria-pressed={level === value}
-                    onClick={() => setLevel(value)}
+                    aria-pressed={mode === value}
+                    onClick={() => setMode(value)}
                   >
-                    {value === "all" ? pageCopy.allPoles : traitLevelLabel(value)}
+                    <span>{pageCopy[value]}</span>
+                    <small>{pageCopy[`${value}Text`]}</small>
                   </button>
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className={styles.modeBlock}>
-            <strong>{pageCopy.perspectiveLabel}</strong>
-            <div className={styles.modeSwitch} role="group" aria-label={pageCopy.perspectiveLabel}>
-              {(["mirror", "growth"] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={mode === value}
-                  onClick={() => setMode(value)}
-                >
-                  <span>{pageCopy[value]}</span>
-                  <small>{pageCopy[`${value}Text`]}</small>
-                </button>
-              ))}
-            </div>
-          </div>
           </details>
         </section>
 
-        {(search || category !== "all" || trait !== "all" || level !== "all") && (
+        {(search ||
+          category !== "all" ||
+          trait !== "all" ||
+          level !== "all") && (
           <div className={styles.activeFilters} aria-label={pageCopy.clear}>
             <span>{pageCopy.activeFilters}</span>
             {search && <strong>“{search}”</strong>}
-            {category !== "all" && <strong>{copy.learn.categories[category]}</strong>}
+            {category !== "all" && (
+              <strong>{copy.learn.categories[category]}</strong>
+            )}
             {trait !== "all" && <strong>{copy.traits[trait]}</strong>}
             {level !== "all" && <strong>{traitLevelLabel(level)}</strong>}
-            <button type="button" onClick={clearFilters}>{pageCopy.clear}</button>
+            <button type="button" onClick={clearFilters}>
+              {pageCopy.clear}
+            </button>
           </div>
         )}
 
@@ -224,7 +257,8 @@ export default function LearningArticlesPage() {
                   <div className={styles.traitTags}>
                     {topic.traitRelevance.map((relevance) => (
                       <span key={`${relevance.trait}-${relevance.level}`}>
-                        {traitLevelLabel(relevance.level)} · {copy.traits[relevance.trait]}
+                        {traitLevelLabel(relevance.level)} ·{" "}
+                        {copy.traits[relevance.trait]}
                       </span>
                     ))}
                   </div>
@@ -232,7 +266,9 @@ export default function LearningArticlesPage() {
                   <p>{topic.summary[locale]}</p>
                   <aside>
                     <strong>
-                      {mode === "mirror" ? pageCopy.mirrorReason : pageCopy.growthReason}
+                      {mode === "mirror"
+                        ? pageCopy.mirrorReason
+                        : pageCopy.growthReason}
                     </strong>
                     <span>
                       {mode === "mirror"
@@ -262,14 +298,7 @@ export default function LearningArticlesPage() {
             <span className="page-kicker">{pageCopy.communityTitle}</span>
             <p>{pageCopy.communityText}</p>
           </div>
-          <Link
-            href={{
-              pathname: "/community",
-              query: { category: "self-understanding" },
-            }}
-          >
-            {pageCopy.communityAction} →
-          </Link>
+          <Link href="/?view=discover">{pageCopy.communityAction} →</Link>
         </aside>
       </div>
     </>

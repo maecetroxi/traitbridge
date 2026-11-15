@@ -12,6 +12,7 @@
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "audit:prod": "npm audit --omit=dev",
+    "edge:package": "node scripts/package-edge.mjs",
     "start": "next start"
   },
   "dependencies": {

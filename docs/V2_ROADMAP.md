@@ -2,8 +2,9 @@
 
 ## Vor der ersten geschlossenen Beta
 
-- Die lokalen Archiv-Referenzen und den V2-Entwicklungsbranch nach Freigabe auf GitHub veröffentlichen. Keine Force-Pushes.
-- Neue Migration in einer getrennten Supabase-Staging-Umgebung anwenden und Security Advisors erneut prüfen. Rechte für das öffentliche V1-Lese-Archiv bewusst bestätigen; seine alten Schreibzugriffe werden beim Cutover deaktiviert.
+- Den V2-Entwicklungsbranch nach Freigabe auf GitHub veröffentlichen. Keine Force-Pushes.
+- Den konkreten Supabase-Produktionsschritt ausdrücklich freigeben oder eine getrennte Staging-Umgebung wählen. Die automatische Freigabeprüfung hat Änderungen am aktiven Projekt bisher abgelehnt. Die additive Migration und die Deno-Edge-Anbindung sind lokal getestet; Security Advisors nach Anwendung erneut prüfen.
+- Alte Datenbank-Schreibzugriffe erst beim tatsächlichen Website-Wechsel stilllegen. Die alten Seiten und Archivdateien wurden aus dem aktuellen Projekt entfernt; vorhandene Beiträge werden ohne klare Löschanweisung nicht gelöscht.
 - Server-Secret, Beta-Flag, Turnstile, erlaubte Magic-Link-URLs und E-Mail-Zustellung in Staging konfigurieren. Mit mindestens zwei echten Testkonten Anmeldung, Session-Erneuerung, Sperrung und vollständige Kontolöschung prüfen. Die lokale QA ersetzt keinen echten Auth-Zustelltest.
 - Ein Moderationskonto bestimmen, `/moderation` durchspielen und tatsächliche Zuständigkeit/Erreichbarkeit festlegen. Keine Rund-um-die-Uhr-Hilfe versprechen.
 - Datenschutztexte, Einwilligungsversion, Volljährigkeitsbestätigung, Aufbewahrung, Umgang mit Meldungen und Impressum fachlich/rechtlich abnehmen. Die bestehenden redaktionellen Lücken in `LEARNING_CONTENT_GAPS.md` prüfen.

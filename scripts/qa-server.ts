@@ -108,6 +108,24 @@ async function start() {
     }
     try {
       const url = new URL(req.url || "/", "http://127.0.0.1:54325");
+      if (
+        url.pathname === "/functions/v1/traitbridge-v2" &&
+        process.env.QA_EDGE_URL
+      ) {
+        let body = "";
+        for await (const chunk of req) body += chunk;
+        const edge = await fetch(process.env.QA_EDGE_URL, {
+          method: req.method,
+          headers: {
+            "Content-Type": "application/json",
+            authorization: req.headers.authorization || "",
+          },
+          body: ["GET", "HEAD"].includes(req.method || "") ? undefined : body,
+        });
+        res.writeHead(edge.status);
+        res.end(await edge.text());
+        return;
+      }
       if (url.pathname === "/auth/v1/user") {
         const user = users.find(
           (u) => `Bearer ${token(u.id)}` === req.headers.authorization,

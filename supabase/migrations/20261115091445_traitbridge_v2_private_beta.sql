@@ -1,5 +1,4 @@
 -- Additive, isolated V2 schema. No V1 rows or policies are changed.
--- At V2 cutover, legacy INSERT/UPDATE grants are revoked (read/delete retained).
 -- Apply first to a disposable staging database. Only the Next.js server can
 -- invoke the public gateway; anon/authenticated have no table or RPC access.
 begin;
@@ -337,13 +336,4 @@ $$;
 revoke all on function public.tb_v2(uuid,text,jsonb) from public,anon,authenticated;
 grant execute on function public.tb_v2(uuid,text,jsonb) to service_role;
 comment on function public.tb_v2(uuid,text,jsonb) is 'Server-only V2 gateway. Actor MUST be verified with Supabase Auth getUser by Next.js. Never grant to authenticated or anon.';
--- Prevent bypassing the read-only V1 UI through its old write API. This changes
--- access rights only: existing public visibility and own DELETE policies remain.
-do $$ declare t text; begin
- foreach t in array array['questions','answers','community_profiles'] loop
-  if to_regclass('public.'||t) is not null then
-   execute format('revoke insert,update on public.%I from authenticated',t);
-  end if;
- end loop;
-end $$;
 commit;

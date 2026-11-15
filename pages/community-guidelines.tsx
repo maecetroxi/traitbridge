@@ -11,7 +11,7 @@ const copy = {
     sections: [
       {
         title: "V2: persönlich und freiwillig, ab 18",
-        text: "V2 startet als geschlossene Beta für Erwachsene. Eine Frage sehen nur berechtigte vermittelte Personen, bis du ausdrücklich Entdecken erlaubst. Entdecken zeigt in der Beta nur die Frage, niemals die privaten Antworten. Dein Pseudonym und Avatar sind für diese Personen sichtbar, deine genauen Persönlichkeitswerte nicht. Veröffentliche keine Namen, E-Mail-Adressen oder andere identifizierenden Angaben. Bestehende öffentliche V1-Beiträge bleiben als solche getrennt erhalten.",
+        text: "V2 startet als geschlossene Beta für Erwachsene. Eine Frage sehen nur berechtigte vermittelte Personen, bis du ausdrücklich Entdecken erlaubst. Entdecken zeigt in der Beta nur die Frage, niemals die privaten Antworten. Dein Pseudonym und Avatar sind für diese Personen sichtbar, deine genauen Persönlichkeitswerte nicht. Veröffentliche keine Namen, E-Mail-Adressen oder andere identifizierenden Angaben.",
       },
       {
         title: "Respektvoll beitragen",
@@ -19,7 +19,7 @@ const copy = {
       },
       {
         title: "Moderation und Meldungen",
-        text: "Nutze Melden / blockieren an einer V2-Frage oder Antwort. Meldungen werden gespeichert und können durch freigeschaltete Moderationspersonen geprüft werden. Blockierungen verhindern weitere Vermittlung und den gegenseitigen Zugriff in V2. Inhalte können gesperrt und Beta-Konten deaktiviert werden. Die Moderation ist nicht rund um die Uhr besetzt. V1-Inhalte oder sonstige Anliegen kannst du mit Link und Grund an privacy@traitbridge.com melden.",
+        text: "Nutze Melden / blockieren an einer V2-Frage oder Antwort. Meldungen werden gespeichert und können durch freigeschaltete Moderationspersonen geprüft werden. Blockierungen verhindern weitere Vermittlung und den gegenseitigen Zugriff in V2. Inhalte können gesperrt und Beta-Konten deaktiviert werden. Die Moderation ist nicht rund um die Uhr besetzt. Weitere Anliegen kannst du mit Link und Grund an privacy@traitbridge.com melden.",
       },
       {
         title: "Eigene Inhalte und Daten",
@@ -36,7 +36,7 @@ const copy = {
     sections: [
       {
         title: "V2: personal, voluntary, adults only",
-        text: "V2 starts as an invite-only beta for adults 18+. Only authorised matched people can see a question unless you explicitly allow Discover. During the beta, Discover shows questions, never private replies. These people see your pseudonym and avatar, not your exact personality scores. Do not share identifying details. Existing public V1 content stays separate.",
+        text: "V2 starts as an invite-only beta for adults 18+. Only authorised matched people can see a question unless you explicitly allow Discover. During the beta, Discover shows questions, never private replies. These people see your pseudonym and avatar, not your exact personality scores. Do not share identifying details.",
       },
       {
         title: "Contribute respectfully",
@@ -44,7 +44,7 @@ const copy = {
       },
       {
         title: "Moderation and reports",
-        text: "Use Report / block on a V2 question or reply. Reports are saved for authorised moderators. Blocking prevents further matching and mutual V2 access. Moderators can hide content or disable beta accounts. Moderation is not staffed around the clock. Report V1 content or other concerns to privacy@traitbridge.com with a link and reason.",
+        text: "Use Report / block on a V2 question or reply. Reports are saved for authorised moderators. Blocking prevents further matching and mutual V2 access. Moderators can hide content or disable beta accounts. Moderation is not staffed around the clock. Report other concerns to privacy@traitbridge.com with a link and reason.",
       },
       {
         title: "Your content and data",

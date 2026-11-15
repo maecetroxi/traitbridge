@@ -1,10 +1,6 @@
 // Server imports only. Never import this module into a component or browser helper.
 import { createClient } from "@supabase/supabase-js";
-import {
-  getItems,
-  type Question as TestQuestion,
-} from "@bigfive-org/questions";
-import { calculateShortTestScores } from "../short-test";
+import { scoreOrientation } from "./orientation";
 import { validAvatar } from "./avatar";
 import {
   classifyTopic,
@@ -96,10 +92,7 @@ export function validateAction(
       throw new V2Error("INVALID_INPUT");
     let scores;
     try {
-      scores = calculateShortTestScores(
-        getItems(profile.language as "de" | "en", false) as TestQuestion[],
-        answers,
-      );
+      scores = scoreOrientation(answers);
     } catch {
       throw new V2Error("INVALID_INPUT");
     }
@@ -167,11 +160,7 @@ export function validateAction(
   }
   throw new V2Error("UNKNOWN_ACTION");
 }
-export function getAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (process.env.TRAITBRIDGE_V2_ENABLED !== "true" || !url || !key)
-    throw new V2Error("BETA_UNAVAILABLE", 503);
+export function createAdmin(url: string, key: string) {
   return createClient(url, key, {
     auth: {
       persistSession: false,
@@ -180,7 +169,7 @@ export function getAdmin() {
     },
   });
 }
-type Admin = ReturnType<typeof getAdmin>;
+export type Admin = ReturnType<typeof createAdmin>;
 export async function rpc(
   admin: Admin,
   actor: string,

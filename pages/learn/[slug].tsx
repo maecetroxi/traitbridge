@@ -56,8 +56,16 @@ const LearningTopicPage: React.FC = () => {
     <>
       <Head>
         <title>{`${topic.title[locale]} | TraitBridge`}</title>
-        <meta key="og-title" property="og:title" content={`${topic.title[locale]} | TraitBridge`} />
-        <meta key="og-description" property="og:description" content={topic.summary[locale]} />
+        <meta
+          key="og-title"
+          property="og:title"
+          content={`${topic.title[locale]} | TraitBridge`}
+        />
+        <meta
+          key="og-description"
+          property="og:description"
+          content={topic.summary[locale]}
+        />
         <meta name="description" content={topic.summary[locale]} />
       </Head>
 
@@ -82,7 +90,8 @@ const LearningTopicPage: React.FC = () => {
                 key={`${relevance.trait}-${relevance.level}`}
                 data-level={relevance.level}
               >
-                {traitLevelLabel(relevance.level)} · {copy.traits[relevance.trait]}
+                {traitLevelLabel(relevance.level)} ·{" "}
+                {copy.traits[relevance.trait]}
               </span>
             ))}
           </div>
@@ -145,12 +154,7 @@ const LearningTopicPage: React.FC = () => {
               <aside className={styles.communityBridge}>
                 <strong>{articleCopy.communityTitle}</strong>
                 <p>{articleCopy.communityText}</p>
-                <Link
-                  href={{
-                    pathname: "/community",
-                    query: { category: topic.categories[0] },
-                  }}
-                >
+                <Link href="/?view=discover">
                   {articleCopy.communityAction} →
                 </Link>
               </aside>

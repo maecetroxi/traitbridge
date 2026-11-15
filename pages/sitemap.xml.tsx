@@ -6,7 +6,6 @@ const SITE_URL = "https://traitbridge.com";
 const staticPaths = [
   "",
   "/background",
-  "/community",
   "/community-guidelines",
   "/imprint",
   "/learn",

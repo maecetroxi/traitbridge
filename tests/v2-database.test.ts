@@ -392,6 +392,15 @@ test("database: isolated grants, private visibility, reservations, moderation an
   await t.test(
     "legacy writes are retired while public archive read and own-delete grants remain",
     async () => {
+      await db.exec(
+        readFileSync(
+          new URL(
+            "../supabase/migrations/20261115102753_retire_legacy_community_writes.sql",
+            import.meta.url,
+          ),
+          "utf8",
+        ),
+      );
       const rights = await db.query<{
         can_insert: boolean;
         can_update: boolean;

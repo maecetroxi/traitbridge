@@ -191,7 +191,7 @@ const ProfilePage: React.FC = () => {
                   >
                     {copy.profile.toLearning}
                   </Link>
-                  <Link href="/community" className="btn btn-outline">
+                  <Link href="/?view=discover" className="btn btn-outline">
                     {copy.profile.toCommunity}
                   </Link>
                   <Link href="/test" className="btn btn-quiet">

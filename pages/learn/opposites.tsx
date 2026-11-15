@@ -47,7 +47,8 @@ const pageCopy = {
     score: "Score",
     profileFromTest: "Your latest test result was loaded from this browser.",
     profileManual: "You are exploring a manually adjusted perspective.",
-    profileNeutral: "No result is needed. The neutral starting point keeps both perspectives open.",
+    profileNeutral:
+      "No result is needed. The neutral starting point keeps both perspectives open.",
     privacy: "Nothing on this page is sent anywhere.",
     reset: "Reset to the middle",
     likelyStart: "Your likely starting side",
@@ -75,7 +76,8 @@ const pageCopy = {
       "Vergleiche beide Pole jeder Big-Five-Dimension und entdecke, wie unterschiedliche Stile beitragen und zusammenarbeiten können.",
     back: "Lernübersicht",
     kicker: "TraitBridge · Gegensätze verstehen",
-    title: "Unterschiedliche Stile sehen unterschiedliche Teile der Wirklichkeit.",
+    title:
+      "Unterschiedliche Stile sehen unterschiedliche Teile der Wirklichkeit.",
     intro:
       "Keine Seite ist der bessere Mensch. Vergleiche, was jeder Pol beitragen kann, wo er missverstanden wird und wie aus beiden eine Brücke entstehen kann.",
     principleTitle: "Die Idee hinter der Brücke",
@@ -90,9 +92,11 @@ const pageCopy = {
     low: "Niedrig",
     high: "Hoch",
     score: "Wert",
-    profileFromTest: "Dein jüngstes Testergebnis wurde aus diesem Browser geladen.",
+    profileFromTest:
+      "Dein jüngstes Testergebnis wurde aus diesem Browser geladen.",
     profileManual: "Du erkundest eine manuell eingestellte Perspektive.",
-    profileNeutral: "Du brauchst kein Ergebnis. Der neutrale Startpunkt hält beide Perspektiven offen.",
+    profileNeutral:
+      "Du brauchst kein Ergebnis. Der neutrale Startpunkt hält beide Perspektiven offen.",
     privacy: "Nichts auf dieser Seite wird versendet.",
     reset: "Auf die Mitte zurücksetzen",
     likelyStart: "Dein wahrscheinlicher Ausgangspol",
@@ -159,8 +163,16 @@ export default function TraitOppositesPage() {
       <Head>
         <title>{`${copy.metaTitle} | TraitBridge`}</title>
         <meta name="description" content={copy.metaDescription} />
-        <meta key="og-title" property="og:title" content={`${copy.metaTitle} | TraitBridge`} />
-        <meta key="og-description" property="og:description" content={copy.metaDescription} />
+        <meta
+          key="og-title"
+          property="og:title"
+          content={`${copy.metaTitle} | TraitBridge`}
+        />
+        <meta
+          key="og-description"
+          property="og:description"
+          content={copy.metaDescription}
+        />
       </Head>
 
       <div className={styles.page}>
@@ -215,7 +227,9 @@ export default function TraitOppositesPage() {
                 type="button"
                 key={trait}
                 aria-pressed={selectedTrait === trait}
-                className={selectedTrait === trait ? styles.activeDimension : ""}
+                className={
+                  selectedTrait === trait ? styles.activeDimension : ""
+                }
                 onClick={() => setSelectedTrait(trait)}
               >
                 <span aria-hidden="true">{trait}</span>
@@ -358,16 +372,7 @@ export default function TraitOppositesPage() {
             <blockquote>{localized(bridge.reflectionQuestion)}</blockquote>
             <p>{copy.communityText}</p>
           </div>
-          <Link
-            href={{
-              pathname: "/community",
-              query: {
-                category: "self-understanding",
-                search: localized(bridge.communitySearch),
-              },
-            }}
-            className={styles.communityLink}
-          >
+          <Link href="/?view=discover" className={styles.communityLink}>
             {copy.communityAction}
             <span aria-hidden="true">→</span>
           </Link>

@@ -414,8 +414,8 @@ export default function Me() {
                 <form onSubmit={deleteAccount}>
                   <p>
                     {de
-                      ? "Dein Konto, deine V1- und V2-Inhalte sowie Testergebnisse werden unwiderruflich gelöscht. Bereits gelesene Nachrichten lassen sich nicht zurückholen."
-                      : "Your account, V1 and V2 content and test results will be permanently deleted. Messages already read cannot be recalled."}
+                      ? "Dein Konto, deine Inhalte sowie Testergebnisse werden unwiderruflich gelöscht. Bereits gelesene Nachrichten lassen sich nicht zurückholen."
+                      : "Your account, content and test results will be permanently deleted. Messages already read cannot be recalled."}
                   </p>
                   <label className="tb-label">
                     {de

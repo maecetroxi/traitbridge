@@ -3,9 +3,7 @@ import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import type { BigFiveScores } from "../../components/PersonalityBadge";
 import { useLocale } from "../../contexts/LocaleContext";
-import {
-  loadPreferredStoredResults,
-} from "../../lib/bigfive-results";
+import { loadPreferredStoredResults } from "../../lib/bigfive-results";
 import {
   CONTRIBUTION_PATTERNS,
   NEUTRAL_CONTRIBUTION_PROFILE,
@@ -13,10 +11,7 @@ import {
   selectContributionPatterns,
   type ContributionBand,
 } from "../../lib/contribution-content";
-import {
-  BIG_FIVE_TRAITS,
-  type BigFiveTrait,
-} from "../../lib/learning-content";
+import { BIG_FIVE_TRAITS, type BigFiveTrait } from "../../lib/learning-content";
 import type { Locale } from "../../lib/i18n";
 import styles from "../../styles/ContributionCompass.module.css";
 
@@ -125,11 +120,13 @@ const PAGE_COPY: Record<Locale, PageCopy> = {
     intro:
       "Persönlichkeit weist dir keinen Lebenssinn zu. Sie kann aber Worte dafür geben, was du bemerkst, was du anderen erleichterst und wo ein anderer Stil dich ergänzen könnte.",
     valueNote: "Jeder Pol kann wertvoll sein.",
-    contextNote: "Kontext, Fähigkeiten, Werte und Erfahrung bleiben entscheidend.",
+    contextNote:
+      "Kontext, Fähigkeiten, Werte und Erfahrung bleiben entscheidend.",
     profileKicker: "Dein Ausgangspunkt",
     profileTitle: "Passe die fünf Dimensionen an",
     profileDescription: {
-      checking: "Dieses Gerät wird nach einem gespeicherten Testergebnis geprüft …",
+      checking:
+        "Dieses Gerät wird nach einem gespeicherten Testergebnis geprüft …",
       saved:
         "Die Regler verwenden das letzte in diesem Browser gespeicherte Testergebnis. Du kannst sie verändern, ohne dieses Ergebnis zu überschreiben.",
       manual:
@@ -161,7 +158,8 @@ const PAGE_COPY: Record<Locale, PageCopy> = {
     oppositeLesson: "Was der Gegenpol zeigen kann",
     nextStep: "Kleiner nächster Schritt",
     reflectionKicker: "Gemeinsam weiterdenken",
-    reflectionTitle: "Wo könnten zwei unterschiedliche Stile eine Brücke bilden?",
+    reflectionTitle:
+      "Wo könnten zwei unterschiedliche Stile eine Brücke bilden?",
     reflectionQuestion:
       "Denke an eine Situation, in der deine Tendenz geholfen hat – und an eine, in der jemand mit der gegenteiligen Tendenz das Fehlende ergänzt hat.",
     communityText:
@@ -181,8 +179,7 @@ const ContributionPage: React.FC = () => {
     copyScores(NEUTRAL_CONTRIBUTION_PROFILE),
   );
   const [savedScores, setSavedScores] = useState<BigFiveScores | null>(null);
-  const [profileSource, setProfileSource] =
-    useState<ProfileSource>("checking");
+  const [profileSource, setProfileSource] = useState<ProfileSource>("checking");
 
   useEffect(() => {
     try {
@@ -236,8 +233,16 @@ const ContributionPage: React.FC = () => {
       <Head>
         <title>{`${copy.metaTitle} | TraitBridge`}</title>
         <meta name="description" content={copy.metaDescription} />
-        <meta key="og-title" property="og:title" content={`${copy.metaTitle} | TraitBridge`} />
-        <meta key="og-description" property="og:description" content={copy.metaDescription} />
+        <meta
+          key="og-title"
+          property="og:title"
+          content={`${copy.metaTitle} | TraitBridge`}
+        />
+        <meta
+          key="og-description"
+          property="og:description"
+          content={copy.metaDescription}
+        />
       </Head>
 
       <div className={styles.page}>
@@ -263,9 +268,7 @@ const ContributionPage: React.FC = () => {
             <div>
               <span className={styles.eyebrow}>{copy.profileKicker}</span>
               <h2 id="contribution-profile-title">{copy.profileTitle}</h2>
-              <p aria-live="polite">
-                {copy.profileDescription[profileSource]}
-              </p>
+              <p aria-live="polite">{copy.profileDescription[profileSource]}</p>
             </div>
             <div className={styles.profileActions}>
               {savedScores && profileSource !== "saved" && (
@@ -397,12 +400,7 @@ const ContributionPage: React.FC = () => {
             <p>{copy.reflectionQuestion}</p>
             <small>{copy.communityText}</small>
           </div>
-          <Link
-            href={{
-              pathname: "/community",
-              query: { category: "self-understanding" },
-            }}
-          >
+          <Link href="/?view=discover">
             {copy.communityAction}
             <span aria-hidden="true">→</span>
           </Link>

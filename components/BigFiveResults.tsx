@@ -14,7 +14,9 @@ import { getSuggestedLearningSlug } from "../lib/profile-content";
 
 const BigFiveResults: React.FC = () => {
   const { locale, copy } = useLocale();
-  const [storedResults, setStoredResults] = useState<StoredResults | null>(null);
+  const [storedResults, setStoredResults] = useState<StoredResults | null>(
+    null,
+  );
   const [detailedResults, setDetailedResults] =
     useState<ReturnType<typeof getDetailedResults>>(null);
 
@@ -117,13 +119,10 @@ const BigFiveResults: React.FC = () => {
             <h2 className="section-title">{copy.results.nextStepsTitle}</h2>
             <p className="section-text">{copy.results.nextStepsText}</p>
             <div className="results-actions">
-              <Link
-                href={`/learn/${learningSlug}`}
-                className="btn btn-primary"
-              >
+              <Link href={`/learn/${learningSlug}`} className="btn btn-primary">
                 {copy.results.toLearning}
               </Link>
-              <Link href="/community" className="btn btn-outline">
+              <Link href="/?view=discover" className="btn btn-outline">
                 {copy.results.toCommunity}
               </Link>
               <Link href="/test" className="btn btn-quiet">

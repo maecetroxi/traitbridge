@@ -33,7 +33,7 @@ const copy = {
           <p>
             Du kannst die Vermittlung unter Ich pausieren, Benachrichtigungen
             deaktivieren, eigene Inhalte unter Nachrichten löschen und dein
-            Konto samt V1-/V2-Inhalten und Testergebnissen löschen. Angaben zur
+            Konto samt Inhalten und Testergebnissen löschen. Angaben zur
             Einwilligung werden mit Versionsstand und Zeitpunkt gespeichert.
             Frage- und Antwortentwürfe liegen im Sitzungsspeicher dieses
             Browser-Tabs; du kannst sie durch Leeren des Feldes oder Schliessen
@@ -72,17 +72,17 @@ const copy = {
         ),
       },
       {
-        title: "Bestehende V1-Community und Kontodaten",
+        title: "Kontodaten und frühere Veröffentlichungen",
         body: (
           <p>
             Anmeldung, Sitzungen und Datenbank werden über Supabase in der
             EU-Region Frankfurt betrieben. Gespeichert werden die für das Konto
             erforderliche E-Mail-Adresse, eigene Testergebnisse und freiwillig
             veröffentlichte Community-Inhalte. Exakte Testergebnisse und
-            E-Mail-Adressen sind nicht öffentlich; in der bestehenden
-            öffentlichen V1-Community erscheinen der gewählte Anzeigename und
-            freiwillig freigegebene OCEAN-Bereiche. V1-Inhalte werden nicht in
-            private V2-Nachrichten umgewandelt.
+            E-Mail-Adressen sind nicht öffentlich. Früher ausdrücklich
+            veröffentlichte Beiträge und grobe Persönlichkeitsbereiche können
+            bis zu ihrer Löschung weiterhin im bisherigen Datenbestand liegen.
+            Sie werden in der neuen App nicht als private Nachrichten angezeigt.
           </p>
         ),
       },
@@ -149,11 +149,11 @@ const copy = {
             only their own reply. Authorised moderators can inspect reported
             content. Personal content is never sent to AI services. Pause
             matching, disable in-app notifications or delete your account and
-            V1/V2 content in Me. Delete your own questions and replies in
-            Messages. Drafts stay in this browser tab’s session storage.
-            Reports, blocks and abuse counters support safety. Questions and
-            replies remain until deleted. No reply emails or push notifications
-            are sent during this beta.
+            content in Me. Delete your own questions and replies in Messages.
+            Drafts stay in this browser tab’s session storage. Reports, blocks
+            and abuse counters support safety. Questions and replies remain
+            until deleted. No reply emails or push notifications are sent during
+            this beta.
           </p>
         ),
       },
@@ -180,15 +180,16 @@ const copy = {
         ),
       },
       {
-        title: "Account, results and Community",
+        title: "Account data and earlier publications",
         body: (
           <p>
             Sign-in, sessions and the database are provided through Supabase in
             its Frankfurt EU region. TraitBridge stores the email address needed
             for the account, the person’s own results and voluntarily published
-            Community content. Exact scores and email addresses are not public;
-            only the selected display name and voluntarily shared OCEAN bands
-            are public.
+            content. Exact scores and email addresses are not public. Previously
+            shared public posts and broad personality bands may remain in the
+            previous data store until deleted. They are not converted into
+            private messages in the current application.
           </p>
         ),
       },

@@ -37,16 +37,20 @@ export const translations = {
     home: {
       title: "Understand yourself. Bridge differences.",
       titleLines: ["Understand yourself.", "Bridge differences."],
-      subtitle: "TraitBridge helps you understand your personality patterns, reflect on real situations, and use other perspectives constructively.",
+      subtitle:
+        "TraitBridge helps you understand your personality patterns, reflect on real situations, and use other perspectives constructively.",
       optionsLabel: "TraitBridge sections",
       testTitle: "Personality test",
-      testDescription: "Map five broad personality dimensions and 30 facets, then use the result as a starting point for reflection.",
+      testDescription:
+        "Map five broad personality dimensions and 30 facets, then use the result as a starting point for reflection.",
       testAction: "Go to test",
       communityTitle: "Shared perspectives",
-      communityDescription: "Read experiences without registration. Sign in only when you want to contribute.",
+      communityDescription:
+        "Read experiences without registration. Sign in only when you want to contribute.",
       communityAction: "Open community",
       learnTitle: "Learn in context",
-      learnDescription: "Work through practical guides for decisions, stress, habits, relationships, and communication.",
+      learnDescription:
+        "Work through practical guides for decisions, stress, habits, relationships, and communication.",
       learnAction: "Discover area",
       whatTitle: "What TraitBridge can help with",
       whatText:
@@ -55,10 +59,12 @@ export const translations = {
       registrationText:
         "The test, results, learning content, and Community reading work without an account. An email sign-in is only needed to publish in the Community or keep results in your profile.",
       resumeDraftTitle: "Continue your assessment",
-      resumeDraftText: "{answered} of 120 statements are saved in this browser.",
+      resumeDraftText:
+        "{answered} of 120 statements are saved in this browser.",
       resumeDraftAction: "Continue assessment",
       existingProfileTitle: "Your latest local result is available",
-      existingProfileText: "Open the profile saved in this browser or start again whenever it is useful.",
+      existingProfileText:
+        "Open the profile saved in this browser or start again whenever it is useful.",
       existingProfileAction: "View result",
       pageDescription:
         "Explore the Big Five test, practical learning guides, and shared perspectives without creating an account.",
@@ -79,7 +85,8 @@ export const translations = {
       startButton: "Start test",
       continueButton: "Continue saved assessment",
       demoButton: "Load demo result",
-      demoHint: "Use the demo result to quickly check the evaluation and result view without answering all 120 questions.",
+      demoHint:
+        "Use the demo result to quickly check the evaluation and result view without answering all 120 questions.",
       backgroundButton: "Read background",
       inventoryPill: "Assessment used",
       inventoryTitle: "IPIP-NEO-120",
@@ -102,8 +109,10 @@ export const translations = {
     testSelector: {
       kicker: "Assessment language",
       title: "Select test language",
-      description: "Choose the language in which you want to take the Big Five test.",
-      helper: "You can still switch the website interface in the header at any time.",
+      description:
+        "Choose the language in which you want to take the Big Five test.",
+      helper:
+        "You can still switch the website interface in the header at any time.",
     },
     test: {
       kicker: "Big Five assessment",
@@ -114,7 +123,8 @@ export const translations = {
       loadErrorDescription: "The question set could not be loaded: {error}",
       loadErrorHint: "Please make sure the selected language is supported.",
       noQuestionsTitle: "No questions found",
-      noQuestionsDescription: "The question set is empty for the selected language.",
+      noQuestionsDescription:
+        "The question set is empty for the selected language.",
       title: "Big Five Test",
       introduction:
         "Rate spontaneously how much each statement applies to you. There are no right or wrong answers.",
@@ -123,11 +133,13 @@ export const translations = {
       answeredLabel: "{answered} of {total} answered",
       previousStage: "Previous section",
       nextStage: "Next section",
-      stageIncomplete: "Please answer every statement in this section before continuing.",
+      stageIncomplete:
+        "Please answer every statement in this section before continuing.",
       submit: "Complete test and view results",
       submitting: "Scoring...",
       answerAll: "Please answer all questions before continuing.",
-      saveError: "Something went wrong while saving the result. Please try again.",
+      saveError:
+        "Something went wrong while saving the result. Please try again.",
       changeLanguage: "Change test language",
       storageTitle: "Automatic local draft",
       storageText:
@@ -135,7 +147,8 @@ export const translations = {
       draftRestored: "Your saved assessment has been restored.",
       draftSaved: "Draft saved in this browser.",
       deleteDraft: "Delete draft and restart",
-      deleteDraftConfirm: "Delete all saved answers for this language and start again?",
+      deleteDraftConfirm:
+        "Delete all saved answers for this language and start again?",
       draftDeleted: "The saved draft was deleted.",
     },
     background: {
@@ -179,123 +192,11 @@ export const translations = {
       backToTest: "Back to the test page",
       directToTest: "Go straight to the test",
     },
-    community: {
-      kicker: "Shared perspectives",
-      loadingTitle: "Loading...",
-      loadingDescription: "The latest posts are being retrieved.",
-      title: "Sharing & Questions",
-      intro:
-        "Read experiences, questions, and perspectives from different personalities. A completed short or full test is only required when you want to contribute.",
-      loadError: "Posts could not be loaded.",
-      serviceUnavailable:
-        "The community service may still be waking up. Please wait a moment and try again.",
-      retry: "Try again",
-      askQuestionAction: "Share or ask",
-      closeComposer: "Close form",
-      composerKicker: "Your contribution",
-      composerGuidance:
-        "Share an experience or ask a question. Briefly describe the situation and what feels important about it.",
-      postTypeLabel: "Contribution type",
-      postTypes: {
-        question: "Question",
-        experience: "Experience",
-      },
-      categoryLabel: "Topic",
-      categories: {
-        decisions: "Decisions",
-        work: "Work & productivity",
-        relationships: "Relationships",
-        communication: "Communication & conflict",
-        stress: "Stress & emotions",
-        habits: "Habits",
-        "self-understanding": "Self-understanding",
-        other: "Other",
-      },
-      publicPostingNote: "Your email is never public. Your chosen name and three-band OCEAN profile are.",
-      searchLabel: "Search posts",
-      searchPlaceholder: "Search title and description",
-      sortLabel: "Sort",
-      sortNewest: "Newest",
-      sortMostAnswers: "Most perspectives",
-      sortUnanswered: "Without perspectives",
-      filterLabel: "Search and sort Community posts",
-      openFilters: "Filter and sort posts",
-      closeFilters: "Close filters",
-      activeFilters: "Active filters",
-      resetFilters: "Reset filters",
-      categoryFilterLabel: "Filter by topic",
-      allCategories: "All topics",
-      feedKicker: "Community posts",
-      resultCount: "{count} posts",
-      resultCountSingular: "{count} post",
-      noFilterResults: "No posts match these filters.",
-      noFilterResultsDescription: "Try another search term or select all topics.",
-      noQuestionsDescription: "Be the first to describe a real situation and invite other perspectives.",
-      answerCount: "{count} perspectives",
-      answerCountSingular: "{count} perspective",
-      openQuestion: "Read post",
-      detailTitle: "Community post",
-      detailLoadError: "This post could not be loaded.",
-      backToOverview: "Back to all posts",
-      perspectivesKicker: "Shared experience",
-      noAnswersDescription: "You can add the first perspective if you are signed in.",
-      perspectiveNumber: "Perspective {number}",
-      answerGuidance:
-        "Share a concrete perspective or experience. Avoid diagnoses and keep the situation of the other person in mind.",
-      checkingSession: "Checking your sign-in status...",
-      answersLoadError: "Answers could not be loaded.",
-      createQuestionError: "The post could not be created.",
-      createAnswerError: "The answer could not be created.",
-      selectQuestionError: "The question could not be loaded.",
-      newQuestionTitle: "Share or ask",
-      newQuestionDescription:
-        "Briefly describe what you need help with. Future versions can sort questions by personality profile.",
-      titleLabel: "Title",
-      titlePlaceholder: "For example: Handling decisions when you tend to overthink",
-      questionLabel: "Question / situation",
-      questionPlaceholder:
-        "What happened? What concerns you about it? What would you like to understand or change?",
-      questionHint: "Please avoid names, email addresses, or other identifying details.",
-      publishQuestion: "Publish post",
-      publishing: "Publishing...",
-      allQuestionsTitle: "All posts",
-      noQuestions: "No posts have been shared yet. Feel free to start with the first one.",
-      detailsTitle: "Details & Answers",
-      detailsPlaceholder:
-        "Select a question on the left or create a new one to view details and answers here.",
-      createdAt: "Created on",
-      answersTitle: "Answers & perspectives",
-      noAnswers: "No perspectives yet. Feel free to share yours.",
-      answerPostedAt: "Answer posted on",
-      yourAnswerLabel: "Your perspective",
-      yourAnswerPlaceholder: "Share a helpful, respectful perspective or experience.",
-      publishAnswer: "Publish perspective",
-      signInTitle: "Want to join the conversation?",
-      signInDescription: "A one-time email link is all you need. No password required.",
-      signInAction: "Sign in to contribute",
-      checkingEligibility: "Checking your test and Community profile...",
-      eligibilityError: "Your participation status could not be checked.",
-      testRequiredTitle: "A personality profile is required to contribute",
-      testRequiredText: "The two-minute quick test is enough. Reading remains open without a test.",
-      startShortTest: "Start quick test",
-      startFullTest: "Take full test",
-      profileSetupTitle: "Set up your public Community profile",
-      profileSetupText: "Only your chosen name and the levels low, middle, or high for OCEAN will be public—not exact scores or your email.",
-      displayNameLabel: "Public display name",
-      displayNamePlaceholder: "For example: QuietObserver",
-      displayNameHint: "2 to 40 characters. Do not use an email address.",
-      profileConsent: "I understand that this display name and my five OCEAN levels will be visible publicly beside my contributions.",
-      saveProfile: "Create Community profile",
-      savingProfile: "Creating profile...",
-      profileSetupError: "The Community profile could not be created. Please check that migration 004 has been applied.",
-      profileUnavailable: "Profile unavailable",
-      profileAriaLabel: "Public OCEAN personality profile",
-      profileLegend: "Each three-dot scale means low · middle · high. The marker position carries the meaning; colors only distinguish dimensions.",
-    },
     learn: {
       kicker: "Learn & Discover",
       title: "Practical ideas for real situations.",
-      intro: "Explore small, neutral exercises for work, relationships, communication, stress, decisions, and habits. Personality is one perspective—not a box.",
+      intro:
+        "Explore small, neutral exercises for work, relationships, communication, stress, decisions, and habits. Personality is one perspective—not a box.",
       trustEvidence: "Evidence is labelled",
       trustEditorial: "Editorial exercises are marked",
       trustNoDiagnosis: "No diagnosis",
@@ -331,15 +232,19 @@ export const translations = {
       openTopic: "Open guide",
       moreKicker: "Other perspectives",
       moreTitle: "Use a tool or browse editorial picks",
-      moreText: "These areas complement the practical guides but serve a different purpose.",
+      moreText:
+        "These areas complement the practical guides but serve a different purpose.",
       booksKicker: "01 · Personal library",
       booksTitle: "Books for your personality",
-      booksText: "Discover verified nonfiction and novels that mirror your tendencies or deliberately open a new perspective.",
+      booksText:
+        "Discover verified nonfiction and novels that mirror your tendencies or deliberately open a new perspective.",
       booksAction: "Discover books",
       profileTitle: "Understand your profile",
-      profileText: "Short, neutral explanations of the five dimensions and how they interact in everyday life.",
+      profileText:
+        "Short, neutral explanations of the five dimensions and how they interact in everyday life.",
       experimentsTitle: "Small experiments",
-      experimentsText: "Concrete exercises for work, relationships, stress, and communication that you can try without pressure.",
+      experimentsText:
+        "Concrete exercises for work, relationships, stress, and communication that you can try without pressure.",
       comingSoon: "Coming next",
       booksLabel: "Editorial selection",
       booksTransparency:
@@ -369,7 +274,8 @@ export const translations = {
         editorial: "Editorial exercise",
       },
       placeholderTitle: "Coming later",
-      placeholderText: "The area is deliberately left simple for now and will be developed step by step.",
+      placeholderText:
+        "The area is deliberately left simple for now and will be developed step by step.",
       backHome: "Back to overview",
     },
     login: {
@@ -382,12 +288,16 @@ export const translations = {
       submitSignIn: "Send sign-in link",
       submitting: "Sending link...",
       privacyHint: "Your email address is not shown publicly.",
-      captchaRequired: "Please complete the security check before requesting a sign-in link.",
-      captchaUnavailable: "The security check is unavailable. Please reload the page and try again.",
+      captchaRequired:
+        "Please complete the security check before requesting a sign-in link.",
+      captchaUnavailable:
+        "The security check is unavailable. Please reload the page and try again.",
       sentTitle: "Check your inbox",
       sentText: "We sent a sign-in link to:",
-      sentHint: "Use the newest email only. The link works once and expires shortly.",
-      linkExpired: "This sign-in link has expired or has already been used. Please request a new one.",
+      sentHint:
+        "Use the newest email only. The link works once and expires shortly.",
+      linkExpired:
+        "This sign-in link has expired or has already been used. Please request a new one.",
       linkInvalid: "This sign-in link is invalid. Please request a new one.",
       useDifferentEmail: "Use a different email",
       back: "Back",
@@ -403,8 +313,10 @@ export const translations = {
       registeredSince: "Member since",
       resultOverview: "Overview of your results",
       testDatePrefix: "Test date",
-      completedDescription: "You completed the full, scientifically validated assessment.",
-      shortDescription: "This is a rough orientation from the ten-item quick test.",
+      completedDescription:
+        "You completed the full, scientifically validated assessment.",
+      shortDescription:
+        "This is a rough orientation from the ten-item quick test.",
       demoDescription:
         "This is a development demo profile, not a completed assessment.",
       profileValuesTitle: "Most distinctive profile values",
@@ -430,7 +342,8 @@ export const translations = {
         "Facets make a broad dimension more specific. Different facet values can balance each other, so the overall value never tells the whole story.",
       combinationTitle: "Read the combination, not one value",
       noProfileTitle: "Personality profile",
-      noProfileText: "You have not completed a Big Five test yet. Start now to create your personality profile.",
+      noProfileText:
+        "You have not completed a Big Five test yet. Start now to create your personality profile.",
       startTest: "Start test",
       quickAccess: "Quick access",
       retakeTest: "Retake test",
@@ -445,15 +358,19 @@ export const translations = {
     results: {
       kicker: "Results",
       emptyTitle: "No results available yet",
-      emptyDescription: "No Big Five result was found in this browser yet. Please complete the test first.",
+      emptyDescription:
+        "No Big Five result was found in this browser yet. Please complete the test first.",
       toTest: "Go to test",
       title: "Your Big Five profile",
-      createdOn: "This evaluation was created on {date} and stored locally in your browser.",
+      createdOn:
+        "This evaluation was created on {date} and stored locally in your browser.",
       scaleInfo: "Scores range from 1 (low) to 5 (high).",
       validatedLabel: "Validated test:",
-      validatedText: "This result is based on the full IPIP-NEO-PI-R assessment with 120 questions.",
+      validatedText:
+        "This result is based on the full IPIP-NEO-PI-R assessment with 120 questions.",
       shortLabel: "Quick orientation:",
-      shortText: "This rough result uses ten statements and is not equivalent to the full assessment.",
+      shortText:
+        "This rough result uses ten statements and is not equivalent to the full assessment.",
       demoLabel: "Demo profile:",
       demoText:
         "These example values were loaded for interface testing and are not a personal assessment.",
@@ -504,16 +421,20 @@ export const translations = {
     home: {
       title: "Verstehe dich. Überbrücke Unterschiede.",
       titleLines: ["Verstehe dich.", "Überbrücke Unterschiede."],
-      subtitle: "TraitBridge hilft dir, deine Persönlichkeitsmuster zu verstehen, konkrete Situationen zu reflektieren und andere Perspektiven konstruktiv zu nutzen.",
+      subtitle:
+        "TraitBridge hilft dir, deine Persönlichkeitsmuster zu verstehen, konkrete Situationen zu reflektieren und andere Perspektiven konstruktiv zu nutzen.",
       optionsLabel: "Bereiche von TraitBridge",
       testTitle: "Persönlichkeitstest",
-      testDescription: "Ordne fünf breite Persönlichkeitsdimensionen und 30 Facetten ein und nutze das Ergebnis als Ausgangspunkt für Reflexion.",
+      testDescription:
+        "Ordne fünf breite Persönlichkeitsdimensionen und 30 Facetten ein und nutze das Ergebnis als Ausgangspunkt für Reflexion.",
       testAction: "Zum Test",
       communityTitle: "Perspektiven austauschen",
-      communityDescription: "Lies Erfahrungen ohne Registrierung. Melde dich erst an, wenn du selbst etwas beitragen möchtest.",
+      communityDescription:
+        "Lies Erfahrungen ohne Registrierung. Melde dich erst an, wenn du selbst etwas beitragen möchtest.",
       communityAction: "Community öffnen",
       learnTitle: "Im Kontext lernen",
-      learnDescription: "Arbeite mit praktischen Impulsen zu Entscheidungen, Stress, Gewohnheiten, Beziehungen und Kommunikation.",
+      learnDescription:
+        "Arbeite mit praktischen Impulsen zu Entscheidungen, Stress, Gewohnheiten, Beziehungen und Kommunikation.",
       learnAction: "Bereich entdecken",
       whatTitle: "Wobei TraitBridge helfen kann",
       whatText:
@@ -522,10 +443,12 @@ export const translations = {
       registrationText:
         "Test, Ergebnisse, Lerninhalte und das Lesen in der Community funktionieren ohne Konto. Einen E-Mail-Login brauchst du nur zum Schreiben in der Community oder zum Speichern von Ergebnissen im Profil.",
       resumeDraftTitle: "Test fortsetzen",
-      resumeDraftText: "{answered} von 120 Aussagen sind in diesem Browser gespeichert.",
+      resumeDraftText:
+        "{answered} von 120 Aussagen sind in diesem Browser gespeichert.",
       resumeDraftAction: "Test fortsetzen",
       existingProfileTitle: "Dein letztes lokales Ergebnis ist verfügbar",
-      existingProfileText: "Öffne das in diesem Browser gespeicherte Profil oder beginne neu, wenn es für dich passt.",
+      existingProfileText:
+        "Öffne das in diesem Browser gespeicherte Profil oder beginne neu, wenn es für dich passt.",
       existingProfileAction: "Ergebnis ansehen",
       pageDescription:
         "Entdecke Big-Five-Test, praktische Lernimpulse und geteilte Perspektiven ohne Registrierung.",
@@ -546,7 +469,8 @@ export const translations = {
       startButton: "Test starten",
       continueButton: "Gespeicherten Test fortsetzen",
       demoButton: "Demo-Ergebnis laden",
-      demoHint: "Mit dem Demo-Ergebnis kannst du Auswertung und Ergebnisansicht schnell prüfen, ohne alle 120 Fragen zu beantworten.",
+      demoHint:
+        "Mit dem Demo-Ergebnis kannst du Auswertung und Ergebnisansicht schnell prüfen, ohne alle 120 Fragen zu beantworten.",
       backgroundButton: "Hintergrund lesen",
       inventoryPill: "Verwendetes Inventar",
       inventoryTitle: "IPIP-NEO-120",
@@ -569,19 +493,25 @@ export const translations = {
     testSelector: {
       kicker: "Testsprache",
       title: "Testsprache wählen",
-      description: "Wähle die Sprache, in der du den Big-Five-Test durchführen möchtest.",
-      helper: "Die Sprache der Website kannst du zusätzlich jederzeit oben rechts ändern.",
+      description:
+        "Wähle die Sprache, in der du den Big-Five-Test durchführen möchtest.",
+      helper:
+        "Die Sprache der Website kannst du zusätzlich jederzeit oben rechts ändern.",
     },
     test: {
       kicker: "Big-Five-Test",
       errorKicker: "Fehler",
       loadingTitle: "Fragen werden geladen...",
-      loadingDescription: "Bitte warte, während der Fragebogen vorbereitet wird.",
+      loadingDescription:
+        "Bitte warte, während der Fragebogen vorbereitet wird.",
       loadErrorTitle: "Fragen konnten nicht geladen werden",
-      loadErrorDescription: "Der Fragenkatalog konnte nicht geladen werden: {error}",
-      loadErrorHint: "Bitte stelle sicher, dass die gewählte Sprache unterstützt wird.",
+      loadErrorDescription:
+        "Der Fragenkatalog konnte nicht geladen werden: {error}",
+      loadErrorHint:
+        "Bitte stelle sicher, dass die gewählte Sprache unterstützt wird.",
       noQuestionsTitle: "Keine Fragen gefunden",
-      noQuestionsDescription: "Für die gewählte Sprache ist kein Fragenkatalog verfügbar.",
+      noQuestionsDescription:
+        "Für die gewählte Sprache ist kein Fragenkatalog verfügbar.",
       title: "Big-Five-Test",
       introduction:
         "Schätze spontan ein, wie sehr die folgenden Aussagen auf dich zutreffen. Es gibt keine richtigen oder falschen Antworten.",
@@ -590,11 +520,13 @@ export const translations = {
       answeredLabel: "{answered} von {total} beantwortet",
       previousStage: "Vorheriger Abschnitt",
       nextStage: "Nächster Abschnitt",
-      stageIncomplete: "Bitte beantworte alle Aussagen in diesem Abschnitt, bevor du weitergehst.",
+      stageIncomplete:
+        "Bitte beantworte alle Aussagen in diesem Abschnitt, bevor du weitergehst.",
       submit: "Test abschließen und Ergebnisse ansehen",
       submitting: "Wird ausgewertet...",
       answerAll: "Bitte beantworte alle Fragen, bevor du fortfährst.",
-      saveError: "Beim Speichern der Ergebnisse ist etwas schiefgelaufen. Bitte versuche es erneut.",
+      saveError:
+        "Beim Speichern der Ergebnisse ist etwas schiefgelaufen. Bitte versuche es erneut.",
       changeLanguage: "Testsprache ändern",
       storageTitle: "Automatischer lokaler Entwurf",
       storageText:
@@ -602,7 +534,8 @@ export const translations = {
       draftRestored: "Dein gespeicherter Test wurde wiederhergestellt.",
       draftSaved: "Entwurf in diesem Browser gespeichert.",
       deleteDraft: "Entwurf löschen und neu beginnen",
-      deleteDraftConfirm: "Alle gespeicherten Antworten für diese Sprache löschen und neu beginnen?",
+      deleteDraftConfirm:
+        "Alle gespeicherten Antworten für diese Sprache löschen und neu beginnen?",
       draftDeleted: "Der gespeicherte Entwurf wurde gelöscht.",
     },
     background: {
@@ -646,123 +579,11 @@ export const translations = {
       backToTest: "Zur Testseite",
       directToTest: "Direkt zum Test",
     },
-    community: {
-      kicker: "Geteilte Perspektiven",
-      loadingTitle: "Lädt...",
-      loadingDescription: "Die aktuellen Beiträge werden abgerufen.",
-      title: "Mitteilen & fragen",
-      intro:
-        "Lies Erfahrungen, Fragen und Perspektiven unterschiedlicher Persönlichkeiten. Einen Kurz- oder Volltest brauchst du erst, wenn du selbst etwas beitragen möchtest.",
-      loadError: "Beiträge konnten nicht geladen werden.",
-      serviceUnavailable:
-        "Der Community-Dienst startet möglicherweise noch. Warte kurz und versuche es dann erneut.",
-      retry: "Erneut versuchen",
-      askQuestionAction: "Mitteilen oder fragen",
-      closeComposer: "Formular schliessen",
-      composerKicker: "Dein Beitrag",
-      composerGuidance:
-        "Teile eine Erfahrung oder stelle eine Frage. Beschreibe kurz die Situation und was daran für dich wichtig ist.",
-      postTypeLabel: "Art des Beitrags",
-      postTypes: {
-        question: "Frage",
-        experience: "Erfahrung",
-      },
-      categoryLabel: "Thema",
-      categories: {
-        decisions: "Entscheidungen",
-        work: "Arbeit & Produktivität",
-        relationships: "Beziehungen",
-        communication: "Kommunikation & Konflikte",
-        stress: "Stress & Emotionen",
-        habits: "Gewohnheiten",
-        "self-understanding": "Selbstverständnis",
-        other: "Sonstiges",
-      },
-      publicPostingNote: "Deine E-Mail bleibt privat. Dein gewählter Name und dein OCEAN-Profil in drei Stufen sind öffentlich.",
-      searchLabel: "Beiträge durchsuchen",
-      searchPlaceholder: "Titel und Beschreibung durchsuchen",
-      sortLabel: "Sortierung",
-      sortNewest: "Neueste",
-      sortMostAnswers: "Meiste Perspektiven",
-      sortUnanswered: "Ohne Perspektiven",
-      filterLabel: "Community-Beiträge suchen und sortieren",
-      openFilters: "Beiträge filtern und sortieren",
-      closeFilters: "Filter schliessen",
-      activeFilters: "Aktive Filter",
-      resetFilters: "Filter zurücksetzen",
-      categoryFilterLabel: "Nach Thema filtern",
-      allCategories: "Alle Themen",
-      feedKicker: "Beiträge aus der Community",
-      resultCount: "{count} Beiträge",
-      resultCountSingular: "{count} Beitrag",
-      noFilterResults: "Kein Beitrag passt zu diesen Filtern.",
-      noFilterResultsDescription: "Versuche einen anderen Suchbegriff oder zeige alle Themen.",
-      noQuestionsDescription: "Beschreibe als erste Person eine reale Situation und lade zu anderen Perspektiven ein.",
-      answerCount: "{count} Perspektiven",
-      answerCountSingular: "{count} Perspektive",
-      openQuestion: "Beitrag lesen",
-      detailTitle: "Community-Beitrag",
-      detailLoadError: "Dieser Beitrag konnte nicht geladen werden.",
-      backToOverview: "Zurück zu allen Beiträgen",
-      perspectivesKicker: "Geteilte Erfahrungen",
-      noAnswersDescription: "Wenn du angemeldet bist, kannst du die erste Perspektive ergänzen.",
-      perspectiveNumber: "Perspektive {number}",
-      answerGuidance:
-        "Teile eine konkrete Perspektive oder Erfahrung. Vermeide Diagnosen und behalte die Situation der anderen Person im Blick.",
-      checkingSession: "Anmeldestatus wird geprüft...",
-      answersLoadError: "Antworten konnten nicht geladen werden.",
-      createQuestionError: "Der Beitrag konnte nicht erstellt werden.",
-      createAnswerError: "Die Antwort konnte nicht erstellt werden.",
-      selectQuestionError: "Die Frage konnte nicht geladen werden.",
-      newQuestionTitle: "Mitteilen oder fragen",
-      newQuestionDescription:
-        "Beschreibe kurz dein Anliegen. In späteren Versionen können Fragen nach Persönlichkeitsprofil sortiert werden.",
-      titleLabel: "Titel",
-      titlePlaceholder: "Zum Beispiel: Umgang mit Entscheidungen, wenn ich viel grüble",
-      questionLabel: "Frage / Situation",
-      questionPlaceholder:
-        "Was ist passiert? Was beschäftigt dich daran? Was möchtest du besser verstehen oder verändern?",
-      questionHint: "Bitte vermeide Namen, E-Mail-Adressen und andere identifizierende Angaben.",
-      publishQuestion: "Beitrag veröffentlichen",
-      publishing: "Wird veröffentlicht...",
-      allQuestionsTitle: "Alle Beiträge",
-      noQuestions: "Es wurden noch keine Beiträge geteilt. Starte gern mit dem ersten.",
-      detailsTitle: "Details & Antworten",
-      detailsPlaceholder:
-        "Wähle links eine Frage aus oder erstelle eine neue, um hier Details und Antworten zu sehen.",
-      createdAt: "Erstellt am",
-      answersTitle: "Antworten & Perspektiven",
-      noAnswers: "Noch keine Perspektiven. Teile gern deine eigene.",
-      answerPostedAt: "Antwort vom",
-      yourAnswerLabel: "Deine Perspektive",
-      yourAnswerPlaceholder: "Teile eine hilfreiche, respektvolle Perspektive oder Erfahrung.",
-      publishAnswer: "Perspektive veröffentlichen",
-      signInTitle: "Möchtest du dich beteiligen?",
-      signInDescription: "Ein einmaliger Link per E-Mail genügt. Du brauchst kein Passwort.",
-      signInAction: "Zum Beitragen anmelden",
-      checkingEligibility: "Test und Community-Profil werden geprüft...",
-      eligibilityError: "Dein Teilnahmestatus konnte nicht geprüft werden.",
-      testRequiredTitle: "Zum Beitragen brauchst du ein Persönlichkeitsprofil",
-      testRequiredText: "Der zweiminütige Kurztest genügt. Lesen bleibt auch ohne Test offen.",
-      startShortTest: "Kurztest starten",
-      startFullTest: "Vollständigen Test machen",
-      profileSetupTitle: "Öffentliches Community-Profil einrichten",
-      profileSetupText: "Öffentlich werden nur dein gewählter Name und die Stufen niedrig, mittel oder hoch für OCEAN – keine exakten Werte und keine E-Mail-Adresse.",
-      displayNameLabel: "Öffentlicher Anzeigename",
-      displayNamePlaceholder: "Zum Beispiel: RuhigeBeobachterin",
-      displayNameHint: "2 bis 40 Zeichen. Verwende keine E-Mail-Adresse.",
-      profileConsent: "Ich verstehe, dass dieser Anzeigename und meine fünf OCEAN-Stufen öffentlich neben meinen Beiträgen erscheinen.",
-      saveProfile: "Community-Profil erstellen",
-      savingProfile: "Profil wird erstellt...",
-      profileSetupError: "Das Community-Profil konnte nicht erstellt werden. Prüfe bitte, ob Migration 004 ausgeführt wurde.",
-      profileUnavailable: "Profil nicht verfügbar",
-      profileAriaLabel: "Öffentliches OCEAN-Persönlichkeitsprofil",
-      profileLegend: "Jede Dreipunkt-Skala bedeutet niedrig · mittel · hoch. Die Position vermittelt die Bedeutung; Farben unterscheiden nur die Dimensionen.",
-    },
     learn: {
       kicker: "Lernen & Entdecken",
       title: "Praktische Impulse für reale Situationen.",
-      intro: "Entdecke kleine, neutrale Übungen zu Arbeit, Beziehungen, Kommunikation, Stress, Entscheidungen und Gewohnheiten. Persönlichkeit ist eine Perspektive – keine Schublade.",
+      intro:
+        "Entdecke kleine, neutrale Übungen zu Arbeit, Beziehungen, Kommunikation, Stress, Entscheidungen und Gewohnheiten. Persönlichkeit ist eine Perspektive – keine Schublade.",
       trustEvidence: "Evidenz wird gekennzeichnet",
       trustEditorial: "Redaktionelle Übungen sind markiert",
       trustNoDiagnosis: "Keine Diagnose",
@@ -794,31 +615,38 @@ export const translations = {
       },
       topicCountLabel: "Themen",
       noTopicsTitle: "Kein Thema passt zu dieser Auswahl.",
-      noTopicsText: "Versuche einen anderen Suchbegriff oder zeige alle Themen.",
+      noTopicsText:
+        "Versuche einen anderen Suchbegriff oder zeige alle Themen.",
       openTopic: "Leitfaden öffnen",
       moreKicker: "Weitere Perspektiven",
       moreTitle: "Nutze ein Werkzeug oder entdecke redaktionelle Empfehlungen",
-      moreText: "Diese Bereiche ergänzen die praktischen Leitfäden, verfolgen aber einen anderen Zweck.",
+      moreText:
+        "Diese Bereiche ergänzen die praktischen Leitfäden, verfolgen aber einen anderen Zweck.",
       booksKicker: "01 · Persönliche Bibliothek",
       booksTitle: "Bücher für deine Persönlichkeit",
-      booksText: "Entdecke geprüfte Sachbücher und Romane, die deine Tendenzen spiegeln oder bewusst eine neue Perspektive eröffnen.",
+      booksText:
+        "Entdecke geprüfte Sachbücher und Romane, die deine Tendenzen spiegeln oder bewusst eine neue Perspektive eröffnen.",
       booksAction: "Bücher entdecken",
       profileTitle: "Dein Profil verstehen",
-      profileText: "Kurze, wertneutrale Erklärungen zu den fünf Dimensionen und ihrem Zusammenspiel im Alltag.",
+      profileText:
+        "Kurze, wertneutrale Erklärungen zu den fünf Dimensionen und ihrem Zusammenspiel im Alltag.",
       experimentsTitle: "Kleine Experimente",
-      experimentsText: "Konkrete Übungen für Arbeit, Beziehungen, Stress und Kommunikation, die du ohne Leistungsdruck ausprobieren kannst.",
+      experimentsText:
+        "Konkrete Übungen für Arbeit, Beziehungen, Stress und Kommunikation, die du ohne Leistungsdruck ausprobieren kannst.",
       comingSoon: "Als Nächstes",
       booksLabel: "Redaktionelle Auswahl",
       booksTransparency:
         "Empfehlungen sind redaktionell und näherungsweise – keine validierte psychologische Vorhersage.",
       loadingTopic: "Leitfaden wird geladen...",
       topicNotFoundTitle: "Leitfaden nicht gefunden",
-      topicNotFoundText: "Dieser Leitfaden existiert nicht oder der Link ist unvollständig.",
+      topicNotFoundText:
+        "Dieser Leitfaden existiert nicht oder der Link ist unvollständig.",
       backToLearn: "Zurück zur Lernübersicht",
       situationHeading: "Die Alltagssituation",
       whyHardHeading: "Warum sie schwierig sein kann",
       tendenciesHeading: "Mögliche Persönlichkeitstendenzen",
-      traitExplanationHeading: "Welche Big-Five-Ausprägungen können relevant sein?",
+      traitExplanationHeading:
+        "Welche Big-Five-Ausprägungen können relevant sein?",
       traitExplanationIntro:
         "Das sind mögliche Zusammenhänge, keine Voraussetzungen. Ein Leitfaden kann auch passen, wenn dein Profil anders aussieht.",
       limitsHeading: "Was ein Profil nicht sagen kann",
@@ -836,7 +664,8 @@ export const translations = {
         editorial: "Redaktionelle Übung",
       },
       placeholderTitle: "Kommt später",
-      placeholderText: "Der Bereich bleibt vorerst bewusst einfach und wird Schritt für Schritt weiterentwickelt.",
+      placeholderText:
+        "Der Bereich bleibt vorerst bewusst einfach und wird Schritt für Schritt weiterentwickelt.",
       backHome: "Zurück zur Übersicht",
     },
     login: {
@@ -849,13 +678,18 @@ export const translations = {
       submitSignIn: "Anmeldelink senden",
       submitting: "Link wird gesendet...",
       privacyHint: "Deine E-Mail-Adresse wird nicht öffentlich angezeigt.",
-      captchaRequired: "Bitte schließe die Sicherheitsprüfung ab, bevor du den Anmeldelink anforderst.",
-      captchaUnavailable: "Die Sicherheitsprüfung ist nicht verfügbar. Bitte lade die Seite neu und versuche es erneut.",
+      captchaRequired:
+        "Bitte schließe die Sicherheitsprüfung ab, bevor du den Anmeldelink anforderst.",
+      captchaUnavailable:
+        "Die Sicherheitsprüfung ist nicht verfügbar. Bitte lade die Seite neu und versuche es erneut.",
       sentTitle: "Schau in dein Postfach",
       sentText: "Wir haben einen Anmeldelink gesendet an:",
-      sentHint: "Verwende nur die neueste E-Mail. Der Link funktioniert einmal und läuft nach kurzer Zeit ab.",
-      linkExpired: "Dieser Anmeldelink ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen an.",
-      linkInvalid: "Dieser Anmeldelink ist ungültig. Bitte fordere einen neuen an.",
+      sentHint:
+        "Verwende nur die neueste E-Mail. Der Link funktioniert einmal und läuft nach kurzer Zeit ab.",
+      linkExpired:
+        "Dieser Anmeldelink ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen an.",
+      linkInvalid:
+        "Dieser Anmeldelink ist ungültig. Bitte fordere einen neuen an.",
       useDifferentEmail: "Andere E-Mail verwenden",
       back: "Zurück",
       serviceUnavailable:
@@ -870,8 +704,10 @@ export const translations = {
       registeredSince: "Mitglied seit",
       resultOverview: "Übersicht deiner Ergebnisse",
       testDatePrefix: "Testdatum",
-      completedDescription: "Du hast den vollständigen, wissenschaftlich validierten Test abgeschlossen.",
-      shortDescription: "Dies ist eine grobe Orientierung aus dem Kurztest mit zehn Aussagen.",
+      completedDescription:
+        "Du hast den vollständigen, wissenschaftlich validierten Test abgeschlossen.",
+      shortDescription:
+        "Dies ist eine grobe Orientierung aus dem Kurztest mit zehn Aussagen.",
       demoDescription:
         "Dies ist ein Entwicklungs-Demoprofil und kein abgeschlossener Test.",
       profileValuesTitle: "Auffälligste Profilwerte",
@@ -913,15 +749,19 @@ export const translations = {
     results: {
       kicker: "Ergebnisse",
       emptyTitle: "Noch keine Ergebnisse vorhanden",
-      emptyDescription: "In diesem Browser wurde noch kein Big-Five-Ergebnis gefunden. Bitte mache zuerst den Test.",
+      emptyDescription:
+        "In diesem Browser wurde noch kein Big-Five-Ergebnis gefunden. Bitte mache zuerst den Test.",
       toTest: "Zum Test",
       title: "Dein Big-Five-Profil",
-      createdOn: "Diese Auswertung wurde am {date} erstellt und lokal im Browser gespeichert.",
+      createdOn:
+        "Diese Auswertung wurde am {date} erstellt und lokal im Browser gespeichert.",
       scaleInfo: "Die Werte reichen von 1 (niedrig) bis 5 (hoch).",
       validatedLabel: "Validierter Test:",
-      validatedText: "Diese Auswertung basiert auf dem vollständigen IPIP-NEO-PI-R-Test mit 120 Fragen.",
+      validatedText:
+        "Diese Auswertung basiert auf dem vollständigen IPIP-NEO-PI-R-Test mit 120 Fragen.",
       shortLabel: "Kurze Orientierung:",
-      shortText: "Dieses grobe Ergebnis verwendet zehn Aussagen und ist nicht mit dem vollständigen Test gleichwertig.",
+      shortText:
+        "Dieses grobe Ergebnis verwendet zehn Aussagen und ist nicht mit dem vollständigen Test gleichwertig.",
       demoLabel: "Demoprofil:",
       demoText:
         "Diese Beispielwerte wurden zur Oberflächenprüfung geladen und sind keine persönliche Auswertung.",
