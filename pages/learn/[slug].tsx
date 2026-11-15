@@ -31,7 +31,7 @@ const LearningTopicPage: React.FC = () => {
     return (
       <div className={styles.detailPage}>
         <Head>
-          <title>{copy.learn.topicNotFoundTitle} | TraitBridge</title>
+          <title>{`${copy.learn.topicNotFoundTitle} | TraitBridge`}</title>
         </Head>
         <div className={styles.empty}>
           <h1>{copy.learn.topicNotFoundTitle}</h1>
@@ -55,7 +55,9 @@ const LearningTopicPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{topic.title[locale]} | TraitBridge</title>
+        <title>{`${topic.title[locale]} | TraitBridge`}</title>
+        <meta key="og-title" property="og:title" content={`${topic.title[locale]} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={topic.summary[locale]} />
         <meta name="description" content={topic.summary[locale]} />
       </Head>
 

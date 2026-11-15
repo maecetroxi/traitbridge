@@ -38,6 +38,7 @@ const CommunityPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<CommunitySort>("newest");
   const [categoryFilter, setCategoryFilter] = useState<CommunityCategory | "all">("all");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [newQuestionTitle, setNewQuestionTitle] = useState("");
   const [newQuestionBody, setNewQuestionBody] = useState("");
   const [newQuestionCategory, setNewQuestionCategory] =
@@ -85,6 +86,18 @@ const CommunityPage: React.FC = () => {
     [categoryFilter, questions, search, sort],
   );
 
+  const hasCommunityFilters =
+    Boolean(search.trim()) || categoryFilter !== "all" || sort !== "newest";
+  const activeFilterCount =
+    Number(Boolean(search.trim())) +
+    Number(categoryFilter !== "all") +
+    Number(sort !== "newest");
+  const resetCommunityFilters = () => {
+    setSearch("");
+    setSort("newest");
+    setCategoryFilter("all");
+  };
+
   const handleCreateQuestion = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -127,7 +140,9 @@ const CommunityPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{copy.community.title} | TraitBridge</title>
+        <title>{`${copy.community.title} | TraitBridge`}</title>
+        <meta key="og-title" property="og:title" content={`${copy.community.title} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={copy.community.intro} />
         <meta name="description" content={copy.community.intro} />
       </Head>
 
@@ -269,6 +284,45 @@ const CommunityPage: React.FC = () => {
           </section>
         )}
 
+        {questions.length > 0 && (
+          <>
+        <button
+          type="button"
+          className="community-filter-toggle"
+          aria-expanded={filtersOpen}
+          aria-controls="community-filter-panel"
+          onClick={() => setFiltersOpen((current) => !current)}
+        >
+          <span>
+            {filtersOpen ? copy.community.closeFilters : copy.community.openFilters}
+          </span>
+          {activeFilterCount > 0 && <strong>{activeFilterCount}</strong>}
+        </button>
+
+        {hasCommunityFilters && (
+          <div className="community-active-filters" aria-label={copy.community.activeFilters}>
+            <span>{copy.community.activeFilters}</span>
+            {search.trim() && <strong>“{search.trim()}”</strong>}
+            {categoryFilter !== "all" && (
+              <strong>{copy.community.categories[categoryFilter]}</strong>
+            )}
+            {sort !== "newest" && (
+              <strong>
+                {sort === "most-answers"
+                  ? copy.community.sortMostAnswers
+                  : copy.community.sortUnanswered}
+              </strong>
+            )}
+            <button type="button" onClick={resetCommunityFilters}>
+              {copy.community.resetFilters}
+            </button>
+          </div>
+        )}
+
+        <div
+          id="community-filter-panel"
+          className={`community-filter-panel${filtersOpen ? " community-filter-panel-open" : ""}`}
+        >
         <section className="community-controls" aria-label={copy.community.filterLabel}>
           <div className="community-search">
             <label htmlFor="community-search" className="field-label">
@@ -299,6 +353,26 @@ const CommunityPage: React.FC = () => {
           </div>
         </section>
 
+        <div className="field-group category-filter-mobile">
+          <label htmlFor="community-category-filter" className="field-label">
+            {copy.community.categoryFilterLabel}
+          </label>
+          <select
+            id="community-category-filter"
+            value={categoryFilter}
+            onChange={(event) =>
+              setCategoryFilter(event.target.value as CommunityCategory | "all")
+            }
+          >
+            <option value="all">{copy.community.allCategories}</option>
+            {COMMUNITY_CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {copy.community.categories[category]}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="category-filter" role="group" aria-label={copy.community.categoryFilterLabel}>
           <button
             type="button"
@@ -324,8 +398,11 @@ const CommunityPage: React.FC = () => {
             </button>
           ))}
         </div>
+        </div>
 
         <CommunityProfileLegend />
+          </>
+        )}
 
         {loadError && (
           <div className="community-status community-status-error" role="alert">
@@ -347,9 +424,14 @@ const CommunityPage: React.FC = () => {
             </div>
             {!isLoading && (
               <span className="muted" aria-live="polite">
-                {formatTranslation(copy.community.resultCount, {
+                {formatTranslation(
+                  visibleQuestions.length === 1
+                    ? copy.community.resultCountSingular
+                    : copy.community.resultCount,
+                  {
                   count: String(visibleQuestions.length),
-                })}
+                  },
+                )}
               </span>
             )}
           </div>
@@ -396,9 +478,14 @@ const CommunityPage: React.FC = () => {
                   <p>{question.body}</p>
                   <div className="community-card-footer">
                     <span>
-                      {formatTranslation(copy.community.answerCount, {
+                      {formatTranslation(
+                        question.answer_count === 1
+                          ? copy.community.answerCountSingular
+                          : copy.community.answerCount,
+                        {
                         count: String(question.answer_count),
-                      })}
+                        },
+                      )}
                     </span>
                     <Link href={`/community/${question.id}`} className="text-link">
                       {copy.community.openQuestion}

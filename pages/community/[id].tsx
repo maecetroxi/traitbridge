@@ -91,15 +91,26 @@ const CommunityQuestionPage: React.FC = () => {
     month: "long",
     year: "numeric",
   });
+  const reportLabel = locale === "de" ? "Inhalt melden" : "Report content";
+  const reportHref = (contentId: string) =>
+    `mailto:privacy@traitbridge.com?subject=${encodeURIComponent(`TraitBridge content report: ${contentId}`)}&body=${encodeURIComponent(`Content: https://traitbridge.com/community/${questionId}\nItem: ${contentId}\nReason:`)}`;
 
   return (
     <>
       <Head>
-        <title>
-          {question?.title || copy.community.detailTitle} | TraitBridge
-        </title>
+        <title>{`${question?.title || copy.community.detailTitle} | TraitBridge`}</title>
         <meta
           name="description"
+          content={question?.body.slice(0, 155) || copy.community.intro}
+        />
+        <meta
+          key="og-title"
+          property="og:title"
+          content={`${question?.title || copy.community.detailTitle} | TraitBridge`}
+        />
+        <meta
+          key="og-description"
+          property="og:description"
           content={question?.body.slice(0, 155) || copy.community.intro}
         />
       </Head>
@@ -144,6 +155,9 @@ const CommunityQuestionPage: React.FC = () => {
               <CommunityProfileBadge profile={question.author_profile} />
               <h1>{question.title}</h1>
               <p>{question.body}</p>
+              <a href={reportHref(question.id)} className="app-footer-link">
+                {reportLabel}
+              </a>
             </article>
 
             <section className="community-answers" aria-labelledby="community-answers-title">
@@ -153,9 +167,12 @@ const CommunityQuestionPage: React.FC = () => {
                   <h2 id="community-answers-title">{copy.community.answersTitle}</h2>
                 </div>
                 <span className="muted">
-                  {formatTranslation(copy.community.answerCount, {
-                    count: String(answers.length),
-                  })}
+                  {formatTranslation(
+                    answers.length === 1
+                      ? copy.community.answerCountSingular
+                      : copy.community.answerCount,
+                    { count: String(answers.length) },
+                  )}
                 </span>
               </div>
 
@@ -181,6 +198,9 @@ const CommunityQuestionPage: React.FC = () => {
                         <time dateTime={answer.created_at}>
                           {dateFormatter.format(new Date(answer.created_at))}
                         </time>
+                        <a href={reportHref(answer.id)} className="app-footer-link">
+                          {reportLabel}
+                        </a>
                       </div>
                     </li>
                   ))}

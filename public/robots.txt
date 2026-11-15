@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /login
+Disallow: /profile
+Disallow: /results
+Disallow: /test/full
+
+Sitemap: https://traitbridge.com/sitemap.xml

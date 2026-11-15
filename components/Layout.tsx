@@ -13,7 +13,7 @@ type LayoutProps = {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const { user, signOut, loading } = useAuth();
-  const { copy } = useLocale();
+  const { copy, locale } = useLocale();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -23,8 +23,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navItems = [
     { href: "/", label: copy.layout.nav.home },
     { href: "/test", label: copy.layout.nav.test },
-    { href: "/community", label: copy.layout.nav.community },
     { href: "/learn", label: copy.layout.nav.learn },
+    { href: "/community", label: copy.layout.nav.community },
   ];
   const isRegisteredUser = Boolean(user && !user.is_anonymous);
   const visibleNavItems = isRegisteredUser
@@ -48,13 +48,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Image
                 src="/traitbridge-logo.png.png"
                 alt=""
-                width={58}
-                height={58}
+                width={138}
+                height={71}
                 priority
               />
             </span>
-            <span>
-              <span className="app-title">TraitBridge</span>
+            <span className="app-brand-copy">
               <span className="app-subtitle">{copy.layout.subtitle}</span>
             </span>
           </Link>
@@ -120,6 +119,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <footer className="app-footer">
         <div className="app-footer-inner">
           <span>{copy.layout.footer}</span>
+          <div className="app-footer-links">
+            <Link href="/community-guidelines" className="app-footer-link">
+              {locale === "de" ? "Community-Regeln" : "Community guidelines"}
+            </Link>
+            <Link href="/privacy" className="app-footer-link">
+              {locale === "de" ? "Datenschutz" : "Privacy"}
+            </Link>
+            <Link href="/imprint" className="app-footer-link">
+              {locale === "de" ? "Impressum" : "Legal notice"}
+            </Link>
+          </div>
         </div>
       </footer>
     </>

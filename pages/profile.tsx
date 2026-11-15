@@ -15,6 +15,7 @@ import {
   type StoredResults,
 } from "../lib/bigfive-results";
 import { getSuggestedLearningSlug } from "../lib/profile-content";
+import { buildLoginPath } from "../lib/return-path";
 import { getPersonalityResult } from "../lib/supabase-queries";
 
 const ProfilePage: React.FC = () => {
@@ -44,7 +45,7 @@ const ProfilePage: React.FC = () => {
     }
 
     if (!isRegisteredUser || !user) {
-      void router.replace("/login");
+      void router.replace(buildLoginPath(router.asPath));
       return;
     }
 
@@ -87,7 +88,7 @@ const ProfilePage: React.FC = () => {
     };
 
     void loadResults();
-  }, [user, isAuthLoading, isRegisteredUser, router, locale]);
+  }, [user, isAuthLoading, isRegisteredUser, router, router.asPath, locale]);
 
   useEffect(() => {
     if (router.query.view === "details") {
@@ -107,7 +108,14 @@ const ProfilePage: React.FC = () => {
   }
 
   if (!isRegisteredUser || !user) {
-    return null;
+    return (
+      <div className="content-shell">
+        <div className="surface profile-loading" role="status">
+          <span className="page-kicker">{copy.profile.kicker}</span>
+          <h1 className="page-title">{copy.profile.loadingTitle}</h1>
+        </div>
+      </div>
+    );
   }
 
   const dateLocale = locale === "de" ? "de-CH" : "en-GB";
@@ -119,7 +127,7 @@ const ProfilePage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{copy.profile.title} | TraitBridge</title>
+        <title>{`${copy.profile.title} | TraitBridge`}</title>
         <meta name="description" content={copy.profile.whatResultsMeanText} />
       </Head>
 
@@ -176,12 +184,6 @@ const ProfilePage: React.FC = () => {
                     className="btn btn-primary"
                   >
                     {copy.profile.toLearning}
-                  </Link>
-                  <Link
-                    href="/tools/personality-guide"
-                    className="btn btn-outline"
-                  >
-                    {copy.profile.toCompass}
                   </Link>
                   <Link href="/community" className="btn btn-outline">
                     {copy.profile.toCommunity}

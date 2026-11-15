@@ -42,6 +42,97 @@
   background: var(--surface-muted);
 }
 
+.quickStarts {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.quickStarts > strong {
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.quickStarts > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.quickStarts button,
+.activeFilters button {
+  min-height: 44px;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border-medium);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.quickStarts button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--surface-tint);
+  color: var(--accent-strong);
+}
+
+.activeFilters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-tint);
+  font-size: 0.76rem;
+}
+
+.activeFilters > span {
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.activeFilters > strong {
+  padding: 0.32rem 0.55rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent-strong);
+}
+
+.activeFilters button {
+  margin-left: auto;
+}
+
+.advancedFilters {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.advancedFilters:not([open]) > :not(summary) {
+  display: none;
+}
+
+.advancedFilters summary {
+  min-height: 44px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.advancedFilters[open] summary {
+  margin-bottom: var(--space-5);
+}
+
 .search,
 .filterBlock,
 .modeBlock {
@@ -84,7 +175,7 @@
 .chips button,
 .resultLine button,
 .empty button {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.5rem 0.78rem;
   border: 1px solid var(--border-medium);
   border-radius: 999px;
@@ -248,6 +339,20 @@
 
 .empty p {
   color: var(--text-soft);
+}
+
+.showMore {
+  justify-self: center;
+  min-height: 48px;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--border-medium);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .community {

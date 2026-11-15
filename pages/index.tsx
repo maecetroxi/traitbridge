@@ -31,32 +31,37 @@ const HomePage: React.FC = () => {
       tone: styles.testCard,
     },
     {
-      href: "/community",
-      title: copy.home.communityTitle,
-      description: copy.home.communityDescription,
-      action: copy.home.communityAction,
-      tone: styles.communityCard,
-    },
-    {
       href: "/learn",
       title: copy.home.learnTitle,
       description: copy.home.learnDescription,
       action: copy.home.learnAction,
       tone: styles.learnCard,
     },
+    {
+      href: "/community",
+      title: copy.home.communityTitle,
+      description: copy.home.communityDescription,
+      action: copy.home.communityAction,
+      tone: styles.communityCard,
+    },
   ];
 
   return (
     <>
       <Head>
-        <title>TraitBridge | {copy.home.title}</title>
+        <title>{`TraitBridge | ${copy.home.title}`}</title>
+        <meta key="og-title" property="og:title" content={`TraitBridge | ${copy.home.title}`} />
+        <meta key="og-description" property="og:description" content={copy.home.pageDescription} />
         <meta name="description" content={copy.home.pageDescription} />
       </Head>
 
       <div className={styles.page}>
         <section className={styles.intro}>
           <span className="page-kicker">TraitBridge</span>
-          <h1>{copy.home.title}</h1>
+          <h1>
+            <span>{copy.home.titleLines[0]}</span>{" "}
+            <span>{copy.home.titleLines[1]}</span>
+          </h1>
           <p>{copy.home.subtitle}</p>
         </section>
 
@@ -87,17 +92,6 @@ const HomePage: React.FC = () => {
           </section>
         )}
 
-        <section className={styles.context} aria-label={copy.home.whatTitle}>
-          <div>
-            <h2>{copy.home.whatTitle}</h2>
-            <p>{copy.home.whatText}</p>
-          </div>
-          <div>
-            <h2>{copy.home.registrationTitle}</h2>
-            <p>{copy.home.registrationText}</p>
-          </div>
-        </section>
-
         <section className={styles.optionGrid} aria-label={copy.home.optionsLabel}>
           {options.map((option) => (
             <Link
@@ -115,6 +109,17 @@ const HomePage: React.FC = () => {
               </span>
             </Link>
           ))}
+        </section>
+
+        <section className={styles.context} aria-label={copy.home.whatTitle}>
+          <div>
+            <h2>{copy.home.whatTitle}</h2>
+            <p>{copy.home.whatText}</p>
+          </div>
+          <div>
+            <h2>{copy.home.registrationTitle}</h2>
+            <p>{copy.home.registrationText}</p>
+          </div>
         </section>
       </div>
     </>

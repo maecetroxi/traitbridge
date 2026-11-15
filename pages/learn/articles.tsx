@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocale } from "../../contexts/LocaleContext";
 import {
   BIG_FIVE_TRAITS,
@@ -14,6 +14,7 @@ import { learningHubCopy } from "../../lib/learning-hub-copy";
 import styles from "../../styles/LearningArticles.module.css";
 
 type ReadingMode = "mirror" | "growth";
+const PAGE_SIZE = 6;
 
 export default function LearningArticlesPage() {
   const { locale, copy } = useLocale();
@@ -23,11 +24,17 @@ export default function LearningArticlesPage() {
   const [trait, setTrait] = useState<BigFiveTrait | "all">("all");
   const [level, setLevel] = useState<TraitLevel | "all">("all");
   const [mode, setMode] = useState<ReadingMode>("mirror");
+  const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE);
 
   const topics = useMemo(
     () => filterLearningTopics(category, search, trait, level),
     [category, level, search, trait],
   );
+  const visibleTopics = topics.slice(0, visibleLimit);
+
+  useEffect(() => {
+    setVisibleLimit(PAGE_SIZE);
+  }, [category, level, search, trait]);
 
   const clearFilters = () => {
     setSearch("");
@@ -46,7 +53,9 @@ export default function LearningArticlesPage() {
   return (
     <>
       <Head>
-        <title>{pageCopy.metaTitle} | TraitBridge</title>
+        <title>{`${pageCopy.metaTitle} | TraitBridge`}</title>
+        <meta key="og-title" property="og:title" content={`${pageCopy.metaTitle} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={pageCopy.intro} />
         <meta name="description" content={pageCopy.intro} />
       </Head>
 
@@ -62,6 +71,24 @@ export default function LearningArticlesPage() {
         </header>
 
         <section className={styles.controls} aria-label={pageCopy.metaTitle}>
+          <div className={styles.quickStarts}>
+            <strong>{pageCopy.quickStart}</strong>
+            <div>
+              {(["decisions", "communication", "stress", "work"] as const).map(
+                (value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={category === value}
+                    onClick={() => setCategory(value)}
+                  >
+                    {copy.learn.categories[value]}
+                  </button>
+                ),
+              )}
+            </div>
+          </div>
+
           <label className={styles.search}>
             <span>{pageCopy.searchLabel}</span>
             <input
@@ -71,6 +98,9 @@ export default function LearningArticlesPage() {
               onChange={(event) => setSearch(event.target.value)}
             />
           </label>
+
+          <details className={styles.advancedFilters}>
+            <summary>{pageCopy.advancedFilters}</summary>
 
           <div className={styles.filterBlock}>
             <strong>{pageCopy.situationLabel}</strong>
@@ -152,17 +182,24 @@ export default function LearningArticlesPage() {
               ))}
             </div>
           </div>
+          </details>
         </section>
+
+        {(search || category !== "all" || trait !== "all" || level !== "all") && (
+          <div className={styles.activeFilters} aria-label={pageCopy.clear}>
+            <span>{pageCopy.activeFilters}</span>
+            {search && <strong>“{search}”</strong>}
+            {category !== "all" && <strong>{copy.learn.categories[category]}</strong>}
+            {trait !== "all" && <strong>{copy.traits[trait]}</strong>}
+            {level !== "all" && <strong>{traitLevelLabel(level)}</strong>}
+            <button type="button" onClick={clearFilters}>{pageCopy.clear}</button>
+          </div>
+        )}
 
         <div className={styles.resultLine} aria-live="polite">
           <span>
             {topics.length} {pageCopy.results}
           </span>
-          {(search || category !== "all" || trait !== "all" || level !== "all") && (
-            <button type="button" onClick={clearFilters}>
-              {pageCopy.clear}
-            </button>
-          )}
         </div>
 
         {topics.length === 0 ? (
@@ -175,7 +212,7 @@ export default function LearningArticlesPage() {
           </div>
         ) : (
           <section className={styles.grid} aria-label={pageCopy.results}>
-            {topics.map((topic) => {
+            {visibleTopics.map((topic) => {
               const primaryRelevance = topic.traitRelevance[0];
               return (
                 <article key={topic.slug} className={styles.card}>
@@ -208,6 +245,16 @@ export default function LearningArticlesPage() {
               );
             })}
           </section>
+        )}
+
+        {visibleLimit < topics.length && (
+          <button
+            type="button"
+            className={styles.showMore}
+            onClick={() => setVisibleLimit((current) => current + PAGE_SIZE)}
+          >
+            {pageCopy.showMore}
+          </button>
         )}
 
         <aside className={styles.community}>

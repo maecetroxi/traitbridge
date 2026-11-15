@@ -30,7 +30,7 @@ const FullTestPage: React.FC = () => {
     return (
       <>
         <Head>
-          <title>{copy.testSelector.title} | TraitBridge</title>
+          <title>{`${copy.testSelector.title} | TraitBridge`}</title>
           <meta name="description" content={copy.testSelector.description} />
         </Head>
         <LanguageSelector onSelect={handleLanguageSelect} />
@@ -41,7 +41,7 @@ const FullTestPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{copy.test.title} | TraitBridge</title>
+        <title>{`${copy.test.title} | TraitBridge`}</title>
         <meta name="description" content={copy.test.introduction} />
       </Head>
       <BigFiveTest

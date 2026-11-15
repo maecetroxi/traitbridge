@@ -35,6 +35,10 @@ const TestQuestionStage: React.FC<TestQuestionStageProps> = ({
               <span className="question-number">{question.num}</span>
               <span>{question.text}</span>
             </legend>
+            <div className="answer-scale-legend" aria-hidden="true">
+              <span>{choices[0]?.text}</span>
+              <span>{choices[choices.length - 1]?.text}</span>
+            </div>
             <div className="answer-scale">
               {choices.map((choice) => {
                 const checked = answers[question.id] === choice.score;
@@ -49,9 +53,13 @@ const TestQuestionStage: React.FC<TestQuestionStageProps> = ({
                       name={`q-${question.id}`}
                       value={choice.score}
                       checked={checked}
+                      aria-label={choice.text}
                       onChange={() => onAnswer(question.id, choice.score)}
                     />
-                    <span>{choice.text}</span>
+                    <span className="answer-pill-score" aria-hidden="true">
+                      {choice.score}
+                    </span>
+                    <span className="answer-pill-text">{choice.text}</span>
                   </label>
                 );
               })}

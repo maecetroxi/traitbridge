@@ -1,6 +1,7 @@
 .page,
 .detailPage {
   display: grid;
+  min-width: 0;
   gap: var(--space-8);
   color: var(--text);
 }
@@ -302,12 +303,21 @@
 
 .detailLayout {
   display: grid;
+  min-width: 0;
   gap: var(--space-6);
 }
 
 .article {
   display: grid;
+  min-width: 0;
   gap: var(--space-4);
+}
+
+.detailHero,
+.article section,
+.evidencePanel {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .article section {

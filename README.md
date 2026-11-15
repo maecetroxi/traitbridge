@@ -1,6 +1,6 @@
 # TraitBridge
 
-TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practical learning content, AI-supported questions and an open community. Test, Community and Learn are independent entry points; visitors do not need to complete them in a fixed order.
+TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practical learning content and an open community. Test, Community and Learn are independent entry points; visitors do not need to complete them in a fixed order.
 
 ## What is included
 
@@ -14,7 +14,6 @@ TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practic
 - Email magic-link sign-in for writing Community content
 - Eleven bilingual, situation-based learning topics at `/learn/[slug]`
 - Editorial book suggestions with “might feel familiar” and “might widen my view” modes
-- Big Five Compass with concise OpenAI responses
 - Neutral profile interpretation that presents possible benefits and friction equally
 
 ## Main routes
@@ -30,8 +29,7 @@ TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practic
 | `/community/[id]` | Direct post and perspective view | Read: no; answer: account + test |
 | `/learn` | Practical learning topic overview | No |
 | `/learn/[slug]` | Structured topic with evidence notes and sources | No |
-| `/learn/books` | Editorial book suggestions | No |
-| `/tools/personality-guide` | Big Five Compass | No |
+| `/learn/library` | Editorial book and film suggestions | No |
 
 ## Technology
 
@@ -39,9 +37,7 @@ TraitBridge is a bilingual Next.js web app for Big Five self-reflection, practic
 - React and TypeScript
 - `@bigfive-org/questions`, `@bigfive-org/score`, `@bigfive-org/results`
 - Supabase Auth and Postgres
-- OpenAI Responses API
-
-No client-side OpenAI key is used. Community email addresses are never queried or rendered.
+Community email addresses are never queried or rendered.
 
 ## Local setup
 
@@ -54,13 +50,9 @@ No client-side OpenAI key is used. Community email addresses are never queried o
 2. Create `.env.local`:
 
    ```env
+   NEXT_PUBLIC_SITE_URL=https://traitbridge.com
    NEXT_PUBLIC_SUPABASE_URL=your-project-url
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
-   # Temporary compatibility fallback only:
-   # NEXT_PUBLIC_SUPABASE_ANON_KEY=your-legacy-anon-key
-   OPENAI_API_KEY=your-server-side-openai-key
-   # Optional; defaults to gpt-4.1-mini
-   OPENAI_MODEL=gpt-4.1-mini
    ```
 
 3. Apply the Supabase migrations in numeric order. See [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
@@ -75,18 +67,24 @@ No client-side OpenAI key is used. Community email addresses are never queried o
 
 ```bash
 npm test
+npm run typecheck
 npm run build
+npm run audit:prod
 npm run dev
 npm start
 ```
 
-The tests cover stored profile validation, AI request/response validation, book matching, test-draft stages and persistence, Community filtering/sorting, and learning-content structure/source resolution.
+The tests cover stored profile validation, book matching, test-draft stages and persistence, Community filtering/sorting, and learning-content structure/source resolution.
+
+Production deployment details and the Hostinger inventory are documented in [HOSTINGER_DEPLOYMENT.md](HOSTINGER_DEPLOYMENT.md). The current go-live gates and verification results are tracked in [RELEASE_STATUS.md](RELEASE_STATUS.md).
+
+The bilingual `/imprint` page is deliberately marked `noindex,nofollow` while its postal address and final wording remain under review. Remove that directive and add the route to the sitemap only after approval.
 
 ## Supabase keepalive
 
-The GitHub Actions workflow `.github/workflows/supabase-keepalive.yml` performs one read-only Data API request at `05:17`, `13:17`, and `21:17` UTC. Configure the repository secrets `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; never commit either value.
+The GitHub Actions workflow `.github/workflows/supabase-keepalive.yml` performs a minimal read-only Data API request three times daily. It is intentionally kept to reduce the risk that the Supabase Free project is paused because of inactivity. It creates or changes no application data.
 
-Scheduled workflows run from the default branch. GitHub can disable schedules in a public repository after 60 days without repository activity, so check the Actions page after longer maintenance breaks. Regular activity reduces the chance of a free Supabase project being paused, but only a paid plan guarantees that it remains available.
+The workflow requires the GitHub repository secrets `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`. Scheduled workflows run from the default branch and can be disabled by GitHub after prolonged repository inactivity, so the workflow status should be checked periodically. Only an appropriate paid Supabase plan guarantees that a project will not be paused.
 
 ## Data and trust boundaries
 
@@ -94,7 +92,7 @@ Scheduled workflows run from the default branch. GitHub can disable schedules in
 - A visitor’s completed result remains in `localStorage`.
 - For a permanent signed-in user, the completed result is also sent to Supabase.
 - Community content is publicly readable. Writing requires a permanent account, a short or full test result, and consent to a public three-band OCEAN profile.
-- Compass questions are sent to the server-side OpenAI route with `store: false`; TraitBridge does not persist questions or responses.
+- The site loads no third-party web fonts and uses no analytics, advertising or social-media trackers.
 - The assessment is a self-reflection tool, not a clinical diagnosis.
 - Learning exercises and book matches are clearly separated from scientific evidence.
 

@@ -9,6 +9,7 @@ interface AuthContextType {
   signInWithMagicLink: (
     email: string,
     redirectTo: string,
+    captchaToken: string,
   ) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signInWithMagicLink = async (email: string, redirectTo: string) => {
+  const signInWithMagicLink = async (email: string, redirectTo: string, captchaToken: string) => {
     // Visitors from the previous community flow may still have an anonymous
     // session in local storage. Remove it before starting a permanent login.
     if (user?.is_anonymous) {
@@ -82,6 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       options: {
         emailRedirectTo: redirectTo,
         shouldCreateUser: true,
+        captchaToken,
       },
     });
 

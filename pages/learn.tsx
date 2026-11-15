@@ -3,139 +3,109 @@ import Link from "next/link";
 import React from "react";
 import { useLocale } from "../contexts/LocaleContext";
 import { learningHubCopy } from "../lib/learning-hub-copy";
-import { LEARNING_TOPICS } from "../lib/learning-content";
-import { getLearningResourceIndex } from "../lib/learning-resources";
 import styles from "../styles/LearningHub.module.css";
 
-const FEATURED_SLUGS = [
-  "using-early-warning-sensitivity",
-  "working-across-personality-differences",
-  "making-quiet-influence-visible",
-] as const;
-
 export default function LearnPage() {
-  const { locale, copy } = useLocale();
+  const { locale } = useLocale();
   const pageCopy = learningHubCopy[locale].hub;
-  const resources = getLearningResourceIndex(locale);
-  const articleCount = resources.filter(({ kind }) => kind === "article").length;
-  const mediaCount = resources.length - articleCount;
-  const featuredTopics = FEATURED_SLUGS.map((slug) =>
-    LEARNING_TOPICS.find((topic) => topic.slug === slug),
-  ).filter((topic): topic is (typeof LEARNING_TOPICS)[number] => Boolean(topic));
 
   return (
     <>
       <Head>
-        <title>{pageCopy.metaTitle} | TraitBridge</title>
+        <title>{`${pageCopy.metaTitle} | TraitBridge`}</title>
+        <meta key="og-title" property="og:title" content={`${pageCopy.metaTitle} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={pageCopy.intro} />
         <meta name="description" content={pageCopy.intro} />
       </Head>
 
       <div className={styles.page}>
         <header className={styles.hero}>
           <span className="page-kicker">{pageCopy.kicker}</span>
-          <h1>{pageCopy.title}</h1>
+          <h1>
+            <span>{pageCopy.titleLines[0]}</span>{" "}
+            <span>{pageCopy.titleLines[1]}</span>
+          </h1>
           <p>{pageCopy.intro}</p>
-          <aside>{pageCopy.promise}</aside>
         </header>
 
-        <nav className={styles.areaGrid} aria-label={pageCopy.navigationLabel}>
-          {pageCopy.sections.map((section) => (
-            <Link key={section.id} href={section.href} className={styles.areaCard}>
-              <div className={styles.areaMeta}>
-                <span>{section.number}</span>
-                {section.id === "articles" && (
-                  <small>
-                    {articleCount} {pageCopy.articleCountLabel}
-                  </small>
-                )}
-                {section.id === "library" && (
-                  <small>
-                    {mediaCount} {pageCopy.mediaCountLabel}
-                  </small>
-                )}
-              </div>
-              <h2>{section.title}</h2>
-              <p>{section.text}</p>
-              <strong>{section.action} →</strong>
-            </Link>
-          ))}
-        </nav>
-
-        <section className={styles.bridge} aria-labelledby="bridge-title">
-          <div className={styles.bridgeIntro}>
-            <span className="page-kicker">{pageCopy.bridgeKicker}</span>
-            <h2 id="bridge-title">{pageCopy.bridgeTitle}</h2>
-            <p>{pageCopy.bridgeText}</p>
-            <Link href="/learn/opposites">{pageCopy.bridgeAction} →</Link>
-          </div>
-          <div className={styles.bridgeExample}>
-            <strong>{pageCopy.bridgeTrait}</strong>
-            <article>
-              <span>{pageCopy.bridgeLow}</span>
-              <p>{pageCopy.bridgeLowText}</p>
-            </article>
-            <div aria-hidden="true">
-              <span />
-              <strong>TraitBridge</strong>
-              <span />
-            </div>
-            <article>
-              <span>{pageCopy.bridgeHigh}</span>
-              <p>{pageCopy.bridgeHighText}</p>
-            </article>
-          </div>
-        </section>
-
-        <section className={styles.featured} aria-labelledby="featured-title">
+        <section className={styles.start} aria-labelledby="learning-start-title">
           <header>
-            <div>
-              <span className="page-kicker">{pageCopy.featuredKicker}</span>
-              <h2 id="featured-title">{pageCopy.featuredTitle}</h2>
-              <p>{pageCopy.featuredText}</p>
-            </div>
-            <Link href="/learn/articles">{pageCopy.allArticles} →</Link>
+            <h2 id="learning-start-title">{pageCopy.startTitle}</h2>
+            <p>{pageCopy.startText}</p>
           </header>
-          <div className={styles.featuredGrid}>
-            {featuredTopics.map((topic) => (
-              <article key={topic.slug}>
-                <div>
-                  {topic.traitRelevance.map((relevance) => (
-                    <span key={`${relevance.trait}-${relevance.level}`}>
-                      {copy.learn.traitLevels[relevance.level]} ·{" "}
-                      {copy.traits[relevance.trait]}
-                    </span>
-                  ))}
+          <nav className={styles.areaGrid} aria-label={pageCopy.navigationLabel}>
+            {pageCopy.sections.map((section) => (
+              <Link
+                key={section.id}
+                href={section.href}
+                className={styles.areaCard}
+                data-area={section.id}
+              >
+                <div className={styles.areaMeta}>
+                  <span>{section.number}</span>
+                  <span className={styles.areaIcon} aria-hidden="true">
+                    <AreaIcon area={section.id} />
+                  </span>
                 </div>
-                <h3>{topic.title[locale]}</h3>
-                <p>{topic.summary[locale]}</p>
-                <Link href={`/learn/${topic.slug}`}>{copy.learn.openTopic} →</Link>
-              </article>
+                <small className={styles.areaLabel}>{section.label}</small>
+                <h2>{section.title}</h2>
+                <p>{section.text}</p>
+                <span className={styles.areaOutcome}>
+                  <span aria-hidden="true">✓</span>
+                  {section.outcome}
+                </span>
+                <strong>{section.action} →</strong>
+              </Link>
             ))}
-          </div>
+          </nav>
         </section>
 
-        <section className={styles.nextGrid}>
-          <article className={styles.communityCard}>
-            <span className="page-kicker">{pageCopy.communityKicker}</span>
-            <h2>{pageCopy.communityTitle}</h2>
-            <p>{pageCopy.communityText}</p>
-            <Link
-              href={{
-                pathname: "/community",
-                query: { category: "self-understanding" },
-              }}
-            >
-              {pageCopy.communityAction} →
-            </Link>
-          </article>
-          <article className={styles.toolCard}>
-            <span className="page-kicker">{pageCopy.toolKicker}</span>
-            <h2>{pageCopy.toolTitle}</h2>
-            <p>{pageCopy.toolText}</p>
-            <Link href="/tools/personality-guide">{pageCopy.toolAction} →</Link>
-          </article>
-        </section>
+        <details className={styles.bridge}>
+          <summary>
+            <span className="page-kicker">{pageCopy.bridgeKicker}</span>
+            <strong>{pageCopy.bridgeTitle}</strong>
+          </summary>
+          <div className={styles.bridgeContent}>
+            <div className={styles.bridgeIntro}>
+              <p>{pageCopy.bridgeText}</p>
+              <Link href="/learn/opposites">{pageCopy.bridgeAction} →</Link>
+            </div>
+            <div className={styles.bridgeExample}>
+              <strong>{pageCopy.bridgeTrait}</strong>
+              <article>
+                <span>{pageCopy.bridgeLow}</span>
+                <p>{pageCopy.bridgeLowText}</p>
+              </article>
+              <div aria-hidden="true">
+                <span />
+                <strong>TraitBridge</strong>
+                <span />
+              </div>
+              <article>
+                <span>{pageCopy.bridgeHigh}</span>
+                <p>{pageCopy.bridgeHighText}</p>
+              </article>
+            </div>
+          </div>
+        </details>
+
       </div>
     </>
   );
+}
+
+function AreaIcon({ area }: { area: "contribution" | "opposites" | "articles" | "library" }) {
+  if (area === "articles") {
+    return <svg viewBox="0 0 28 28"><path d="M6 7h16M6 13h10M6 19h16" /><path d="m18 12 2 2 4-5" /></svg>;
+  }
+
+  if (area === "library") {
+    return <svg viewBox="0 0 28 28"><path d="M3 6c4.5-.8 8 .2 11 2.8v14c-3-2.3-6.5-3.2-11-2.4zM25 6c-4.5-.8-8 .2-11 2.8v14c3-2.3 6.5-3.2 11-2.4z" /></svg>;
+  }
+
+  if (area === "opposites") {
+    return <svg viewBox="0 0 28 28"><path d="M4 9h18m0 0-4-4m4 4-4 4M24 19H6m0 0 4-4m-4 4 4 4" /></svg>;
+  }
+
+  return <svg viewBox="0 0 28 28"><circle cx="14" cy="12" r="4" /><path d="M6 23c1.5-4.2 4.2-6.3 8-6.3s6.5 2.1 8 6.3M14 3v3M5 11H2m24 0h-3" /></svg>;
 }

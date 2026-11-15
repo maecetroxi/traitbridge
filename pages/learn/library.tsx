@@ -22,7 +22,7 @@ import {
 import type { Locale } from "../../lib/i18n";
 import styles from "../../styles/MediaLibrary.module.css";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 6;
 
 const libraryCopy: Record<
   Locale,
@@ -34,6 +34,14 @@ const libraryCopy: Record<
     title: string;
     intro: string;
     principle: string;
+    entryTitle: string;
+    entryText: string;
+    entryMirror: string;
+    entryMirrorText: string;
+    entryGrowth: string;
+    entryGrowthText: string;
+    entryBrowse: string;
+    entryBrowseText: string;
     profileTitle: string;
     profileFromTest: string;
     profileManual: string;
@@ -78,6 +86,14 @@ const libraryCopy: Record<
       "Find a perspective that may feel familiar—or meet a way of seeing the world that complements your own.",
     principle:
       "Every trait pole can contribute something. These suggestions are invitations to reflect, not predictions about what you will like.",
+    entryTitle: "How would you like to browse?",
+    entryText: "Choose a simple starting point. Detailed profile and theme filters remain available below.",
+    entryMirror: "Match my profile",
+    entryMirrorText: "Prioritize perspectives that may feel familiar.",
+    entryGrowth: "Show me a new perspective",
+    entryGrowthText: "Prioritize complementary styles and experiences.",
+    entryBrowse: "Just browse",
+    entryBrowseText: "Show the complete library without a perspective filter.",
     profileTitle: "Your perspective",
     profileFromTest:
       "Your locally saved test result is shaping the order. It stays on this device.",
@@ -145,6 +161,14 @@ const libraryCopy: Record<
       "Finde eine Perspektive, die sich vertraut anfühlen könnte – oder begegne einer Sichtweise, die deine eigene ergänzt.",
     principle:
       "Jeder Pol kann etwas beitragen. Diese Vorschläge sind Einladungen zur Reflexion und keine Vorhersagen darüber, was dir gefallen wird.",
+    entryTitle: "Wie möchtest du stöbern?",
+    entryText: "Wähle einen einfachen Einstieg. Detaillierte Profil- und Themenfilter bleiben darunter verfügbar.",
+    entryMirror: "Passend zu meinem Profil",
+    entryMirrorText: "Zeigt zuerst Perspektiven, die sich vertraut anfühlen könnten.",
+    entryGrowth: "Bewusst eine andere Perspektive",
+    entryGrowthText: "Zeigt zuerst ergänzende Stile und Erfahrungen.",
+    entryBrowse: "Einfach stöbern",
+    entryBrowseText: "Zeigt die ganze Bibliothek ohne Perspektivfilter.",
     profileTitle: "Deine Perspektive",
     profileFromTest:
       "Dein lokal gespeichertes Testergebnis bestimmt die Reihenfolge mit. Es bleibt auf diesem Gerät.",
@@ -277,7 +301,9 @@ export default function MediaLibraryPage() {
   return (
     <>
       <Head>
-        <title>{copy.metaTitle} | TraitBridge</title>
+        <title>{`${copy.metaTitle} | TraitBridge`}</title>
+        <meta key="og-title" property="og:title" content={`${copy.metaTitle} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={copy.metaDescription} />
         <meta name="description" content={copy.metaDescription} />
       </Head>
 
@@ -293,19 +319,54 @@ export default function MediaLibraryPage() {
           <aside>{copy.principle}</aside>
         </header>
 
-        <section
+        <section className={styles.entryPanel} aria-labelledby="library-entry-title">
+          <header>
+            <h2 id="library-entry-title">{copy.entryTitle}</h2>
+            <p>{copy.entryText}</p>
+          </header>
+          <div className={styles.entryGrid}>
+            <button
+              type="button"
+              aria-pressed={filters.perspective === "mirror"}
+              onClick={() => updateFilter("perspective", "mirror")}
+            >
+              <strong>{copy.entryMirror}</strong>
+              <span>{copy.entryMirrorText}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={filters.perspective === "growth"}
+              onClick={() => updateFilter("perspective", "growth")}
+            >
+              <strong>{copy.entryGrowth}</strong>
+              <span>{copy.entryGrowthText}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={!hasFilters}
+              onClick={() => setFilters({ ...DEFAULT_MEDIA_FILTERS })}
+            >
+              <strong>{copy.entryBrowse}</strong>
+              <span>{copy.entryBrowseText}</span>
+            </button>
+          </div>
+        </section>
+
+        <details
           className={styles.profilePanel}
-          aria-labelledby="library-profile-title"
         >
-          <div className={styles.panelHeading}>
+          <summary className={styles.panelSummary}>
             <div>
               <h2 id="library-profile-title">{copy.profileTitle}</h2>
               <p>
                 {hasTestProfile ? copy.profileFromTest : copy.profileManual}
               </p>
             </div>
+          </summary>
+          <div className={styles.panelContent}>
             <button
               type="button"
+              className={styles.clearButton}
               onClick={() => {
                 setScores({ ...NEUTRAL_BOOK_PROFILE });
                 setHasTestProfile(false);
@@ -313,16 +374,15 @@ export default function MediaLibraryPage() {
             >
               {copy.resetProfile}
             </button>
-          </div>
-
-          <div className={styles.traitGrid}>
+            <div className={styles.traitGrid}>
             {MEDIA_TRAITS.map((trait) => (
-              <label key={trait} className={styles.traitControl}>
+              <label key={trait} className={styles.traitControl} htmlFor={`library-trait-${trait}`}>
                 <span className={styles.traitHeading}>
                   <strong>{globalCopy.traits[trait]}</strong>
                   <output>{scores[trait].toFixed(1)}</output>
                 </span>
                 <input
+                  id={`library-trait-${trait}`}
                   type="range"
                   min="1"
                   max="5"
@@ -343,15 +403,19 @@ export default function MediaLibraryPage() {
                 </span>
               </label>
             ))}
+            </div>
           </div>
-        </section>
+        </details>
 
-        <section
+        <details
           className={styles.filterPanel}
-          aria-labelledby="library-filters-title"
         >
-          <div className={styles.filterHeading}>
-            <h2 id="library-filters-title">{copy.filtersTitle}</h2>
+          <summary className={styles.panelSummary}>
+            <div>
+              <h2 id="library-filters-title">{copy.filtersTitle}</h2>
+            </div>
+          </summary>
+          <div className={styles.panelContent}>
             <button
               type="button"
               className={styles.clearButton}
@@ -360,8 +424,6 @@ export default function MediaLibraryPage() {
             >
               {copy.clearFilters}
             </button>
-          </div>
-
           <label className={styles.searchControl}>
             <span>{copy.searchLabel}</span>
             <input
@@ -448,7 +510,8 @@ export default function MediaLibraryPage() {
               ))}
             </select>
           </label>
-        </section>
+          </div>
+        </details>
 
         <section
           className={styles.results}

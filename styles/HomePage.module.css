@@ -1,27 +1,31 @@
 .page {
   display: grid;
-  gap: var(--space-8);
-  padding: clamp(1.5rem, 5vw, 4rem) 0;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+  padding: clamp(0.75rem, 2vw, 1.5rem) 0;
   color: var(--text);
 }
 
 .intro {
-  max-width: 850px;
+  max-width: 940px;
 }
 
 .intro h1 {
-  max-width: 11ch;
+  max-width: 24ch;
   margin: var(--space-3) 0 0;
   font-family: var(--font-display);
-  font-size: clamp(3.4rem, 8vw, 6.8rem);
+  font-size: clamp(2.65rem, 5vw, 4.65rem);
   font-weight: 650;
   letter-spacing: -0.058em;
-  line-height: 0.94;
+  line-height: 0.98;
+}
+
+.intro h1 span {
+  display: block;
 }
 
 .intro p {
   max-width: 65ch;
-  margin: var(--space-5) 0 0;
+  margin: var(--space-3) 0 0;
   color: var(--text-soft);
   font-size: clamp(1.05rem, 2vw, 1.25rem);
   line-height: 1.7;
@@ -29,19 +33,20 @@
 
 .returning {
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-4);
+  gap: var(--space-2);
+  padding: 0.7rem 0.85rem;
   border: 1px solid var(--accent-muted);
   border-radius: var(--radius-lg);
   background: var(--surface-tint);
 }
 
 .returning > div {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(190px, auto) minmax(260px, 1fr) auto;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3) var(--space-5);
   min-width: 0;
-  padding: var(--space-2);
+  padding: 0.45rem 0.6rem;
 }
 
 .returning > div + div {
@@ -49,7 +54,7 @@
 }
 
 .returningLabel {
-  min-width: 170px;
+  min-width: 0;
   color: var(--accent-strong);
   font-size: 0.76rem;
   font-weight: 800;
@@ -58,14 +63,14 @@
 }
 
 .returning p {
-  flex: 1;
   margin: 0;
+  max-width: 58ch;
   color: var(--text-soft);
   font-size: 0.88rem;
 }
 
 .returning a {
-  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .context {
@@ -100,7 +105,7 @@
 .optionCard {
   position: relative;
   display: flex;
-  min-height: 260px;
+  min-height: 230px;
   padding: var(--space-5);
   overflow: hidden;
   border: 1px solid var(--border-medium);
@@ -132,18 +137,18 @@
 }
 
 .testCard {
-  --card-shape: #e7a77f;
-  background: linear-gradient(145deg, #fff8ef, #f5e7d6);
+  --card-shape: #e5a27d;
+  background: linear-gradient(145deg, #fff8f0, #f6e3d4);
 }
 
 .communityCard {
-  --card-shape: #8fb9aa;
-  background: linear-gradient(145deg, #f0f8f3, #dfece6);
+  --card-shape: #75afa9;
+  background: linear-gradient(145deg, #edf9f6, #d8ece8);
 }
 
 .learnCard {
-  --card-shape: #d8bd7f;
-  background: linear-gradient(145deg, #fbf7ea, #eee4c9);
+  --card-shape: #7faec8;
+  background: linear-gradient(145deg, #f1f8fb, #dcecf2);
 }
 
 .optionCard h2 {
@@ -179,15 +184,10 @@
 }
 
 @media (min-width: 760px) {
-  .returning,
   .context {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .returning > div + div {
-    border-top: 0;
-    border-left: 1px solid var(--border-subtle);
-  }
 }
 
 @media (min-width: 900px) {
@@ -199,7 +199,7 @@
 @media (max-width: 680px) {
   .returning > div {
     align-items: flex-start;
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .returningLabel {
@@ -207,7 +207,18 @@
   }
 
   .optionCard {
-    min-height: 220px;
+    min-height: 200px;
+  }
+}
+
+@media (min-width: 681px) and (max-width: 900px) {
+  .returning > div {
+    grid-template-columns: minmax(170px, 0.7fr) minmax(0, 1.3fr);
+  }
+
+  .returning a {
+    grid-column: 1 / -1;
+    width: fit-content;
   }
 }
 

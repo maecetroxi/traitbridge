@@ -10,9 +10,10 @@ Einmalige Einstellungen im Supabase-Dashboard:
 
 1. `Authentication` oeffnen.
 2. Unter `Sign In / Providers` sicherstellen, dass E-Mail-Anmeldungen aktiviert sind.
-3. Unter `URL Configuration` die `Site URL` auf `http://localhost:3000` setzen.
-4. Unter `Redirect URLs` `http://localhost:3000/**` eintragen.
-5. `Anonymous Sign-Ins` deaktivieren; TraitBridge verwendet nur dauerhafte E-Mail-Konten.
+3. Unter `URL Configuration` die produktive `Site URL` auf `https://traitbridge.com` setzen.
+4. Unter `Redirect URLs` exakt `https://traitbridge.com/login` eintragen. Die App sendet absichtlich keine Query-Parameter in der Callback-URL; das eigentliche Rücksprungziel wird lokal und nur als geprüfter relativer Pfad gespeichert.
+5. Zusätzlich `https://www.traitbridge.com/login`, `http://localhost:3000/login` und `http://127.0.0.1:3000/login` erlauben. Keine Wildcards verwenden.
+6. `Anonymous Sign-Ins` deaktivieren; TraitBridge verwendet nur dauerhafte E-Mail-Konten.
 
 Die RLS-Regeln pruefen serverseitig, dass anonyme Auth-Nutzer keine Community-Inhalte veroeffentlichen koennen.
 
@@ -26,16 +27,10 @@ Die RLS-Regeln pruefen serverseitig, dass anonyme Auth-Nutzer keine Community-In
 Lege im Projektroot eine `.env.local` Datei an:
 
 ```env
+NEXT_PUBLIC_SITE_URL=https://traitbridge.com
 NEXT_PUBLIC_SUPABASE_URL=deine-supabase-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=dein-supabase-publishable-key
-# Nur als voruebergehender Kompatibilitaets-Fallback:
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=dein-alter-anon-key
-OPENAI_API_KEY=dein-serverseitiger-openai-api-key
-# Optional; Standard ist gpt-4.1-mini
-OPENAI_MODEL=gpt-4.1-mini
 ```
-
-`OPENAI_API_KEY` darf niemals mit `NEXT_PUBLIC_` beginnen, weil er ausschließlich in der serverseitigen API-Route verwendet wird.
 
 ## 3. Datenbankschema erstellen
 
@@ -114,13 +109,13 @@ Nach Migration `004` sind auch diese beiden Migrationen in numerischer Reihenfol
 
 Migration `005` vergibt die Data-API-Rechte explizit: Besucher duerfen nur Community-Inhalte und oeffentliche Profile lesen. Testresultate bleiben fuer `anon` vollstaendig gesperrt. Migration `006` wertet Auth-Informationen in den Community-Richtlinien einmal pro Anfrage statt einmal pro Zeile aus.
 
-## GitHub-Aktivitaet
+## Produktionscheck
 
-Lege im GitHub-Repository unter `Settings > Secrets and variables > Actions` zwei Secrets an:
-
-- `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEY`
-
-Der Workflow `.github/workflows/supabase-keepalive.yml` liest um `05:17`, `13:17` und `21:17` UTC maximal eine oeffentliche Frage. Er schreibt keine Daten und gibt weder Antwortdaten noch Schluessel aus. Er kann auf der Actions-Seite auch manuell gestartet werden.
-
-Geplante Workflows laufen nur von `main` und koennen bei oeffentlichen Repositories nach 60 Tagen ohne Repository-Aktivitaet deaktiviert werden. Die drei taeglichen Anfragen senken beim kostenlosen Supabase-Tarif das Pausenrisiko; eine Garantie bietet nur ein Bezahlplan.
+- Security- und Performance-Advisors nach jeder Schemaaenderung pruefen.
+- SSL Enforcement, Account-MFA und bei Bedarf Network Restrictions im Dashboard aktivieren.
+- Fuer Magic-Link-E-Mails einen eigenen SMTP-Anbieter und angemessene Auth-Rate-Limits konfigurieren.
+- Magic Links sind nur einmal verwendbar. Microsoft Safe Links und andere E-Mail-Sicherheitsfilter können Links vorab öffnen. Falls dies in den Auth-Protokollen als `otp_expired` vor dem Nutzerklick erscheint, die Vorlage auf einen E-Mail-OTP mit `{{ .Token }}` umstellen und in der App eine Code-Eingabe ergänzen; Link-Tracking beim SMTP-Anbieter deaktivieren.
+- Der GitHub-Workflow `.github/workflows/supabase-keepalive.yml` fuehrt dreimal taeglich eine minimale, externe und rein lesende Data-API-Anfrage aus, um das Inaktivitaets-Pausenrisiko des Free-Projekts zu reduzieren.
+- Dafuer muessen im GitHub-Repository die Secrets `SUPABASE_URL` und `SUPABASE_PUBLISHABLE_KEY` vorhanden sein. Den Workflow nach dem Merge auf den Standard-Branch einmal manuell ausfuehren und danach regelmaessig kontrollieren.
+- Fuer garantierte Verfuegbarkeit bleibt ein geeigneter kostenpflichtiger Supabase-Plan erforderlich; der Keepalive reduziert das Pausenrisiko, ist aber keine Verfuegbarkeitszusage.
+- Nach erfolgreicher Umstellung auf den Publishable Key den alten Legacy-`anon`-Key im Dashboard deaktivieren.

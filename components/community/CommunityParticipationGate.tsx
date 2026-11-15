@@ -125,6 +125,17 @@ const CommunityParticipationGate: React.FC<CommunityParticipationGateProps> = ({
           />
           <span>{copy.community.profileConsent}</span>
         </label>
+        <p className="muted">
+          {copy.layout.nav.home === "Start" ? "Bitte beachte die " : "Please review the "}
+          <Link href="/community-guidelines">
+            {copy.layout.nav.home === "Start" ? "Community-Regeln" : "Community guidelines"}
+          </Link>
+          {copy.layout.nav.home === "Start" ? " und den " : " and the "}
+          <Link href="/privacy">
+            {copy.layout.nav.home === "Start" ? "Datenschutz" : "privacy notice"}
+          </Link>
+          .
+        </p>
         {saveError && <p className="text-danger" role="alert">{copy.community.profileSetupError}</p>}
         <button
           type="submit"

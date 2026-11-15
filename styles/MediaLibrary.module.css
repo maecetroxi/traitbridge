@@ -55,6 +55,59 @@
   line-height: 1.6;
 }
 
+.entryPanel {
+  display: grid;
+  gap: 1rem;
+}
+
+.entryPanel > header h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  line-height: 1.05;
+}
+
+.entryPanel > header p {
+  margin: 0.45rem 0 0;
+  color: var(--text-soft);
+}
+
+.entryGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.entryGrid button {
+  display: grid;
+  min-height: 112px;
+  gap: 0.45rem;
+  padding: 1.1rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.entryGrid button:hover,
+.entryGrid button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--surface-tint);
+}
+
+.entryGrid button strong {
+  color: var(--accent-strong);
+  font-size: 0.92rem;
+}
+
+.entryGrid button span {
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 .profilePanel,
 .filterPanel {
   min-width: 0;
@@ -74,39 +127,43 @@
   box-shadow: var(--shadow-md);
 }
 
-.filterPanel {
-  display: grid;
-  gap: 1.25rem;
-  background: var(--surface-muted);
+.profilePanel:not([open]) > :not(summary),
+.filterPanel:not([open]) > :not(summary) {
+  display: none;
 }
 
-.panelHeading,
-.filterHeading,
-.resultsHeading {
+.panelSummary {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  list-style: none;
+  cursor: pointer;
 }
 
-.panelHeading {
-  margin-bottom: 1.5rem;
+.panelSummary::-webkit-details-marker {
+  display: none;
 }
 
-.panelHeading h2,
-.filterHeading h2,
-.resultsHeading h2 {
+.panelSummary::after {
+  color: var(--accent);
+  content: "+";
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+details[open] > .panelSummary::after {
+  content: "−";
+}
+
+.panelSummary h2 {
   margin: 0;
   font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
   line-height: 1.08;
 }
 
-.panelHeading h2,
-.filterHeading h2 {
-  font-size: clamp(1.35rem, 3vw, 1.75rem);
-}
-
-.panelHeading p {
+.panelSummary p {
   max-width: 68ch;
   margin: 0.35rem 0 0;
   color: var(--text-soft);
@@ -114,7 +171,35 @@
   line-height: 1.55;
 }
 
-.panelHeading button,
+.panelContent {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.panelContent > .clearButton {
+  justify-self: end;
+}
+
+.filterPanel {
+  display: grid;
+  gap: 1.25rem;
+  background: var(--surface-muted);
+}
+
+.resultsHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.resultsHeading h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  line-height: 1.08;
+}
+
 .clearButton,
 .emptyState button,
 .moreButton {
@@ -128,7 +213,6 @@
   cursor: pointer;
 }
 
-.panelHeading button,
 .clearButton {
   flex: 0 0 auto;
   padding: 0.55rem 0.85rem;
@@ -169,6 +253,7 @@
 
 .traitControl input {
   width: 100%;
+  min-height: 44px;
   margin: 0;
   accent-color: var(--accent);
   cursor: pointer;
@@ -239,6 +324,7 @@
 }
 
 .filterButtons button {
+  min-height: 44px;
   max-width: 100%;
   padding: 0.52rem 0.72rem;
   border: 1px solid var(--border-subtle);
@@ -500,6 +586,10 @@
 }
 
 @media (min-width: 700px) {
+  .entryGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .traitGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 2rem;
@@ -529,8 +619,6 @@
 }
 
 @media (max-width: 560px) {
-  .panelHeading,
-  .filterHeading,
   .resultsHeading {
     align-items: flex-start;
     flex-direction: column;

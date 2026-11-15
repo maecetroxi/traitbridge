@@ -123,9 +123,6 @@ const BigFiveResults: React.FC = () => {
               >
                 {copy.results.toLearning}
               </Link>
-              <Link href="/tools/personality-guide" className="btn btn-outline">
-                {copy.results.toCompass}
-              </Link>
               <Link href="/community" className="btn btn-outline">
                 {copy.results.toCommunity}
               </Link>

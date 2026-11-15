@@ -61,7 +61,9 @@ const TestPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{copy.testOverview.title} | TraitBridge</title>
+        <title>{`${copy.testOverview.title} | TraitBridge`}</title>
+        <meta key="og-title" property="og:title" content={`${copy.testOverview.title} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={copy.testOverview.intro} />
         <meta name="description" content={copy.testOverview.intro} />
       </Head>
 

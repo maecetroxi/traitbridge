@@ -9,7 +9,7 @@ const LoginPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{copy.login.signInTitle} | TraitBridge</title>
+        <title>{`${copy.login.signInTitle} | TraitBridge`}</title>
         <meta name="description" content={copy.login.intro} />
       </Head>
       <LoginForm />

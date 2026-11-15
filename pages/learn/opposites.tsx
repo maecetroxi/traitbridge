@@ -157,8 +157,10 @@ export default function TraitOppositesPage() {
   return (
     <>
       <Head>
-        <title>{copy.metaTitle} | TraitBridge</title>
+        <title>{`${copy.metaTitle} | TraitBridge`}</title>
         <meta name="description" content={copy.metaDescription} />
+        <meta key="og-title" property="og:title" content={`${copy.metaTitle} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={copy.metaDescription} />
       </Head>
 
       <div className={styles.page}>

@@ -9,7 +9,9 @@ const BackgroundPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{copy.background.title} | TraitBridge</title>
+        <title>{`${copy.background.title} | TraitBridge`}</title>
+        <meta key="og-title" property="og:title" content={`${copy.background.title} | TraitBridge`} />
+        <meta key="og-description" property="og:description" content={copy.background.intro} />
         <meta name="description" content={copy.background.intro} />
       </Head>
       <div className="page-card">
