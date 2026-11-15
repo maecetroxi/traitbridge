@@ -47,4 +47,4 @@ npm start
 
 Next.js Pages Router, React, TypeScript und Supabase Auth/Postgres. V2 verarbeitet private Daten ausschliesslich über eine authentifizierte Next.js-API und ein serverexklusives SQL-Gateway; Browserrollen können die neuen Tabellen nicht direkt lesen. PGlite und Playwright dienen nur der Entwicklung. Alle Abhängigkeiten sind fest versioniert. Webpack wird wegen einer reproduzierten Turbopack-Junction-Einschränkung in der Windows-Sandbox verwendet.
 
-Vorhandene Hosting-Unterlagen ersetzen nicht die aktuelle [V2-Einrichtungsanleitung](docs/V2.md). Remote-Push und Veröffentlichung sind gesonderte Schritte. Aktuell wurden weder Produktionsmigration noch Edge-Veröffentlichung ausgeführt.
+Vorhandene Hosting-Unterlagen ersetzen nicht die aktuelle [V2-Einrichtungsanleitung](docs/V2.md). Remote-Push und Veröffentlichung sind gesonderte Schritte. Supabase-Migration und Edge Function sind im freigegebenen Projekt eingerichtet, das Eigentümerkonto ist freigeschaltet und die lokale Anbindung aktiviert. Die Website selbst wurde noch nicht neu veröffentlicht.

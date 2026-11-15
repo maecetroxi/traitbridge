@@ -3,10 +3,10 @@
 ## Vor der ersten geschlossenen Beta
 
 - Den V2-Entwicklungsbranch nach Freigabe auf GitHub veröffentlichen. Keine Force-Pushes.
-- Den konkreten Supabase-Produktionsschritt ausdrücklich freigeben oder eine getrennte Staging-Umgebung wählen. Die automatische Freigabeprüfung hat Änderungen am aktiven Projekt bisher abgelehnt. Die additive Migration und die Deno-Edge-Anbindung sind lokal getestet; Security Advisors nach Anwendung erneut prüfen.
-- Alte Datenbank-Schreibzugriffe erst beim tatsächlichen Website-Wechsel stilllegen. Die alten Seiten und Archivdateien wurden aus dem aktuellen Projekt entfernt; vorhandene Beiträge werden ohne klare Löschanweisung nicht gelöscht.
-- Server-Secret, Beta-Flag, Turnstile, erlaubte Magic-Link-URLs und E-Mail-Zustellung in Staging konfigurieren. Mit mindestens zwei echten Testkonten Anmeldung, Session-Erneuerung, Sperrung und vollständige Kontolöschung prüfen. Die lokale QA ersetzt keinen echten Auth-Zustelltest.
-- Ein Moderationskonto bestimmen, `/moderation` durchspielen und tatsächliche Zuständigkeit/Erreichbarkeit festlegen. Keine Rund-um-die-Uhr-Hilfe versprechen.
+- Supabase-Schema, Edge Function und Eigentümer-Beta-/Moderationszugang sind nach ausdrücklicher Freigabe eingerichtet. RLS, Zugriffsrechte, Security Advisors und die lokale Edge-Anbindung sind geprüft.
+- Alte Datenbank-Schreibzugriffe erst beim tatsächlichen Website-Wechsel stilllegen. Die alten Seiten und Archivdateien wurden aus dem aktuellen Projekt entfernt; die ausdrücklich freigegebene Löschung alter Fragen und Antworten wurde ausgeführt; die Tabellen waren bereits leer.
+- Mit mindestens zwei bewusst eingeladenen echten Konten Magic-Link-Zustellung, Session-Erneuerung, Sperrung und vollständige Kontolöschung prüfen. Dabei konkrete Callback-URLs und Turnstile kontrollieren. Die vorhandene Konfiguration blieb erhalten; die lokale QA ersetzt keinen tatsächlichen Auth-Zustelltest.
+- Mit dem freigeschalteten Moderationskonto `/moderation` durchspielen und tatsächliche Zuständigkeit/Erreichbarkeit festlegen. Keine Rund-um-die-Uhr-Hilfe versprechen.
 - Datenschutztexte, Einwilligungsversion, Volljährigkeitsbestätigung, Aufbewahrung, Umgang mit Meldungen und Impressum fachlich/rechtlich abnehmen. Die bestehenden redaktionellen Lücken in `LEARNING_CONTENT_GAPS.md` prüfen.
 - Wenige volljährige Personen gezielt einladen und den vollständigen Ablauf auf echten iOS-/Android-Geräten sowie mit Tastatur/Screenreader testen. Die installierbare Darstellung braucht insbesondere einen echten Safari-/Chrome-Gerätetest.
 

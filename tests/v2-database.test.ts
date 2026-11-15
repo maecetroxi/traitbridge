@@ -10,7 +10,7 @@ const ids = Array.from(
 );
 const migration = readFileSync(
   new URL(
-    "../supabase/migrations/20261115091445_traitbridge_v2_private_beta.sql",
+    "../supabase/migrations/20261115134218_traitbridge_v2_private_beta.sql",
     import.meta.url,
   ),
   "utf8",
@@ -395,7 +395,7 @@ test("database: isolated grants, private visibility, reservations, moderation an
       await db.exec(
         readFileSync(
           new URL(
-            "../supabase/migrations/20261115102753_retire_legacy_community_writes.sql",
+            "../supabase/migrations/20261115134546_retire_legacy_community_writes.sql",
             import.meta.url,
           ),
           "utf8",

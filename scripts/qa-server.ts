@@ -53,7 +53,7 @@ async function start() {
   );
   await db.exec(
     readFileSync(
-      "supabase/migrations/20261115091445_traitbridge_v2_private_beta.sql",
+      "supabase/migrations/20261115134218_traitbridge_v2_private_beta.sql",
       "utf8",
     ),
   );

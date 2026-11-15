@@ -33,7 +33,7 @@ try {
   );
   await control.query(
     await readFile(
-      "supabase/migrations/20261115091445_traitbridge_v2_private_beta.sql",
+      "supabase/migrations/20261115134218_traitbridge_v2_private_beta.sql",
       "utf8",
     ),
   );

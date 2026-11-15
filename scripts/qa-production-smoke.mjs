@@ -45,11 +45,20 @@ try {
     body: JSON.stringify({ action: "snapshot" }),
   });
   assert.equal(response.status, 401);
+  const forged = await fetch(base + "/api/v2", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer invalid-user-token",
+    },
+    body: JSON.stringify({ action: "snapshot" }),
+  });
+  assert.equal(forged.status, 401);
   assert.ok(response.headers.get("cache-control").includes("no-store"));
   assert.equal((await fetch(base + "/manifest.webmanifest")).status, 200);
   assert.equal((await fetch(base + "/icons/icon-192.png")).status, 200);
   console.log(
-    "Production smoke passed: 8 routes, 0 page errors, unauthorised API rejected/no-store, manifest and icon served. External browser requests blocked.",
+    "Production smoke passed: 8 routes, 0 page errors, missing/forged authentication rejected, API no-store, manifest and icon served. External browser requests blocked.",
   );
 } finally {
   await browser.close();
