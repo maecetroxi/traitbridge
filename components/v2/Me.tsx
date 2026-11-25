@@ -12,6 +12,7 @@ import { AccessGate, AvatarEditor } from "./Shared";
 import BlobAvatar from "./BlobAvatar";
 import Icon from "./Icon";
 import { DiscoverList } from "./DiscoverList";
+import { DiscoverPersonalitySetting } from "./DiscoverPersonality";
 
 export default function Me() {
   const { locale } = useLocale();
@@ -251,6 +252,9 @@ export default function Me() {
           )}
         </section>
         <aside className="tb-me-aside">
+          {snapshot.profile && user && (
+            <DiscoverPersonalitySetting owner={user.id} shared={snapshot.profile.discover_personality_shared === true} />
+          )}
           {snapshot.profile && user && (
             <section className="tb-panel tb-saved-posts">
               <h2>

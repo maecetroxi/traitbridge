@@ -62,6 +62,7 @@ const discoverLists = new Set([
 ]);
 const discoverActions = new Set([
   ...discoverLists,
+  "discover_personality",
   "experience_publish",
   "experience_edit",
   "experience_delete",
@@ -83,12 +84,24 @@ function discoverTopic(value: unknown) {
   return topic;
 }
 function validateDiscover(action: string, data: Record<string, unknown>) {
+  if (action === "discover_personality") {
+    if (typeof data.enabled !== "boolean") throw new V2Error("INVALID_INPUT");
+    return { enabled: data.enabled };
+  }
   if (discoverLists.has(action)) {
+    if (
+      action === "discover_feed" &&
+      data.perspective !== undefined &&
+      data.perspective !== "similar" &&
+      data.perspective !== "different"
+    )
+      throw new V2Error("INVALID_INPUT");
     const scope =
       action === "discover_feed"
         ? {
             kind: data.kind === undefined ? undefined : discoverKind(data.kind),
             topic: discoverTopic(data.topic),
+            perspective: data.perspective,
           }
         : {};
     if (data.cursor === undefined) return scope;
@@ -279,7 +292,11 @@ export async function rpc(
 
 async function gateway(
   admin: Admin,
-  name: "tb_v2" | "tb_v2_save_assessment" | "tb_v2_discover",
+  name:
+    | "tb_v2"
+    | "tb_v2_save_assessment"
+    | "tb_v2_discover"
+    | "tb_v2_discover_profile",
   actor: string,
   action: string,
   data: Record<string, unknown>,
@@ -303,6 +320,7 @@ async function gateway(
       "ALREADY_ANSWERED",
       "ALREADY_ONBOARDED",
       "DUPLICATE_POST",
+      "DISCOVER_TEST_REQUIRED",
       "SPAM",
     ];
     const code =
@@ -374,7 +392,11 @@ export async function runAction(
 ) {
   const data = validateAction(action, input);
   if (discoverActions.has(action)) {
-    const result = await gateway(admin, "tb_v2_discover", actor, action, data);
+    const rpcName =
+      discoverLists.has(action) || action === "discover_personality"
+        ? "tb_v2_discover_profile"
+        : "tb_v2_discover";
+    const result = await gateway(admin, rpcName, actor, action, data);
     if (!discoverLists.has(action)) return result;
     const rows = result as DiscoverItem[];
     const items = rows.slice(0, 24);

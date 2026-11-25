@@ -8,11 +8,13 @@ import type {
   DiscoverItem,
   DiscoverKind,
   DiscoverPage,
+  DiscoverPerspective,
   Topic,
 } from "../../lib/v2/types";
 import BlobAvatar from "./BlobAvatar";
 import ExperienceForm from "./ExperienceForm";
 import HelpCard from "./HelpCard";
+import { DiscoverPersonality } from "./DiscoverPersonality";
 
 type Mode = "feed" | "saved" | "own";
 const actions = {
@@ -26,11 +28,15 @@ export function DiscoverList({
   mode,
   kind,
   topic,
+  perspective,
+  showAllPersonalities,
 }: {
   owner: string;
   mode: Mode;
   kind?: DiscoverKind;
   topic?: Topic;
+  perspective?: DiscoverPerspective;
+  showAllPersonalities?: () => void;
 }) {
   const { locale } = useLocale();
   const { refresh } = useBridge();
@@ -40,48 +46,61 @@ export function DiscoverList({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
   const request = useRef<AbortController | null>(null);
+  const pagesLoaded = useRef(1);
 
-  async function load(cursor?: DiscoverCursor) {
+  async function load(cursor?: DiscoverCursor, revalidate = false) {
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
     setError(null);
     setLoading(true);
-    if (!cursor) {
+    if (!cursor && !revalidate) {
       setItems([]);
       setNext(null);
     }
     try {
-      const result = await v2Request<DiscoverPage>(
-        actions[mode],
-        { kind, topic, cursor },
-        controller.signal,
-        owner,
-      );
+      const collected: DiscoverItem[] = [];
+      let after = cursor;
+      let pageCount = 0;
+      const target = revalidate ? pagesLoaded.current : 1;
+      do {
+        const result = await v2Request<DiscoverPage>(
+          actions[mode],
+          { kind, topic, perspective, cursor: after },
+          controller.signal,
+          owner,
+        );
+        collected.push(...result.items);
+        after = result.next ?? undefined;
+        pageCount++;
+      } while (after && pageCount < target && !controller.signal.aborted);
       if (controller.signal.aborted) return;
-      setItems((current) =>
-        cursor ? [...current, ...result.items] : result.items,
-      );
-      setNext(result.next);
+      setItems((current) => (cursor ? [...current, ...collected] : collected));
+      setNext(after ?? null);
+      pagesLoaded.current = cursor
+        ? pagesLoaded.current + pageCount
+        : pageCount;
     } catch (err) {
       if (controller.signal.aborted) return;
       setItems([]);
       setNext(null);
       setError(err);
     } finally {
-      if (!controller.signal.aborted) setLoading(false);
+      if (request.current === controller) {
+        request.current = null;
+        if (!controller.signal.aborted) setLoading(false);
+      }
     }
   }
 
   useEffect(() => {
     void load();
     const recheck = () => {
-      if (document.visibilityState === "visible") void load();
+      if (!request.current && document.visibilityState === "visible")
+        void load(undefined, true);
     };
-    if (mode === "saved")
-      document.addEventListener("visibilitychange", recheck);
-    const timer =
-      mode === "saved" ? window.setInterval(recheck, 60_000) : undefined;
+    document.addEventListener("visibilitychange", recheck);
+    const timer = window.setInterval(recheck, 60_000);
     return () => {
       request.current?.abort();
       window.clearInterval(timer);
@@ -89,7 +108,7 @@ export function DiscoverList({
     };
     // The list mounts for a single owner, mode and filter combination.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [owner, mode, kind, topic]);
+  }, [owner, mode, kind, topic, perspective]);
 
   if (error)
     return (
@@ -160,6 +179,15 @@ export function DiscoverList({
                   ? "Keine Beiträge für diese Auswahl."
                   : "No posts match these filters."}
         </p>
+      )}
+      {!items.length && !loading && perspective && showAllPersonalities && (
+        <button
+          type="button"
+          className="tb-text-button"
+          onClick={showAllPersonalities}
+        >
+          {de ? "Alle Persönlichkeiten anzeigen" : "Show all personalities"}
+        </button>
       )}
       {next && (
         <button
@@ -296,6 +324,9 @@ function DiscoverCard({
       </div>
       {item.title && <h3>{item.title}</h3>}
       <p className="tb-entry-body">{item.body}</p>
+      {item.personality && (
+        <DiscoverPersonality personality={item.personality} />
+      )}
       {!visible && <p className="tb-fine">{de ? "Ausgeblendet" : "Hidden"}</p>}
       <div className="tb-inline tb-entry-actions">
         {item.can_answer && (

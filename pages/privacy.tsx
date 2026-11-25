@@ -21,6 +21,8 @@ const copy = {
             berechtigte Personen sehen eine vermittelte Frage. In Entdecken
             sehen Beta-Mitglieder ausdrücklich freigegebene Fragen und bewusst
             veröffentlichte Erfahrungsbeiträge mit Pseudonym und Avatar.
+            Unter Ich kannst du freiwillig grobe Big-Five-Stufen für diese
+            Beiträge und die Entdecken-Filter freigeben und widerrufen.
             Private Antworten werden dort nie veröffentlicht. Der Fragesteller sieht jede Antwort;
             Antwortende sehen nur ihre eigene Antwort. Moderatoren können
             gemeldete Inhalte prüfen. Keine persönlichen Inhalte werden an
@@ -148,7 +150,9 @@ const copy = {
             the question. There are no scientifically validated compatibility
             percentages. Beta members can see explicitly shared questions and
             published experiences in Discover, together with the author's
-            pseudonym and avatar. Discover never publishes private replies.
+            pseudonym and avatar. In Me, you can share or withdraw broad Big
+            Five bands for those posts and the Discover filters.
+            Discover never publishes private replies.
             The person asking can read every reply; each responder sees
             only their own reply. Authorised moderators can inspect reported
             content. Personal content is never sent to AI services. Pause

@@ -2468,3 +2468,59 @@ textarea {
   text-align: start;
   font-size: 1em;
 }
+
+.tb-discover-personality {
+  max-width: 27rem;
+  margin-block: 0.65rem 0.9rem;
+  border-top: 1px solid var(--tb-line, #d3dacb);
+  padding-top: 0.5rem;
+  font-size: 0.82rem;
+}
+.tb-discover-personality summary {
+  cursor: pointer;
+  min-height: 2rem;
+}
+.tb-discover-personality summary > span:first-of-type {
+  font-weight: 600;
+  margin-inline-end: 0.4rem;
+}
+.tb-trait-chip {
+  display: inline-block;
+  border-radius: 0.5rem;
+  margin: 0.15rem 0.25rem 0.15rem 0;
+  padding: 0.12rem 0.5rem;
+  background: var(--tb-soft, #e6eddf);
+}
+.tb-discover-personality dl {
+  margin: 0.5rem 0 0.3rem;
+}
+.tb-discover-personality dl > div,
+.tb-discover-personality dd {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+.tb-discover-personality dl > div {
+  justify-content: space-between;
+  padding-block: 0.15rem;
+}
+.tb-discover-personality dd {
+  margin: 0;
+  white-space: nowrap;
+}
+.tb-discover-personality dd > span:last-child {
+  min-width: 3.1rem;
+}
+.tb-trait-dots {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+.tb-trait-dots i {
+  width: 0.49rem;
+  height: 0.49rem;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+}
+.tb-trait-dots i[data-active="true"] {
+  background: currentColor;
+}

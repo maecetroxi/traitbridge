@@ -23,9 +23,9 @@ Stand: 25. November 2026. „Umgesetzt“ bezeichnet den Funktionsstand der gesc
 
 - **Umgesetzt:** Fragen sind standardmässig privat. Verfasser können sie bewusst freigeben und die Freigabe zurückziehen. Private Antworten erscheinen nie im Feed. Erfahrungen lassen sich mit optionalem Titel und ausgewähltem oder vorgeschlagenem Thema veröffentlichen, bearbeiten und löschen.
 - **Umgesetzt:** Filter für alle Beiträge, Erfahrungen, Fragen und Themen. Neueste Beiträge zuerst. Karten zeigen Pseudonym, Blob-Avatar, Beitragsart, Thema und Text.
-- **Offen:** Die Perspektivfilter „Ähnliche Persönlichkeiten“ und „Andere Perspektiven“ gezielt ergänzen.
+- **Umgesetzt:** „Alle Persönlichkeiten“, „Ähnlich wie ich“ und „Andere Perspektiven“ lassen sich mit Thema und Beitragsart kombinieren. Die Filter vergleichen grobe Stufen zu den für das Thema relevanten Merkmalen. Die Zuordnung ändert die chronologische Reihenfolge nicht.
 - **Geplant:** „Entdecken“ soll perspektivisch öffentlich lesbar sein. Während der Testphase bleibt der Bereich Teil der geschlossenen Beta. In der ersten Version der Erfahrungsbeiträge gibt es keine öffentlichen Kommentare.
-- **Offen:** Bei freigegebenen Beiträgen höchstens ein bis zwei auffällige Big-Five-Merkmale zeigen, sofern die Person ihre Anzeige freigegeben hat. Auf Wunsch alle fünf Eigenschaften aufklappen. Vereinfachte Ausprägungen statt exakter Testwerte verwenden.
+- **Umgesetzt:** Wer die Anzeige unter „Ich“ freigibt, zeigt auf freigegebenen Beiträgen bis zu zwei deutlich ausgeprägte Merkmale. Aufklappen zeigt alle fünf als tief, mittel oder hoch. Der Kurztest erhält einen Hinweis zur groben Einordnung. Standardmässig bleibt das Profil privat. Ohne Freigabe bleiben Beiträge im allgemeinen Feed und fallen aus den Persönlichkeitsfiltern. Ein Widerruf gilt auch für vorhandene und gemerkte Beiträge.
 - **Umgesetzt:** Freiwilliges „Hat mir geholfen“ für Erfahrungen und „Merken“ für Fragen und Erfahrungen. Beide Aktionen lassen sich zurücknehmen. „Ich“ zeigt die eigene Merkliste. Das bestehende private „Danke“ gilt für Antworten.
 - **Produktgrenzen:** Keine öffentlichen Like-Zahlen, Rankings, wissenschaftlich unbegründeten Kompatibilitätsprozente oder öffentlichen Profilseiten.
 

@@ -1,5 +1,11 @@
 # TraitBridge V2 – Prüfprotokoll
 
+## Schritt 4 · Freiwillige Persönlichkeitsanzeige und Perspektivfilter
+
+- **Automatisiert:** 82 Tests bestanden. Dazu gehören Stufengrenzen, Auswahl der zwei stärksten Merkmale, Kurz- und Langtest, ungültige Ergebnisse, Standard „privat“, Widerruf in Feed und Merkliste sowie Blockierungen und Moderationsgrenzen. Ein Paginierungstest prüft die Wahl älterer passender Beiträge hinter 30 neueren Beiträgen ohne Freigabe. Vergleiche innerhalb derselben groben Stufen ändern die Filterzuordnung nicht.
+- **Lokal im Browser:** Kompakte und aufklappbare Karten, kombinierte Filter, leerer Zustand, Deutsch und Englisch, Smartphone und Desktop. Der Widerruf entfernte die Stufen aus einer geöffneten Merkliste bei deren erneuter Abfrage. Die bisherigen Browserläufe für Entdecken, private Fragen und Antworten sowie Onboarding wurden ebenfalls über lokale Deno Edge Function und flüchtige SQL-Datenbank geprüft. [Ansichten](screenshots/v2/persoenlichkeit/README.md)
+- **Build und Freigabe:** TypeScript, Produktionsbuild, das gepinnte Deno-Paket und der vollständige npm-Audit bestanden. Im Audit wurden 0 bekannte Schwachstellen gemeldet. Die Migration und die neue Edge-Version stehen im gehosteten Projekt noch aus. [Technische Einrichtung](DISCOVER.md)
+
 ## Schritt 3 · Entdecken und Erfahrungsbeiträge
 
 - **Automatisiert:** 75 Tests. Neu abgedeckt sind Rollenrechte, Sichtbarkeit und Filter, Cursor, Besitzeraktionen, private Merkeinträge und Rückmeldungen, Zurückziehen der Freigabe, Meldungen, beidseitige Blockierungen, Sperren, Schreiblimits und Löschkaskaden.

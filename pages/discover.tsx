@@ -14,7 +14,12 @@ import {
   participationPaths,
 } from "../lib/return-path";
 import { topicLabels } from "../lib/v2/copy";
-import { topics, type DiscoverKind, type Topic } from "../lib/v2/types";
+import {
+  topics,
+  type DiscoverKind,
+  type DiscoverPerspective,
+  type Topic,
+} from "../lib/v2/types";
 
 export default function DiscoverPage() {
   const { locale } = useLocale();
@@ -28,6 +33,7 @@ export default function DiscoverPage() {
   const [own, setOwn] = useState(false);
   const [kind, setKind] = useState<DiscoverKind | "">("");
   const [topic, setTopic] = useState<Topic | "">("");
+  const [perspective, setPerspective] = useState<DiscoverPerspective | "">("");
   const [posted, setPosted] = useState(0);
   const close = () =>
     void router.replace("/discover", undefined, { scroll: false });
@@ -64,6 +70,7 @@ export default function DiscoverPage() {
                   setOwn(false);
                   setKind("");
                   setTopic("");
+                  setPerspective("");
                   close();
                 }}
               />
@@ -121,6 +128,30 @@ export default function DiscoverPage() {
                     </select>
                   </div>
                   <div className="tb-label">
+                    <label htmlFor="discover-perspective">
+                      {de ? "Persönlichkeit" : "Personality"}
+                    </label>
+                    <select
+                      id="discover-perspective"
+                      value={perspective}
+                      onChange={(event) =>
+                        setPerspective(
+                          event.target.value as DiscoverPerspective | "",
+                        )
+                      }
+                    >
+                      <option value="">
+                        {de ? "Alle Persönlichkeiten" : "All personalities"}
+                      </option>
+                      <option value="similar">
+                        {de ? "Ähnlich wie ich" : "Similar to me"}
+                      </option>
+                      <option value="different">
+                        {de ? "Andere Perspektiven" : "Different perspectives"}
+                      </option>
+                    </select>
+                  </div>
+                  <div className="tb-label">
                     <label htmlFor="discover-topic">
                       {de ? "Thema" : "Topic"}
                     </label>
@@ -145,11 +176,13 @@ export default function DiscoverPage() {
               )}
             </div>
             <DiscoverList
-              key={`${posted}:${own}:${kind}:${topic}`}
+              key={`${posted}:${own}:${kind}:${topic}:${perspective}`}
               owner={owner}
               mode={own ? "own" : "feed"}
               kind={own ? undefined : kind || undefined}
               topic={own ? undefined : topic || undefined}
+              perspective={own ? undefined : perspective || undefined}
+              showAllPersonalities={() => setPerspective("")}
             />
           </>
         )}

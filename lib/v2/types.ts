@@ -40,6 +40,7 @@ export type Profile = {
   notifications: boolean;
   variant: "short" | "full";
   assessment?: AssessmentMetadata | null;
+  discover_personality_shared?: boolean;
 };
 export type Person = { id: string; pseudonym: string; avatar: AvatarConfig };
 export type Question = {
@@ -62,6 +63,13 @@ export type Answer = {
   thanks: string | null;
 };
 export type DiscoverKind = "question" | "experience";
+export type DiscoverPerspective = "similar" | "different";
+export type DiscoverBand = "low" | "middle" | "high";
+export type DiscoverPersonality = {
+  bands: Record<Trait, DiscoverBand>;
+  highlights: Trait[];
+  short_test: boolean;
+};
 export type DiscoverItem = {
   id: string;
   kind: DiscoverKind;
@@ -74,6 +82,7 @@ export type DiscoverItem = {
   can_answer: boolean;
   bookmarked: boolean;
   helpful: boolean;
+  personality?: DiscoverPersonality | null;
 };
 export type DiscoverCursor = { at: string; id: string; kind: DiscoverKind };
 export type DiscoverPage = { items: DiscoverItem[]; next: DiscoverCursor | null };

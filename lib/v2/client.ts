@@ -49,6 +49,10 @@ export function errorText(error: unknown, locale: "de" | "en") {
       "Diesen Text hast du in den letzten 24 Stunden bereits veröffentlicht.",
       "You shared this text in the last 24 hours.",
     ],
+    DISCOVER_TEST_REQUIRED: [
+      "Für die Freigabe brauchst du ein gültiges Big-Five-Ergebnis.",
+      "You need a valid Big Five result to share your traits.",
+    ],
     SPAM: ["Kürze die Linkliste und prüfe deinen Text.", "Reduce the number of links and check your text."],
     NOT_FOUND: ["Dieser Inhalt ist nicht mehr verfügbar.", "This content is no longer available."],
     FORBIDDEN: ["Für diese Aktion fehlt dir die Berechtigung.", "You don’t have permission for this action."],

@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 
 const base = "http://127.0.0.1:3200";
 const storageKey = "sb-localhost-auth-token";
-const output = "docs/screenshots/v2/registrierung";
+const output = process.env.QA_SCREENSHOT_DIR || "docs/screenshots/v2/registrierung";
 const pass = "Local-QA-1234";
 const codes = new Map();
 const errors = [];

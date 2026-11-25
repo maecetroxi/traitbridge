@@ -4,7 +4,7 @@ import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const base = "http://127.0.0.1:3200";
-const output = "docs/screenshots/v2/entdecken";
+const output = process.env.QA_SCREENSHOT_DIR || "docs/screenshots/v2/entdecken";
 const id = (n) => `10000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const token = (n) =>
   [
