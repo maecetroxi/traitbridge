@@ -12,9 +12,11 @@ import { SafetyActions } from "./Shared";
 export default function HelpCard({
   question,
   onNext,
+  onBlocked,
 }: {
-  question: Question;
+  question: Pick<Question, "id" | "author" | "body" | "topic" | "reason">;
   onNext: () => void;
+  onBlocked?: () => void;
 }) {
   const { locale } = useLocale();
   const { user } = useAuth();
@@ -243,7 +245,7 @@ export default function HelpCard({
           {error}
         </p>
       )}
-      <SafetyActions question={question} />
+      <SafetyActions question={question} onBlocked={onBlocked} />
     </>
   );
 }

@@ -10,7 +10,7 @@ import BlobAvatar from "./BlobAvatar";
 import { useState } from "react";
 import { buildLoginPath, buildOnboardingPath } from "../../lib/return-path";
 
-export function AccessGate({ children }: { children: React.ReactNode }) {
+export function AccessGate({ children, discover = false }: { children: React.ReactNode; discover?: boolean }) {
   const { user, loading: authLoading } = useAuth();
   const { snapshot, loading, error, refresh } = useBridge();
   const { locale } = useLocale();
@@ -27,12 +27,12 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
       <div className="tb-empty">
         <BlobAvatar size={90} />
         <h2>
-          {de
+          {discover ? (de ? "Geschlossene Beta" : "Closed beta") : de
             ? "Hier beginnt dein Austausch."
             : "Your conversations begin here."}
         </h2>
         <p>
-          {de
+          {discover ? (de ? "Melde dich an, um Beiträge zu lesen." : "Sign in to read posts.") : de
             ? "Melde dich an, damit deine Fragen und Antworten privat bei dir ankommen."
             : "Sign in to receive your questions and replies privately."}
         </p>
@@ -46,7 +46,7 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
       <div className="tb-empty">
         <BlobAvatar size={90} />
         <h2>
-          {de ? "Ein kleiner Kreis zum Start." : "A small circle to start."}
+          {discover ? (de ? "Beta-Zugang" : "Beta access") : de ? "Ein kleiner Kreis zum Start." : "A small circle to start."}
         </h2>
         <p role="status">{errorText(error, locale)}</p>
         <button className="tb-button secondary" onClick={() => void refresh()}>
@@ -62,10 +62,10 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
       <div className="tb-empty">
         <BlobAvatar size={90} />
         <h2>
-          {de ? "Lernen wir dich ein wenig kennen." : "Let’s get to know you."}
+          {discover ? (de ? "Einrichtung abschliessen" : "Finish setting up") : de ? "Lernen wir dich ein wenig kennen." : "Let’s get to know you."}
         </h2>
         <p>
-          {de
+          {discover ? (de ? "Richte dein Profil ein, um Entdecken zu nutzen." : "Set up your profile to use Discover.") : de
             ? "Zehn Aussagen, ein kleiner Avatar – und schon kannst du mitmachen."
             : "Ten statements, a little avatar, and you’re ready to join."}
         </p>
@@ -144,10 +144,12 @@ export function SafetyActions({
   question,
   answerId,
   userId,
+  onBlocked,
 }: {
-  question: Question;
+  question: Pick<Question, "id" | "author">;
   answerId?: string;
   userId?: string;
+  onBlocked?: () => void;
 }) {
   const { locale } = useLocale();
   const { refresh } = useBridge();
@@ -176,7 +178,8 @@ export function SafetyActions({
             : "This person has been blocked.",
       );
       setOpen(false);
-      await refresh();
+      if (action === "block" && onBlocked) onBlocked();
+      else await refresh();
     } catch (e) {
       setMessage(errorText(e, locale));
     } finally {

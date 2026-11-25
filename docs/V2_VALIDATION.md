@@ -1,5 +1,12 @@
 # TraitBridge V2 – Prüfprotokoll
 
+## Schritt 3 · Entdecken und Erfahrungsbeiträge
+
+- **Automatisiert:** 75 Tests. Neu abgedeckt sind Rollenrechte, Sichtbarkeit und Filter, Cursor, Besitzeraktionen, private Merkeinträge und Rückmeldungen, Zurückziehen der Freigabe, Meldungen, beidseitige Blockierungen, Sperren, Schreiblimits und Löschkaskaden.
+- **Lokal im Browser:** Qualitätsläufe für Entdecken, die bestehenden privaten Frage-Antwort-Abläufe und Anmeldung mit Onboarding. Next.js lief über das mit Deno gestartete Edge-Paket gegen eine flüchtige SQL-Datenbank. Registrierung, CAPTCHA und Google wurden mit lokalen Testantworten geprüft. Keine echten Konten oder Inhalte. [Ansichten](screenshots/v2/entdecken/README.md)
+- **Build und Audit:** TypeScript, Produktionsbuild, das gepinnte Deno-Paket und der vollständige npm-Audit bestanden. Im Audit wurden 0 bekannte Schwachstellen gemeldet.
+- **Freigabe:** Die neue Migration und die neue Edge-Version wurden im Entwicklungsstand geprüft. Rechte und Verhalten im gehosteten Zielprojekt stehen noch aus. [Technische Einrichtung](DISCOVER.md)
+
 ## Schritt 2 · Registrierung und Onboarding
 
 - **Automatisiert:** 68 Tests bestanden. Geprüft wurden unter anderem die sicheren Rücksprungziele, die Neuberechnung von Kurz- und Langtests, die Herkunft des Ergebnisses und der Zugriff auf die neue SQL-Funktion. TypeScript, Produktionsbuild und Prüfung des gepinnten Deno-Pakets waren erfolgreich. Der vollständige und der auf Produktion beschränkte npm-Audit meldeten 0 bekannte Schwachstellen.

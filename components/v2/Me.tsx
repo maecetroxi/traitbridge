@@ -11,6 +11,7 @@ import { topics, traits, type Profile, type Topic } from "../../lib/v2/types";
 import { AccessGate, AvatarEditor } from "./Shared";
 import BlobAvatar from "./BlobAvatar";
 import Icon from "./Icon";
+import { DiscoverList } from "./DiscoverList";
 
 export default function Me() {
   const { locale } = useLocale();
@@ -23,6 +24,7 @@ export default function Me() {
   const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmation, setConfirmation] = useState("");
+  const [showSaved, setShowSaved] = useState(false);
   useEffect(() => {
     if (snapshot.profile) setDraft(snapshot.profile);
   }, [snapshot.profile]);
@@ -249,6 +251,17 @@ export default function Me() {
           )}
         </section>
         <aside className="tb-me-aside">
+          {snapshot.profile && user && (
+            <section className="tb-panel tb-saved-posts">
+              <h2>
+                <button className="tb-text-button" type="button" aria-expanded={showSaved}
+                  onClick={() => setShowSaved(!showSaved)}>
+                  {de ? "Gemerkte Beiträge" : "Saved posts"}
+                </button>
+              </h2>
+              {showSaved && <DiscoverList owner={user.id} mode="saved" />}
+            </section>
+          )}
           {snapshot.profile && (
             <section className="tb-panel tb-profile-panel">
               <div className="tb-section-line">

@@ -18,9 +18,10 @@ const copy = {
             und freiwillige Themeninteressen und Erfahrungen. Das serverseitige
             Matching nutzt die zum Thema relevanten Dimensionen. Es gibt keine
             wissenschaftlich validierten Kompatibilitätsprozente. Nur
-            berechtigte Personen sehen eine vermittelte Frage. Entdecken
-            erfordert deine ausdrückliche Freigabe; private Antworten werden
-            dort nie veröffentlicht. Der Fragesteller sieht jede Antwort;
+            berechtigte Personen sehen eine vermittelte Frage. In Entdecken
+            sehen Beta-Mitglieder ausdrücklich freigegebene Fragen und bewusst
+            veröffentlichte Erfahrungsbeiträge mit Pseudonym und Avatar.
+            Private Antworten werden dort nie veröffentlicht. Der Fragesteller sieht jede Antwort;
             Antwortende sehen nur ihre eigene Antwort. Moderatoren können
             gemeldete Inhalte prüfen. Keine persönlichen Inhalte werden an
             KI-Dienste gesendet.
@@ -40,8 +41,10 @@ const copy = {
             des Tabs entfernen. Bereits gelesene Inhalte können nicht
             zurückgeholt werden. Meldungen enthalten den gemeldeten Inhalt und
             den angegebenen Grund, Blockierungen die beteiligten Konten.
-            Sicherheitszähler dienen der Begrenzung von Missbrauch. Fragen und
-            Antworten bleiben bis zur Löschung gespeichert. Die Beta versendet
+            Sicherheitszähler dienen der Begrenzung von Missbrauch. Fragen,
+            Antworten und Erfahrungen bleiben bis zur Löschung gespeichert.
+            Merkliste und hilfreiche Rückmeldungen sind kontogebunden und
+            werden anderen Mitgliedern nicht angezeigt. Die Beta versendet
             keine automatischen Antwort-E-Mails und verwendet keine
             Push-Nachrichten.
           </p>
@@ -143,16 +146,19 @@ const copy = {
             personality profile, language and optional interests and
             experiences. Matching runs on the server using traits relevant to
             the question. There are no scientifically validated compatibility
-            percentages. Questions are visible only to authorised people unless
-            you explicitly allow Discover. Discover never publishes private
-            replies. The person asking can read every reply; each responder sees
+            percentages. Beta members can see explicitly shared questions and
+            published experiences in Discover, together with the author's
+            pseudonym and avatar. Discover never publishes private replies.
+            The person asking can read every reply; each responder sees
             only their own reply. Authorised moderators can inspect reported
             content. Personal content is never sent to AI services. Pause
             matching, disable in-app notifications or delete your account and
             content in Me. Delete your own questions and replies in Messages.
             Drafts stay in this browser tab’s session storage. Reports, blocks
-            and abuse counters support safety. Questions and replies remain
-            until deleted. No reply emails or push notifications are sent during
+            and abuse counters support safety. Questions, replies and
+            experiences remain until deleted. Saved posts and helpful
+            reactions are tied to your account and hidden from other members.
+            No reply emails or push notifications are sent during
             this beta.
           </p>
         ),

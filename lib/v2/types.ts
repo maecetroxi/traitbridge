@@ -61,6 +61,22 @@ export type Answer = {
   created_at: string;
   thanks: string | null;
 };
+export type DiscoverKind = "question" | "experience";
+export type DiscoverItem = {
+  id: string;
+  kind: DiscoverKind;
+  author: Person;
+  title: string | null;
+  body: string;
+  topic: Topic;
+  status: "open" | "closed" | "visible" | "hidden";
+  created_at: string;
+  can_answer: boolean;
+  bookmarked: boolean;
+  helpful: boolean;
+};
+export type DiscoverCursor = { at: string; id: string; kind: DiscoverKind };
+export type DiscoverPage = { items: DiscoverItem[]; next: DiscoverCursor | null };
 export type Notice = {
   id: string;
   question_id: string | null;

@@ -6,12 +6,12 @@ Stand: 25. November 2026. „Umgesetzt“ bezeichnet den Funktionsstand der gesc
 
 - **Umgesetzt:** Persönliche Fragen stellen und bis zu drei Antworten von echten Menschen erhalten. Passende Fragen anderer Nutzer beantworten oder überspringen. Das Matching berücksichtigt die für das Thema relevanten Big-Five-Eigenschaften sowie Interessen und Erfahrungen.
 - **Umgesetzt:** Persönlicher Nachrichteneingang für eigene Fragen, Antworten und Benachrichtigungen. Big-Five-Test, persönliche Ergebnisse und Lerninhalte bleiben Teil der App.
-- **Teilweise umgesetzt:** In „Entdecken“ können Beta-Mitglieder ausdrücklich freigegebene Fragen lesen. Eigene hilfreiche Erkenntnisse und Erfahrungen sollen künftig als eigenständige Beiträge veröffentlicht und dort gelesen werden können.
+- **Umgesetzt:** In „Entdecken“ lesen Beta-Mitglieder ausdrücklich freigegebene Fragen und veröffentlichen eigenständige Erfahrungen, Erkenntnisse und Tipps als Text.
 
 ## Startseite und Navigation
 
 - **Umgesetzt:** „Frage stellen“ und „Jemandem helfen“ stehen direkt auf der Startseite. Es gibt keine vorgeschaltete Auswahl eines Nutzungsmodus.
-- **Offen:** Die Hauptnavigation soll **Start | Entdecken | Nachrichten | Ich** lauten. Derzeit ist „Entdecken“ ein Reiter auf Start. „Start“, „Nachrichten“ und „Ich“ stehen bereits in der Hauptnavigation.
+- **Umgesetzt:** „Entdecken“ ist eine eigenständige Seite, erreichbar über die Startseite. **Offen:** Die Hauptnavigation soll später **Start | Entdecken | Nachrichten | Ich** lauten.
 
 ## Registrierung
 
@@ -21,11 +21,12 @@ Stand: 25. November 2026. „Umgesetzt“ bezeichnet den Funktionsstand der gesc
 
 ## Entdecken
 
-- **Umgesetzt:** Fragen sind standardmässig privat. Verfasser können ihre Frage bewusst für „Entdecken“ freigeben. Der Themenfilter ist vorhanden. Private Antworten werden nicht automatisch veröffentlicht.
-- **Offen:** Eigenständige Erfahrungsbeiträge erstellen und lesen. Für den Feed zusätzlich die Auswahl „Ähnliche Persönlichkeiten“, „Andere Perspektiven“ und „Alle Beiträge“ anbieten.
+- **Umgesetzt:** Fragen sind standardmässig privat. Verfasser können sie bewusst freigeben und die Freigabe zurückziehen. Private Antworten erscheinen nie im Feed. Erfahrungen lassen sich mit optionalem Titel und ausgewähltem oder vorgeschlagenem Thema veröffentlichen, bearbeiten und löschen.
+- **Umgesetzt:** Filter für alle Beiträge, Erfahrungen, Fragen und Themen. Neueste Beiträge zuerst. Karten zeigen Pseudonym, Blob-Avatar, Beitragsart, Thema und Text.
+- **Offen:** Die Perspektivfilter „Ähnliche Persönlichkeiten“ und „Andere Perspektiven“ gezielt ergänzen.
 - **Geplant:** „Entdecken“ soll perspektivisch öffentlich lesbar sein. Während der Testphase bleibt der Bereich Teil der geschlossenen Beta. In der ersten Version der Erfahrungsbeiträge gibt es keine öffentlichen Kommentare.
 - **Offen:** Bei freigegebenen Beiträgen höchstens ein bis zwei auffällige Big-Five-Merkmale zeigen, sofern die Person ihre Anzeige freigegeben hat. Auf Wunsch alle fünf Eigenschaften aufklappen. Vereinfachte Ausprägungen statt exakter Testwerte verwenden.
-- **Offen:** Freiwillige Aktionen „Hat mir geholfen“ und „Merken“ für Beiträge. Gemerkte Beiträge sollen später unter „Ich“ erscheinen. Das bestehende private „Danke“ gilt für Antworten.
+- **Umgesetzt:** Freiwilliges „Hat mir geholfen“ für Erfahrungen und „Merken“ für Fragen und Erfahrungen. Beide Aktionen lassen sich zurücknehmen. „Ich“ zeigt die eigene Merkliste. Das bestehende private „Danke“ gilt für Antworten.
 - **Produktgrenzen:** Keine öffentlichen Like-Zahlen, Rankings, wissenschaftlich unbegründeten Kompatibilitätsprozente oder öffentlichen Profilseiten.
 
 ## Benachrichtigungen
@@ -36,7 +37,7 @@ Stand: 25. November 2026. „Umgesetzt“ bezeichnet den Funktionsstand der gesc
 ## Moderation
 
 - **Umgesetzt:** Fragen und Antworten melden, Nutzer blockieren, Inhalte ausblenden und Konten für die Beta sperren. Die Moderationsübersicht ist nur für freigeschaltete Moderationskonten zugänglich. Schreiblimits und Schutz vor doppelten Fragen bieten grundlegenden Spamschutz.
-- **Offen:** Beim Ausbau von „Entdecken“ dieselben Schutzmassnahmen auf eigenständige Erfahrungsbeiträge anwenden. Die Moderation blendet Inhalte derzeit aus. Eine endgültige Entfernung ist keine Aktion der Moderationsübersicht.
+- **Umgesetzt:** Erfahrungen melden, Personen blockieren und Inhalte über dieselbe Moderationsübersicht ausblenden. Feed und Merkliste berücksichtigen Sperren. Veröffentlichungslimits und Schutz vor wiederholtem Text gelten auch nach Löschung. Meldungen können durch Moderatoren geprüft werden.
 - **Produktentscheidung:** Menschliche Moderation mit einfachen Regeln genügt. Komplexe KI-Moderation ist nicht vorgesehen.
 
 ## Texte und Gestaltung

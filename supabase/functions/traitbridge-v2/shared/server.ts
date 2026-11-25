@@ -17,6 +17,8 @@ import {
   topics,
   type AssessmentMetadata,
   type AssessmentVariant,
+  type DiscoverItem,
+  type DiscoverPage,
 } from "./types.ts";
 
 export class V2Error extends Error {
@@ -53,6 +55,87 @@ function topicArray(value: unknown) {
     throw new V2Error("INVALID_INPUT");
   return [...new Set(value)];
 }
+const discoverLists = new Set([
+  "discover_feed",
+  "discover_saved",
+  "discover_own",
+]);
+const discoverActions = new Set([
+  ...discoverLists,
+  "experience_publish",
+  "experience_edit",
+  "experience_delete",
+  "discover_bookmark",
+  "experience_helpful",
+  "experience_report",
+  "discover_block",
+  "discover_unshare",
+]);
+function discoverKind(value: unknown) {
+  if (value !== "question" && value !== "experience")
+    throw new V2Error("INVALID_INPUT");
+  return value;
+}
+function discoverTopic(value: unknown) {
+  if (value === undefined || value === "") return undefined;
+  const topic = topics.find((candidate) => candidate === value);
+  if (!topic) throw new V2Error("INVALID_INPUT");
+  return topic;
+}
+function validateDiscover(action: string, data: Record<string, unknown>) {
+  if (discoverLists.has(action)) {
+    const scope =
+      action === "discover_feed"
+        ? {
+            kind: data.kind === undefined ? undefined : discoverKind(data.kind),
+            topic: discoverTopic(data.topic),
+          }
+        : {};
+    if (data.cursor === undefined) return scope;
+    if (
+      !data.cursor ||
+      typeof data.cursor !== "object" ||
+      Array.isArray(data.cursor)
+    )
+      throw new V2Error("INVALID_INPUT");
+    const { at, id, kind } = data.cursor as Record<string, unknown>;
+    if (
+      typeof at !== "string" ||
+      at.length > 40 ||
+      !/^\d{4}-\d{2}-\d{2}T/.test(at) ||
+      !Number.isFinite(Date.parse(at))
+    )
+      throw new V2Error("INVALID_INPUT");
+    return {
+      ...scope,
+      before_at: at,
+      before_id: uuid(id),
+      before_kind: discoverKind(kind),
+    };
+  }
+  if (action === "experience_publish" || action === "experience_edit") {
+    const body = text(data.body, 20, 4000);
+    const heading = data.title === undefined ? "" : text(data.title, 0, 100);
+    if (((heading + " " + body).match(/https?:\/\//gi) || []).length > 2)
+      throw new V2Error("SPAM");
+    return {
+      ...(action === "experience_edit" ? { id: uuid(data.id) } : {}),
+      title: heading || null,
+      body,
+      topic: discoverTopic(data.topic) ?? classifyTopic(body),
+    };
+  }
+  const id = uuid(data.id);
+  if (action === "experience_delete" || action === "discover_unshare")
+    return { id };
+  if (action === "experience_report")
+    return { id, kind: "experience", reason: text(data.reason, 3, 1000) };
+  const kind =
+    action === "experience_helpful" ? "experience" : discoverKind(data.kind);
+  if (action === "discover_block") return { id, kind };
+  if (typeof data.enabled !== "boolean") throw new V2Error("INVALID_INPUT");
+  return { id, kind, enabled: data.enabled };
+}
 export function validateProfile(data: Record<string, unknown>) {
   if (
     !validAvatar(data.avatar) ||
@@ -71,6 +154,7 @@ export function validateAction(
   action: string,
   data: Record<string, unknown>,
 ): Record<string, unknown> {
+  if (discoverActions.has(action)) return validateDiscover(action, data);
   if (
     [
       "snapshot",
@@ -168,6 +252,8 @@ export function validateAction(
   if (action === "moderate") {
     if (!["hide", "ban", "dismiss"].includes(String(data.decision)))
       throw new V2Error("INVALID_INPUT");
+    if (data.kind !== undefined && data.kind !== "experience")
+      throw new V2Error("INVALID_INPUT");
     return { report_id: uuid(data.report_id), decision: data.decision };
   }
   throw new V2Error("UNKNOWN_ACTION");
@@ -193,7 +279,7 @@ export async function rpc(
 
 async function gateway(
   admin: Admin,
-  name: "tb_v2" | "tb_v2_save_assessment",
+  name: "tb_v2" | "tb_v2_save_assessment" | "tb_v2_discover",
   actor: string,
   action: string,
   data: Record<string, unknown>,
@@ -216,6 +302,8 @@ async function gateway(
       "NOT_AVAILABLE",
       "ALREADY_ANSWERED",
       "ALREADY_ONBOARDED",
+      "DUPLICATE_POST",
+      "SPAM",
     ];
     const code =
       codes.find((c) => result.error.message.includes(c)) || "SAVE_FAILED";
@@ -285,6 +373,40 @@ export async function runAction(
   input: Record<string, unknown>,
 ) {
   const data = validateAction(action, input);
+  if (discoverActions.has(action)) {
+    const result = await gateway(admin, "tb_v2_discover", actor, action, data);
+    if (!discoverLists.has(action)) return result;
+    const rows = result as DiscoverItem[];
+    const items = rows.slice(0, 24);
+    const last = items.at(-1);
+    return {
+      items,
+      next:
+        rows.length > items.length && last
+          ? { at: last.created_at, id: last.id, kind: last.kind }
+          : null,
+    } satisfies DiscoverPage;
+  }
+  if (action === "moderation") {
+    const reports = (await rpc(admin, actor, action)) as {
+      created_at: string;
+    }[];
+    const experiences = (await gateway(
+      admin,
+      "tb_v2_discover",
+      actor,
+      "experience_moderation",
+      {},
+    )) as { created_at: string }[];
+    return [...reports, ...experiences].sort(
+      (a, b) => Date.parse(a.created_at) - Date.parse(b.created_at),
+    );
+  }
+  if (action === "moderate" && input.kind === "experience")
+    return gateway(admin, "tb_v2_discover", actor, "experience_moderate", {
+      id: data.report_id,
+      decision: data.decision,
+    });
   if (action === "help") {
     const pool = (await rpc(admin, actor, "candidates")) as {
       reader: MatchReader;

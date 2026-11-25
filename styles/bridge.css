@@ -2395,3 +2395,76 @@ textarea {
     animation: none !important;
   }
 }
+
+.tb-discover-page {
+  width: min(100%, 860px);
+  margin-inline: auto;
+}
+.tb-discover-page .tb-page-heading {
+  margin-bottom: 1.25rem;
+}
+.tb-experience-form,
+.tb-discover-controls {
+  margin-block: 0 1.25rem;
+}
+.tb-experience-form h2 {
+  margin-top: 0;
+}
+.tb-experience-form textarea,
+.tb-entry-report textarea {
+  width: 100%;
+}
+.tb-discover-controls {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+.tb-discover-views,
+.tb-discover-filters {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.tb-discover-filters .tb-label {
+  margin: 0;
+}
+.tb-entry-list {
+  display: grid;
+  gap: 0.8rem;
+  margin-bottom: 0.85rem;
+}
+.tb-entry {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.tb-entry h3 {
+  margin: 0.8rem 0 0;
+}
+.tb-entry-body {
+  white-space: pre-wrap;
+}
+.tb-entry-actions {
+  align-items: center;
+}
+.tb-entry-report {
+  margin-top: 0.75rem;
+}
+.tb-entry-actions [aria-pressed="true"],
+.tb-discover-views [aria-pressed="true"] {
+  background: var(--tb-soft, #e1e9df);
+  border-color: currentColor;
+}
+.tb-saved-posts .tb-entry {
+  padding: 0.85rem;
+  box-shadow: none;
+}
+.tb-saved-posts h2 {
+  margin: 0 0 0.55rem;
+}
+.tb-saved-posts h2 button {
+  text-align: start;
+  font-size: 1em;
+}

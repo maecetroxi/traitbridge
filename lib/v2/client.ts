@@ -45,6 +45,13 @@ export function errorText(error: unknown, locale: "de" | "en") {
       "Für heute war das viel. Bitte versuche es später erneut.",
       "Please take a break and try again later.",
     ],
+    DUPLICATE_POST: [
+      "Diesen Text hast du in den letzten 24 Stunden bereits veröffentlicht.",
+      "You shared this text in the last 24 hours.",
+    ],
+    SPAM: ["Kürze die Linkliste und prüfe deinen Text.", "Reduce the number of links and check your text."],
+    NOT_FOUND: ["Dieser Inhalt ist nicht mehr verfügbar.", "This content is no longer available."],
+    FORBIDDEN: ["Für diese Aktion fehlt dir die Berechtigung.", "You don’t have permission for this action."],
     NO_SLOT: [
       "Für diese Frage sind gerade alle Antwortplätze belegt. Dein Entwurf bleibt erhalten.",
       "All reply slots are occupied. Your draft is kept.",

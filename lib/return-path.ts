@@ -20,6 +20,7 @@ export const buildLoginPath = (returnTo: string, mode: LoginMode = "signin") =>
 export const participationPaths = {
   ask: "/?action=ask",
   help: "/?action=help",
+  publish: "/discover?write=1",
 } as const;
 export const buildOnboardingPath = (returnTo: string) =>
   `/onboarding?returnTo=${encodeURIComponent(sanitizeReturnPath(returnTo))}`;
@@ -43,7 +44,7 @@ export function afterSignIn(
   betaReady: boolean,
 ) {
   const path = sanitizeReturnPath(returnTo);
-  if (path !== participationPaths.ask && path !== participationPaths.help)
+  if (!Object.values(participationPaths).some((intent) => intent === path))
     return path;
   return hasProfile && betaReady ? path : buildOnboardingPath(path);
 }

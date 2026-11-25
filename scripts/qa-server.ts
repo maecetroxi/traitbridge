@@ -44,7 +44,7 @@ const call = async (
   id: string,
   action: string,
   data: Record<string, unknown> = {},
-  gateway: "tb_v2" | "tb_v2_save_assessment" = "tb_v2",
+  gateway: "tb_v2" | "tb_v2_save_assessment" | "tb_v2_discover" = "tb_v2",
 ) =>
   (
     await db.query<{ value: unknown }>(
@@ -63,6 +63,7 @@ async function start() {
     ),
   );
   await db.exec(readFileSync("supabase/migrations/20261125100010_v2_assessment_onboarding.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20261125104611_v2_discover_experiences.sql", "utf8"));
   for (const user of users) {
     await db.query("insert into auth.users(id) values($1)", [user.id]);
     if (user.id === qaIds[4]) continue;
@@ -159,12 +160,13 @@ async function start() {
         res.end(JSON.stringify({ message: "Server-only QA gateway" }));
         return;
       }
-      if (url.pathname === "/rest/v1/rpc/tb_v2" || url.pathname === "/rest/v1/rpc/tb_v2_save_assessment") {
+      const gateway = (["tb_v2", "tb_v2_save_assessment", "tb_v2_discover"] as const)
+        .find((name) => url.pathname === `/rest/v1/rpc/${name}`);
+      if (gateway) {
         let raw = "";
         for await (const chunk of req) raw += chunk;
         const body = JSON.parse(raw);
-        const result = await call(body.p_actor, body.p_action, body.p_data,
-          url.pathname.endsWith("_save_assessment") ? "tb_v2_save_assessment" : "tb_v2");
+        const result = await call(body.p_actor, body.p_action, body.p_data, gateway);
         res.end(JSON.stringify(result));
         return;
       }

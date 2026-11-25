@@ -3,7 +3,14 @@ import Head from "next/head";
 import { AccessGate } from "../components/v2/Shared";
 import { useLocale } from "../contexts/LocaleContext";
 import { errorText, v2Request } from "../lib/v2/client";
-type Report = { id: string; body: string; reason: string; created_at: string };
+type Report = {
+  id: string;
+  body: string;
+  reason: string;
+  created_at: string;
+  kind?: "experience";
+  title?: string | null;
+};
 export default function Moderation() {
   const { locale } = useLocale();
   const de = locale === "de";
@@ -15,16 +22,21 @@ export default function Moderation() {
       setReports(await v2Request<Report[]>("moderation"));
       setError("");
     } catch (e) {
+      setReports([]);
       setError(errorText(e, locale));
     }
   };
   useEffect(() => {
     void load();
   }, []);
-  const decide = async (id: string, decision: string) => {
+  const decide = async (report: Report, decision: string) => {
     setBusy(true);
     try {
-      await v2Request("moderate", { report_id: id, decision });
+      await v2Request("moderate", {
+        report_id: report.id,
+        kind: report.kind,
+        decision,
+      });
       await load();
     } catch (e) {
       setError(errorText(e, locale));
@@ -50,9 +62,18 @@ export default function Moderation() {
           </p>
         )}
         {reports.map((r) => (
-          <article className="tb-panel" key={r.id}>
-            <h2>{de ? "Gemeldeter Inhalt" : "Reported content"}</h2>
-            <p>{r.body}</p>
+          <article className="tb-panel tb-entry" key={r.kind + r.id}>
+            <h2>
+              {r.kind === "experience"
+                ? de
+                  ? "Gemeldete Erfahrung"
+                  : "Reported experience"
+                : de
+                  ? "Gemeldeter Inhalt"
+                  : "Reported content"}
+            </h2>
+            {r.title && <h3>{r.title}</h3>}
+            <p className="tb-entry-body">{r.body}</p>
             <p>
               <strong>{de ? "Grund: " : "Reason: "}</strong>
               {r.reason}
@@ -72,7 +93,7 @@ export default function Moderation() {
                           : "Ban this account from the beta?",
                       )
                     )
-                      void decide(r.id, d);
+                      void decide(r, d);
                   }}
                 >
                   {

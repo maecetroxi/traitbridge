@@ -11,7 +11,7 @@ const copy = {
     sections: [
       {
         title: "V2: persönlich und freiwillig, ab 18",
-        text: "V2 startet als geschlossene Beta für Erwachsene. Eine Frage sehen nur berechtigte vermittelte Personen, bis du ausdrücklich Entdecken erlaubst. Entdecken zeigt in der Beta nur die Frage, niemals die privaten Antworten. Dein Pseudonym und Avatar sind für diese Personen sichtbar, deine genauen Persönlichkeitswerte nicht. Veröffentliche keine Namen, E-Mail-Adressen oder andere identifizierenden Angaben.",
+        text: "Entdecken ist Teil der geschlossenen Beta für Erwachsene. Freigeschaltete Mitglieder sehen freigegebene Fragen und bewusst veröffentlichte Erfahrungen mit Pseudonym und Avatar. Private Antworten und genaue Persönlichkeitswerte bleiben privat. Veröffentliche keine Namen, E-Mail-Adressen oder andere identifizierende Angaben.",
       },
       {
         title: "Respektvoll beitragen",
@@ -19,11 +19,11 @@ const copy = {
       },
       {
         title: "Moderation und Meldungen",
-        text: "Nutze Melden / blockieren an einer V2-Frage oder Antwort. Meldungen werden gespeichert und können durch freigeschaltete Moderationspersonen geprüft werden. Blockierungen verhindern weitere Vermittlung und den gegenseitigen Zugriff in V2. Inhalte können gesperrt und Beta-Konten deaktiviert werden. Die Moderation ist nicht rund um die Uhr besetzt. Weitere Anliegen kannst du mit Link und Grund an privacy@traitbridge.com melden.",
+        text: "Nutze Melden / blockieren an einer Frage, Antwort oder Erfahrung. Meldungen werden gespeichert und können durch freigeschaltete Moderationspersonen geprüft werden. Blockierungen verhindern weitere Vermittlung und den gegenseitigen Zugriff in V2. Inhalte können gesperrt und Beta-Konten deaktiviert werden. Die Moderation ist nicht rund um die Uhr besetzt. Weitere Anliegen kannst du mit Link und Grund an privacy@traitbridge.com melden.",
       },
       {
         title: "Eigene Inhalte und Daten",
-        text: "Eigene V2-Fragen und Antworten lassen sich unter Nachrichten löschen. Unter Ich kannst du die Vermittlung pausieren und dein Konto mit Inhalten und Ergebnissen löschen. Für weitere Anfragen nutze privacy@traitbridge.com. Bei akuter Gefahr wende dich an den örtlichen Notruf oder unmittelbare Hilfe vor Ort. TraitBridge ist kein medizinischer oder therapeutischer Dienst; warte in Krisen nicht auf eine Antwort.",
+        text: "Eigene V2-Fragen und Antworten lassen sich unter Nachrichten löschen. Eigene Erfahrungsbeiträge verwaltest du unter Entdecken › Meine Erfahrungen. Unter Ich kannst du die Vermittlung pausieren und dein Konto mit Inhalten und Ergebnissen löschen. Für weitere Anfragen nutze privacy@traitbridge.com. Bei akuter Gefahr wende dich an den örtlichen Notruf oder unmittelbare Hilfe vor Ort. TraitBridge ist kein medizinischer oder therapeutischer Dienst; warte in Krisen nicht auf eine Antwort.",
       },
     ],
   },
@@ -36,7 +36,7 @@ const copy = {
     sections: [
       {
         title: "V2: personal, voluntary, adults only",
-        text: "V2 starts as an invite-only beta for adults 18+. Only authorised matched people can see a question unless you explicitly allow Discover. During the beta, Discover shows questions, never private replies. These people see your pseudonym and avatar, not your exact personality scores. Do not share identifying details.",
+        text: "Discover is part of the invite-only beta for adults 18+. Approved members can see shared questions and experiences you publish, with your pseudonym and avatar. Private replies and exact personality scores stay private. Do not share identifying details.",
       },
       {
         title: "Contribute respectfully",
@@ -44,11 +44,11 @@ const copy = {
       },
       {
         title: "Moderation and reports",
-        text: "Use Report / block on a V2 question or reply. Reports are saved for authorised moderators. Blocking prevents further matching and mutual V2 access. Moderators can hide content or disable beta accounts. Moderation is not staffed around the clock. Report other concerns to privacy@traitbridge.com with a link and reason.",
+        text: "Use Report / block on a question, reply or experience. Reports are saved for authorised moderators. Blocking prevents further matching and mutual V2 access. Moderators can hide content or disable beta accounts. Moderation is not staffed around the clock. Report other concerns to privacy@traitbridge.com with a link and reason.",
       },
       {
         title: "Your content and data",
-        text: "Delete your V2 questions and replies in Messages. Pause matching or delete your account with content and results in Me. Contact privacy@traitbridge.com for further requests. In immediate danger, contact your local emergency service or immediate help nearby. TraitBridge is not a medical or therapeutic service; do not wait for a community reply during a crisis.",
+        text: "Delete your V2 questions and replies in Messages. Manage your own posts in Discover › My experiences. Pause matching or delete your account with content and results in Me. Contact privacy@traitbridge.com for further requests. In immediate danger, contact your local emergency service or immediate help nearby. TraitBridge is not a medical or therapeutic service; do not wait for a community reply during a crisis.",
       },
     ],
   },

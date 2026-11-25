@@ -36,11 +36,8 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
-  const [view, setView] = useState<"help" | "discover">("help");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<Topic | "">("");
-  const [selected, setSelected] = useState<Question | null>(null);
   const [feedError, setFeedError] = useState("");
   const [feedVersion, setFeedVersion] = useState(0);
   const owner = user && !user.is_anonymous ? user.id : null;
@@ -57,9 +54,8 @@ export default function Home() {
     } catch {}
   }, [draftKey]);
   useEffect(() => {
-    if (router.query.action === "help") setView("help");
-    else if (router.query.view === "discover") setView("discover");
-  }, [router.query.action, router.query.view]);
+    if (router.query.view === "discover") void router.replace("/discover");
+  }, [router.query.view, router]);
   useEffect(() => {
     if (!ready) return;
     if (router.query.action === "ask") {
@@ -71,19 +67,13 @@ export default function Home() {
   useEffect(() => {
     if (!ready || !owner) {
       setQuestions([]);
-      setSelected(null);
       setLoading(false);
       return;
     }
     let active = true;
     setLoading(true);
     setFeedError("");
-    void v2Request<Question[]>(
-      view === "help" ? "help" : "discover",
-      {},
-      undefined,
-      owner,
-    )
+    void v2Request<Question[]>("help", {}, undefined, owner)
       .then((data) => {
         if (active) setQuestions(data);
       })
@@ -97,7 +87,6 @@ export default function Home() {
       active = false;
     };
   }, [
-    view,
     snapshot.profile?.id,
     snapshot.profile?.available,
     feedVersion,
@@ -136,10 +125,8 @@ export default function Home() {
     }
   };
   const next = () => {
-    setSelected(null);
     setFeedVersion((n) => n + 1);
   };
-  const shown = questions.filter((q) => !filter || q.topic === filter);
   return (
     <div className="tb-home">
       <Head>
@@ -389,34 +376,10 @@ export default function Home() {
               ? "Du musst keine perfekte Antwort haben. Manchmal hilft schon ein „Bei mir war das so …“"
               : "You don’t need the perfect answer. Sometimes “Here’s how it was for me …” is enough."}
           </p>
-          <div
-            className="tb-tabs"
-            role="group"
-            aria-label={de ? "Fragenansicht" : "Question view"}
-          >
-            <button
-              className={view === "help" ? "active" : ""}
-              onClick={() => {
-                setView("help");
-                setSelected(null);
-              }}
-              aria-pressed={view === "help"}
-            >
-              {de ? "Helfen" : "Help"}
-              <Icon name="heart" size={15} />
-            </button>
-            <button
-              className={view === "discover" ? "active" : ""}
-              onClick={() => {
-                setView("discover");
-                setSelected(null);
-              }}
-              aria-pressed={view === "discover"}
-            >
-              {de ? "Entdecken" : "Discover"}
-              <Icon name="leaf" size={15} />
-            </button>
-          </div>
+          <Link href="/discover" className="tb-button secondary small">
+            {de ? "Entdecken" : "Discover"}
+            <Icon name="leaf" size={15} />
+          </Link>
           {snapshot.profile ? (
             <div className="tb-help-content">
               {loading ? (
@@ -427,11 +390,9 @@ export default function Home() {
                 </p>
               ) : feedError ? (
                 <p role="alert">{feedError}</p>
-              ) : selected ? (
-                <HelpCard key={selected.id} question={selected} onNext={next} />
-              ) : view === "help" && shown[0] ? (
-                <HelpCard key={shown[0].id} question={shown[0]} onNext={next} />
-              ) : view === "help" ? (
+              ) : questions[0] ? (
+                <HelpCard key={questions[0].id} question={questions[0]} onNext={next} />
+              ) : (
                 <div className="tb-empty compact">
                   <BlobAvatar size={100} />
                   <h3>
@@ -452,49 +413,6 @@ export default function Home() {
                     {de ? "Erneut nachsehen" : "Check again"}
                   </button>
                 </div>
-              ) : (
-                <>
-                  <label className="tb-filter-label">
-                    {de ? "Thema" : "Topic"}
-                    <select
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value as Topic | "")}
-                    >
-                      <option value="">
-                        {de ? "Alle Themen" : "All topics"}
-                      </option>
-                      {topics.map((t) => (
-                        <option key={t} value={t}>
-                          {topicLabels[locale][t]}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <div className="tb-discover-grid">
-                    {shown.map((q) => (
-                      <button
-                        className="tb-discover-card"
-                        key={q.id}
-                        onClick={() => setSelected(q)}
-                      >
-                        <span>{topicLabels[locale][q.topic]}</span>
-                        <h3>{q.body}</h3>
-                        <span className="tb-discover-person">
-                          <BlobAvatar config={q.author.avatar} size={35} />
-                          {q.author.pseudonym}
-                          <Icon name="arrow" size={17} />
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  {!shown.length && (
-                    <p>
-                      {de
-                        ? "Noch keine freigegebenen Fragen zu diesem Thema. Private Fragen bleiben privat."
-                        : "No shared questions in this topic yet. Private questions stay private."}
-                    </p>
-                  )}
-                </>
               )}
             </div>
           ) : (

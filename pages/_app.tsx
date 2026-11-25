@@ -22,6 +22,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     "/results",
     "/test/full",
     "/messages",
+    "/discover",
     "/me",
     "/onboarding",
     "/moderation",

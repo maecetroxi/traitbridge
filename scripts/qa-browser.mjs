@@ -245,10 +245,10 @@ try {
   await screenshot(first.page, "start", 1440);
   await screenshot(first.page, "start", 390);
   await first.page
-    .getByRole("button", { name: "Entdecken", exact: true })
+    .getByRole("link", { name: "Entdecken", exact: true })
     .click();
   await first.page
-    .getByRole("button", { name: /In einer neuen Gruppe/ })
+    .getByText(/In einer neuen Gruppe/)
     .waitFor();
   await screenshot(first.page, "entdecken", 1440);
   await screenshot(first.page, "entdecken", 390);
