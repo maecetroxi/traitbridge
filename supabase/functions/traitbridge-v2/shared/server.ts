@@ -175,6 +175,8 @@ export function validateAction(
       "discover",
       "read",
       "moderation",
+      "moderation_status",
+      "moderation_dashboard",
       "assessment_candidate",
       "sync_full",
       "delete_account_prepare",
@@ -263,12 +265,32 @@ export function validateAction(
   if (["block", "unblock"].includes(action))
     return { user_id: uuid(data.user_id) };
   if (action === "moderate") {
-    if (!["hide", "ban", "dismiss"].includes(String(data.decision)))
+    if (
+      typeof data.decision !== "string" ||
+      !["hide", "ban", "dismiss"].includes(data.decision)
+    )
       throw new V2Error("INVALID_INPUT");
-    if (data.kind !== undefined && data.kind !== "experience")
+    if (
+      data.kind !== undefined &&
+      (typeof data.kind !== "string" ||
+        !["question", "answer", "experience"].includes(data.kind))
+    )
       throw new V2Error("INVALID_INPUT");
-    return { report_id: uuid(data.report_id), decision: data.decision };
+    return {
+      id: uuid(data.report_id),
+      kind: data.kind,
+      decision: data.decision,
+    };
   }
+  if (action === "moderation_restore") {
+    if (
+      typeof data.kind !== "string" ||
+      !["question", "answer", "experience"].includes(data.kind)
+    )
+      throw new V2Error("INVALID_INPUT");
+    return { id: uuid(data.id), kind: data.kind };
+  }
+  if (action === "moderation_unsuspend") return { id: uuid(data.id) };
   throw new V2Error("UNKNOWN_ACTION");
 }
 export function createAdmin(url: string, key: string) {
@@ -296,7 +318,8 @@ async function gateway(
     | "tb_v2"
     | "tb_v2_save_assessment"
     | "tb_v2_discover"
-    | "tb_v2_discover_profile",
+    | "tb_v2_discover_profile"
+    | "tb_v2_moderation_workflow",
   actor: string,
   action: string,
   data: Record<string, unknown>,
@@ -338,6 +361,15 @@ async function gateway(
   }
   return result.data;
 }
+
+export const prepareAccountDeletion = (admin: Admin, actor: string) =>
+  gateway(
+    admin,
+    "tb_v2_moderation_workflow",
+    actor,
+    "delete_account_prepare",
+    {},
+  );
 
 async function ownAssessment(
   admin: Admin,
@@ -424,11 +456,22 @@ export async function runAction(
       (a, b) => Date.parse(a.created_at) - Date.parse(b.created_at),
     );
   }
-  if (action === "moderate" && input.kind === "experience")
-    return gateway(admin, "tb_v2_discover", actor, "experience_moderate", {
-      id: data.report_id,
-      decision: data.decision,
-    });
+  if (
+    action === "moderate" ||
+    [
+      "moderation_status",
+      "moderation_dashboard",
+      "moderation_restore",
+      "moderation_unsuspend",
+    ].includes(action)
+  )
+    return gateway(
+      admin,
+      "tb_v2_moderation_workflow",
+      actor,
+      action === "moderate" ? "moderation_decide" : action,
+      data,
+    );
   if (action === "help") {
     const pool = (await rpc(admin, actor, "candidates")) as {
       reader: MatchReader;

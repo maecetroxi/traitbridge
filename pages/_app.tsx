@@ -36,7 +36,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>TraitBridge</title>
         <meta
           name="description"
-          content="Manchmal versteht dich jemand am besten, der ähnlich tickt. Persönliche Fragen und Erfahrungen von echten Menschen."
+          content="Persönliche Fragen stellen, Erfahrungen teilen und die eigene Persönlichkeit kennenlernen."
         />
         <meta
           name="robots"
@@ -49,7 +49,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta
           key="og-description"
           property="og:description"
-          content="Big-Five-Selbstreflexion, praktische Lerninhalte und offener Erfahrungsaustausch."
+          content="Persönliche Fragen, Erfahrungsbeiträge und Big-Five-Tests."
         />
         <meta property="og:url" content={canonicalUrl} />
         <meta

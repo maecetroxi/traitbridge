@@ -22,9 +22,9 @@ export const topicLabels: Record<Locale, Record<Topic, string>> = {
 };
 export const reasonLabels = {
   de: {
-    similar: "Bei diesem Thema tickt ihr ähnlich.",
-    broader: "Eine etwas andere, verwandte Perspektive.",
-    topic: "Ihr teilt ein Interesse oder eine Erfahrung.",
+    similar: "Ähnliche Merkmale für dieses Thema.",
+    broader: "Andere Perspektive zum Thema.",
+    topic: "Gemeinsames Interesse oder Erfahrung.",
   },
   en: {
     similar: "You share similar traits relevant to this topic.",
@@ -34,13 +34,13 @@ export const reasonLabels = {
 };
 export const noticeLabels = {
   de: {
-    answer: "Eine menschliche Antwort ist da.",
-    thanks: "Jemand bedankt sich für deine Erfahrung.",
-    question: "Eine neue Frage wurde dir angeboten.",
+    answer: "Neue Antwort",
+    thanks: "Danke erhalten",
+    question: "Passende Frage",
   },
   en: {
-    answer: "A human reply has arrived.",
-    thanks: "Someone thanked you for your experience.",
-    question: "A new question has been offered to you.",
+    answer: "New reply",
+    thanks: "Thank-you received",
+    question: "Matching question",
   },
 };

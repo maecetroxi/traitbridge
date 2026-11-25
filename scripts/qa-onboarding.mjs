@@ -351,8 +351,8 @@ try {
   const privateText =
     "Private lokale QA-Frage, die vor einem Kontowechsel ausgeblendet werden muss.";
   await existing.page.locator("#question-body").fill(privateText);
-  await click(existing.page, "Meine Frage losschicken");
-  await heading(existing.page, "Deine Frage ist unterwegs.");
+  await click(existing.page, "Frage senden");
+  await existing.page.getByText("Deine Frage wurde gesendet.").waitFor();
   await existing.page.goto(base + "/messages");
   await existing.page.getByText(privateText).first().waitFor();
   await existing.page.goto(base + "/login?mode=forgot");
@@ -467,7 +467,14 @@ try {
   await heading(magic.page, "Posteingang prüfen");
   await magic.page.goto(magic.inbox.get("magic-2"));
   await magic.page.waitForURL(base + "/");
-  await magic.page.getByRole("heading", { name: /Wiesenwind/ }).waitFor();
+  await magic.page.locator("#question-body").waitFor();
+  assert.equal(
+    await magic.page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key)).user.id,
+      storageKey,
+    ),
+    id(2),
+  );
   checks.push("Optional magic link signs in an existing account");
 
   const expired = await context();

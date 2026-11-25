@@ -1,5 +1,12 @@
 # TraitBridge V2 – Prüfprotokoll
 
+## Schritt 5 · Navigation, Oberfläche und Moderation
+
+- **Automatisiert:** 87 Tests bestanden. Die zusätzlichen Datenbanktests prüfen die Moderatorrechte, alle drei Meldungsarten, das Ausblenden und Wiederfreigeben, Beta-Sperren sowie den Ausschluss bereits gelöschter Inhalte und begonnener Kontolöschungen.
+- **Lokal im Browser:** Die vier Hauptbereiche, aktive Navigation und ungelesene Nachrichten auf Laptop und Smartphone. Weitere Prüfungen decken Anmeldung mit Rücksprung, Onboarding, Fragen und Antworten mit Danke, Entdecken samt kombinierten Filtern und Freigabewiderruf, Merkliste, Moderation und Kontolöschung ab. Navigation und Moderation wurden auch auf Englisch und per Tastatur geprüft. Die lokale Auth-Simulation verwendet fiktive Konten. [Aktuelle V2-Galerie](screenshots/v2/uebersicht/README.md)
+- **Build und Audit:** TypeScript, Next.js-Produktionsbuild und die Typprüfung des gepinnten Deno-Edge-Pakets bestanden. Der vollständige npm-Audit meldete 0 bekannte Schwachstellen.
+- **Betrieb:** Die additive Moderationsmigration und das neue Edge-Paket sind für ein später freigegebenes Deployment vorbereitet. Ältere Sperren ohne gespeicherten Ausgangsstatus sind über die neue Übersicht nicht umkehrbar. [Moderationsanleitung](MODERATION.md)
+
 ## Schritt 4 · Freiwillige Persönlichkeitsanzeige und Perspektivfilter
 
 - **Automatisiert:** 82 Tests bestanden. Dazu gehören Stufengrenzen, Auswahl der zwei stärksten Merkmale, Kurz- und Langtest, ungültige Ergebnisse, Standard „privat“, Widerruf in Feed und Merkliste sowie Blockierungen und Moderationsgrenzen. Ein Paginierungstest prüft die Wahl älterer passender Beiträge hinter 30 neueren Beiträgen ohne Freigabe. Vergleiche innerhalb derselben groben Stufen ändern die Filterzuordnung nicht.

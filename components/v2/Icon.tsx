@@ -18,6 +18,12 @@ export default function Icon({
         <path d="M7 9h10M7 13h6" />
       </>
     ),
+    discover: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="m15.8 8.2-2.2 5.4-5.4 2.2 2.2-5.4Z" />
+      </>
+    ),
     me: (
       <>
         <circle cx="12" cy="8" r="4" />

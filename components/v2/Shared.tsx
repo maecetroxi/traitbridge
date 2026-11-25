@@ -10,7 +10,13 @@ import BlobAvatar from "./BlobAvatar";
 import { useState } from "react";
 import { buildLoginPath, buildOnboardingPath } from "../../lib/return-path";
 
-export function AccessGate({ children, discover = false }: { children: React.ReactNode; discover?: boolean }) {
+export function AccessGate({
+  children,
+  discover = false,
+}: {
+  children: React.ReactNode;
+  discover?: boolean;
+}) {
   const { user, loading: authLoading } = useAuth();
   const { snapshot, loading, error, refresh } = useBridge();
   const { locale } = useLocale();
@@ -25,17 +31,15 @@ export function AccessGate({ children, discover = false }: { children: React.Rea
   if (!user || user.is_anonymous)
     return (
       <div className="tb-empty">
-        <BlobAvatar size={90} />
         <h2>
-          {discover ? (de ? "Geschlossene Beta" : "Closed beta") : de
-            ? "Hier beginnt dein Austausch."
-            : "Your conversations begin here."}
+          {discover
+            ? de
+              ? "Geschlossene Beta"
+              : "Closed beta"
+            : de
+              ? "Anmelden"
+              : "Sign in"}
         </h2>
-        <p>
-          {discover ? (de ? "Melde dich an, um Beiträge zu lesen." : "Sign in to read posts.") : de
-            ? "Melde dich an, damit deine Fragen und Antworten privat bei dir ankommen."
-            : "Sign in to receive your questions and replies privately."}
-        </p>
         <Link className="tb-button" href={buildLoginPath(router.asPath)}>
           {de ? "Anmelden" : "Sign in"}
         </Link>
@@ -44,10 +48,7 @@ export function AccessGate({ children, discover = false }: { children: React.Rea
   if (error)
     return (
       <div className="tb-empty">
-        <BlobAvatar size={90} />
-        <h2>
-          {discover ? (de ? "Beta-Zugang" : "Beta access") : de ? "Ein kleiner Kreis zum Start." : "A small circle to start."}
-        </h2>
+        <h2>{de ? "Beta-Zugang" : "Beta access"}</h2>
         <p role="status">{errorText(error, locale)}</p>
         <button className="tb-button secondary" onClick={() => void refresh()}>
           {de ? "Erneut prüfen" : "Try again"}
@@ -60,15 +61,7 @@ export function AccessGate({ children, discover = false }: { children: React.Rea
   if (!snapshot.profile)
     return (
       <div className="tb-empty">
-        <BlobAvatar size={90} />
-        <h2>
-          {discover ? (de ? "Einrichtung abschliessen" : "Finish setting up") : de ? "Lernen wir dich ein wenig kennen." : "Let’s get to know you."}
-        </h2>
-        <p>
-          {discover ? (de ? "Richte dein Profil ein, um Entdecken zu nutzen." : "Set up your profile to use Discover.") : de
-            ? "Zehn Aussagen, ein kleiner Avatar – und schon kannst du mitmachen."
-            : "Ten statements, a little avatar, and you’re ready to join."}
-        </p>
+        <h2>{de ? "Einrichtung abschliessen" : "Finish setting up"}</h2>
         <Link className="tb-button" href={buildOnboardingPath(router.asPath)}>
           {de ? "Profil einrichten" : "Set up your profile"}
         </Link>

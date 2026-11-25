@@ -1,4 +1,9 @@
-import { V2Error, rpc, runAction, type Admin } from "./server";
+import {
+  V2Error,
+  prepareAccountDeletion,
+  runAction,
+  type Admin,
+} from "./server";
 
 // Shared by Next.js and Supabase Edge. The verified Auth identity is the only
 // source of the actor ID. Neither user metadata nor request data grants access.
@@ -23,7 +28,7 @@ export async function executeV2(
   if (method === "DELETE") {
     if (input.confirmation !== "DELETE")
       throw new V2Error("CONFIRMATION_REQUIRED");
-    await rpc(admin, user.id, "delete_account_prepare");
+    await prepareAccountDeletion(admin, user.id);
     const signOut = await admin.auth.admin.signOut(token, "global");
     if (signOut.error) throw new V2Error("DELETE_FAILED", 503);
     const deleted = await admin.auth.admin.deleteUser(user.id);

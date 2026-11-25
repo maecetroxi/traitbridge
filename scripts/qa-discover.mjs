@@ -265,7 +265,8 @@ try {
   await reader.goto(base + "/moderation");
   await heading(reader, "Gemeldete Erfahrung").waitFor();
   await screenshot(reader, "05-moderation-desktop");
-  await button(article(reader, revised), "Inhalt sperren").click();
+  reader.once("dialog", (dialog) => dialog.accept());
+  await button(article(reader, revised), "Inhalt ausblenden").click();
   await reader.getByText("Keine offenen Meldungen.").waitFor();
   await saved(reader, "Noch keine gemerkten Beiträge.");
   await author.goto(base + "/discover");

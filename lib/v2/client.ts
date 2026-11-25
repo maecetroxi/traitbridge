@@ -42,7 +42,7 @@ export function errorText(error: unknown, locale: "de" | "en") {
       "The closed beta is not configured yet. You can explore and try the test.",
     ],
     RATE_LIMIT: [
-      "Für heute war das viel. Bitte versuche es später erneut.",
+      "Limit erreicht. Bitte versuche es später erneut.",
       "Please take a break and try again later.",
     ],
     DUPLICATE_POST: [

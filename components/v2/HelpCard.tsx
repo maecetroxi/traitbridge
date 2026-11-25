@@ -121,17 +121,7 @@ export default function HelpCard({
   if (sent)
     return (
       <div className="tb-help-success" role="status">
-        <Icon name="heart" size={36} />
-        <h3>
-          {de
-            ? "Deine Erfahrung ist angekommen."
-            : "Your experience has arrived."}
-        </h3>
-        <p>
-          {de
-            ? "Danke, dass du dir Zeit für einen Menschen genommen hast."
-            : "Thank you for taking time for someone."}
-        </p>
+        <h3>{de ? "Antwort gesendet" : "Reply sent"}</h3>
         <button className="tb-button" onClick={onNext}>
           {de ? "Nächste Frage ansehen" : "See the next question"}
           <Icon name="arrow" size={18} />
@@ -161,7 +151,7 @@ export default function HelpCard({
       {!editing ? (
         <div className="tb-inline">
           <button className="tb-button" onClick={() => void reserve()}>
-            {de ? "Meine Erfahrung teilen" : "Share my experience"}
+            {de ? "Antworten" : "Reply"}
             <Icon name="arrow" size={18} />
           </button>
           <button
@@ -175,15 +165,9 @@ export default function HelpCard({
       ) : (
         <form onSubmit={send}>
           <label className="tb-label">
-            {de
-              ? "Was hat dir persönlich geholfen?"
-              : "What helped you personally?"}
+            {de ? "Deine Antwort" : "Your reply"}
             <textarea
-              aria-label={
-                de
-                  ? "Was hat dir persönlich geholfen?"
-                  : "What helped you personally?"
-              }
+              aria-label={de ? "Deine Antwort" : "Your reply"}
               autoFocus
               rows={5}
               required
@@ -196,11 +180,6 @@ export default function HelpCard({
                   sessionStorage.setItem(key, e.target.value);
                 } catch {}
               }}
-              placeholder={
-                de
-                  ? "Vielleicht kennst du das …"
-                  : "Maybe you have been there …"
-              }
             />
           </label>
           <SensitiveHint text={body} />

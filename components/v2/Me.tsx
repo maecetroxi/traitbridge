@@ -13,6 +13,7 @@ import BlobAvatar from "./BlobAvatar";
 import Icon from "./Icon";
 import { DiscoverList } from "./DiscoverList";
 import { DiscoverPersonalitySetting } from "./DiscoverPersonality";
+import { ModerationLink } from "./ModerationLink";
 
 export default function Me() {
   const { locale } = useLocale();
@@ -36,11 +37,7 @@ export default function Me() {
     try {
       await v2Request(action, data);
       await refresh();
-      setMessage(
-        de
-          ? "Gespeichert. Ganz so, wie es für dich passt."
-          : "Saved. Just the way it works for you.",
-      );
+      setMessage(de ? "Gespeichert." : "Saved.");
     } catch (e) {
       setError(errorText(e, locale));
     } finally {
@@ -94,150 +91,155 @@ export default function Me() {
     <div className="tb-page">
       <Head>
         <title>
-          {(de ? "Ein bisschen ich" : "A little about me") + " | TraitBridge"}
+          {de ? "Mein Profil | TraitBridge" : "My profile | TraitBridge"}
         </title>
       </Head>
       <div className="tb-page-heading">
-        <div>
-          <span className="tb-eyebrow">
-            {de ? "DEIN PLATZ. DEIN TEMPO." : "YOUR SPACE. YOUR PACE."}
-          </span>
-          <h1>
-            {de ? "Ein bisschen ich" : "A little about me"}
-            <span className="tb-title-dot">.</span>
-          </h1>
-        </div>
+        <h1>{de ? "Mein Profil" : "My profile"}</h1>
         {user && (
-          <button className="tb-text-button" onClick={() => void signOut().catch((err) => setError(errorText(err, locale)))}>
+          <button
+            className="tb-text-button"
+            onClick={() =>
+              void signOut().catch((err) => setError(errorText(err, locale)))
+            }
+          >
             {de ? "Abmelden" : "Sign out"}
           </button>
         )}
       </div>
+      {snapshot.moderator && user && <ModerationLink owner={user.id} />}
       <div className="tb-me-grid">
-        <section>
+        <section className="tb-me-aside">
           <AccessGate>
             {draft && (
-              <form
-                className="tb-panel"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void run("preferences", { ...draft });
-                }}
-              >
-                <div className="tb-section-line">
-                  <h2>{de ? "Hallo, das bin ich." : "Hello, this is me."}</h2>
-                  <Icon name="leaf" />
-                </div>
-                <AvatarEditor
-                  value={draft.avatar}
-                  onChange={(avatar) => setDraft({ ...draft, avatar })}
-                />
-                <label className="tb-label">
-                  {de ? "Mein Pseudonym" : "My pseudonym"}
-                  <input
-                    minLength={2}
-                    maxLength={30}
-                    required
-                    value={draft.pseudonym}
-                    onChange={(e) =>
-                      setDraft({ ...draft, pseudonym: e.target.value })
-                    }
+              <details className="tb-panel tb-me-fold">
+                <summary>
+                  <BlobAvatar config={snapshot.profile?.avatar} size={40} />
+                  <span>{snapshot.profile?.pseudonym}</span>
+                  <small>{de ? "Profil bearbeiten" : "Edit profile"}</small>
+                </summary>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void run("preferences", { ...draft });
+                  }}
+                >
+                  <AvatarEditor
+                    value={draft.avatar}
+                    onChange={(avatar) => setDraft({ ...draft, avatar })}
                   />
-                </label>
-                <label className="tb-label">
-                  {de ? "Sprache für die Vermittlung" : "Language for matching"}
-                  <select
-                    value={draft.language}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        language: e.target.value as "de" | "en",
-                      })
-                    }
-                  >
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                  </select>
-                </label>
-                {(["interests", "experiences"] as const).map((field) => (
-                  <fieldset key={field} className="tb-interest-group">
-                    <legend>
-                      {field === "interests"
-                        ? de
-                          ? "Meine Interessen"
-                          : "My interests"
-                        : de
-                          ? "Hier teile ich gerne Erfahrungen"
-                          : "I like sharing experience here"}
-                    </legend>
-                    <div className="tb-chips">
-                      {topics.map((t) => (
-                        <button
-                          type="button"
-                          key={t}
-                          aria-pressed={draft[field].includes(t)}
-                          onClick={() => updateTopics(field, t)}
-                        >
-                          {topicLabels[locale][t]}
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
-                ))}
-                <div className="tb-settings">
-                  <label className="tb-checkbox">
+                  <label className="tb-label">
+                    {de ? "Mein Pseudonym" : "My pseudonym"}
                     <input
-                      type="checkbox"
-                      checked={draft.available}
+                      minLength={2}
+                      maxLength={30}
+                      required
+                      value={draft.pseudonym}
                       onChange={(e) =>
-                        setDraft({ ...draft, available: e.target.checked })
+                        setDraft({ ...draft, pseudonym: e.target.value })
                       }
                     />
-                    <span>
-                      <strong>
-                        {de
-                          ? "An der Vermittlung teilnehmen"
-                          : "Take part in matching"}
-                      </strong>
-                      <small>
-                        {de
-                          ? "Höchstens sechs neue Angebote pro Tag. Pausieren stoppt neue Angebote und neue Vermittlungen deiner Fragen. Bestehende Nachrichten bleiben erreichbar."
-                          : "At most six new offers per day. Pausing stops new offers and new matching of your questions. Existing messages stay accessible."}
-                      </small>
-                    </span>
                   </label>
-                  <label className="tb-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={draft.notifications}
+                  <label className="tb-label">
+                    {de
+                      ? "Sprache für die Vermittlung"
+                      : "Language for matching"}
+                    <select
+                      value={draft.language}
                       onChange={(e) =>
-                        setDraft({ ...draft, notifications: e.target.checked })
+                        setDraft({
+                          ...draft,
+                          language: e.target.value as "de" | "en",
+                        })
                       }
-                    />
-                    <span>
-                      <strong>
-                        {de
-                          ? "Benachrichtigungen in der App"
-                          : "In-app notifications"}
-                      </strong>
-                      <small>
-                        {de
-                          ? "Für neue Antworten, echte Dankesnachrichten und vermittelte Fragen."
-                          : "For new replies, real thank-you messages and matching questions."}
-                      </small>
-                    </span>
+                    >
+                      <option value="de">Deutsch</option>
+                      <option value="en">English</option>
+                    </select>
                   </label>
-                </div>
-                <button className="tb-button" disabled={busy}>
-                  {busy
-                    ? de
-                      ? "Speichern …"
-                      : "Saving …"
-                    : de
-                      ? "Änderungen speichern"
-                      : "Save changes"}
-                </button>
-              </form>
+                  {(["interests", "experiences"] as const).map((field) => (
+                    <fieldset key={field} className="tb-interest-group">
+                      <legend>
+                        {field === "interests"
+                          ? de
+                            ? "Meine Interessen"
+                            : "My interests"
+                          : de
+                            ? "Meine Erfahrungsthemen"
+                            : "My experience topics"}
+                      </legend>
+                      <div className="tb-chips">
+                        {topics.map((t) => (
+                          <button
+                            type="button"
+                            key={t}
+                            aria-pressed={draft[field].includes(t)}
+                            onClick={() => updateTopics(field, t)}
+                          >
+                            {topicLabels[locale][t]}
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+                  ))}
+                  <div className="tb-settings">
+                    <label className="tb-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={draft.available}
+                        onChange={(e) =>
+                          setDraft({ ...draft, available: e.target.checked })
+                        }
+                      />
+                      <span>
+                        <strong>
+                          {de
+                            ? "An der Vermittlung teilnehmen"
+                            : "Take part in matching"}
+                        </strong>
+                        <small>
+                          {de
+                            ? "Höchstens sechs neue Angebote pro Tag. Pausieren stoppt neue Angebote und neue Vermittlungen deiner Fragen. Bestehende Nachrichten bleiben erreichbar."
+                            : "At most six new offers per day. Pausing stops new offers and new matching of your questions. Existing messages stay accessible."}
+                        </small>
+                      </span>
+                    </label>
+                    <label className="tb-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={draft.notifications}
+                        onChange={(e) =>
+                          setDraft({
+                            ...draft,
+                            notifications: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>
+                        <strong>
+                          {de
+                            ? "Benachrichtigungen in der App"
+                            : "In-app notifications"}
+                        </strong>
+                        <small>
+                          {de
+                            ? "Für neue Antworten, Dankesnachrichten und vermittelte Fragen."
+                            : "For new replies, thank-you messages and matching questions."}
+                        </small>
+                      </span>
+                    </label>
+                  </div>
+                  <button className="tb-button" disabled={busy}>
+                    {busy
+                      ? de
+                        ? "Speichern …"
+                        : "Saving …"
+                      : de
+                        ? "Änderungen speichern"
+                        : "Save changes"}
+                  </button>
+                </form>
+              </details>
             )}
           </AccessGate>
           {message && (
@@ -250,33 +252,9 @@ export default function Me() {
               {error}
             </p>
           )}
-        </section>
-        <aside className="tb-me-aside">
-          {snapshot.profile && user && (
-            <DiscoverPersonalitySetting owner={user.id} shared={snapshot.profile.discover_personality_shared === true} />
-          )}
-          {snapshot.profile && user && (
-            <section className="tb-panel tb-saved-posts">
-              <h2>
-                <button className="tb-text-button" type="button" aria-expanded={showSaved}
-                  onClick={() => setShowSaved(!showSaved)}>
-                  {de ? "Gemerkte Beiträge" : "Saved posts"}
-                </button>
-              </h2>
-              {showSaved && <DiscoverList owner={user.id} mode="saved" />}
-            </section>
-          )}
           {snapshot.profile && (
             <section className="tb-panel tb-profile-panel">
-              <div className="tb-section-line">
-                <span className="tb-eyebrow">
-                  {de ? "DEINE BIG FIVE" : "YOUR BIG FIVE"}
-                </span>
-                <Icon name="lock" size={16} />
-              </div>
-              <h2>
-                {de ? "Facetten, keine Schubladen." : "Dimensions, not boxes."}
-              </h2>
+              <h2>{de ? "Meine Persönlichkeit" : "My personality"}</h2>
               <div className="tb-mini-scores">
                 {traits.map((trait, i) => {
                   const value = snapshot.profile!.scores[trait];
@@ -336,58 +314,64 @@ export default function Me() {
             </section>
           )}
           <section className="tb-panel tb-learning-links">
-            <span className="tb-eyebrow">
-              {de ? "NEUGIER AUF DICH" : "STAY CURIOUS ABOUT YOU"}
-            </span>
-            <h2>
-              {de ? "Dich besser verstehen." : "Understand yourself better."}
-            </h2>
+            <h2>{de ? "Tests und Lernen" : "Tests and learning"}</h2>
             {[
               {
                 href: "/test",
                 title: de ? "Persönlichkeitstest" : "Personality assessment",
-                text: de
-                  ? "Kurz orientieren oder 120 Aussagen entdecken."
-                  : "A quick orientation or a full 120-item assessment.",
               },
               {
                 href: "/learn",
-                title: de ? "Lernen & ausprobieren" : "Learn & explore",
-                text: de
-                  ? "Fünf Dimensionen, praktische Impulse."
-                  : "Five dimensions, practical ideas.",
+                title: de ? "Lernen" : "Learn",
               },
               {
                 href: "/learn/library?type=nonfiction",
-                title: de
-                  ? "Bücher & andere Perspektiven"
-                  : "Books & other perspectives",
-                text: de
-                  ? "Redaktionelle Empfehlungen für Neugierige."
-                  : "Editorial recommendations for curious minds.",
+                title: de ? "Buchempfehlungen" : "Book recommendations",
               },
               {
                 href: "/background",
                 title: de
-                  ? "Die Wissenschaft dahinter"
-                  : "The science behind it",
-                text: de
-                  ? "Was die Big Five können – und wo ihre Grenzen liegen."
-                  : "What the Big Five can tell us, and their limits.",
+                  ? "Wissenschaftlicher Hintergrund"
+                  : "Scientific background",
               },
             ].map((item) => (
               <Link key={item.href} href={item.href}>
                 <div>
                   <strong>{item.title}</strong>
-                  <span>{item.text}</span>
                 </div>
                 <Icon name="arrow" size={19} />
               </Link>
             ))}
           </section>
+        </section>
+        <aside className="tb-me-aside">
+          {snapshot.profile && user && (
+            <DiscoverPersonalitySetting
+              owner={user.id}
+              shared={snapshot.profile.discover_personality_shared === true}
+            />
+          )}
+          {snapshot.profile && user && (
+            <section className="tb-panel tb-saved-posts">
+              <h2>
+                <button
+                  className="tb-text-button"
+                  type="button"
+                  aria-expanded={showSaved}
+                  onClick={() => setShowSaved(!showSaved)}
+                >
+                  {de ? "Gemerkte Beiträge" : "Saved posts"}
+                </button>
+              </h2>
+              {showSaved && <DiscoverList owner={user.id} mode="saved" />}
+              <Link className="tb-text-link" href="/discover?view=mine">
+                {de ? "Meine Erfahrungen" : "My experiences"}
+              </Link>
+            </section>
+          )}
           {snapshot.blocks.length > 0 && (
             <section className="tb-panel">
-              <h3>{de ? "Blockierte Personen" : "Blocked people"}</h3>
+              <h2>{de ? "Blockierte Personen" : "Blocked people"}</h2>
               {snapshot.blocks.map((b) => (
                 <div className="tb-section-line" key={b.id}>
                   <span>{b.pseudonym}</span>
@@ -404,14 +388,7 @@ export default function Me() {
           )}
           {user && (
             <section className="tb-panel tb-account-settings">
-              {snapshot.moderator && (
-                <Link className="tb-text-link" href="/moderation">
-                  Moderation →
-                </Link>
-              )}
-              <h3>
-                {de ? "Deine Daten gehören dir." : "Your data belongs to you."}
-              </h3>
+              <h2>{de ? "Einstellungen" : "Settings"}</h2>
               <Link href="/privacy" className="tb-text-link">
                 {de ? "Datenschutz & Einwilligung" : "Privacy & consent"} →
               </Link>

@@ -116,7 +116,7 @@ try {
   });
   assert.equal(unauthorised.status, 401);
   await guest.page.goto(base, { waitUntil: "networkidle" });
-  await guest.page.getByRole("heading", { name: /Manchmal hilft/ }).waitFor();
+  await guest.page.getByRole("heading", { name: "Frage stellen" }).waitFor();
   for (const width of [375, 390, 768, 1024, 1280, 1440, 1920])
     await screenshot(guest.page, "start-guest", width);
   const first = await context(0);
@@ -145,7 +145,7 @@ try {
     .getByRole("button", { name: "Profil speichern", exact: true })
     .click();
   await first.page.waitForURL(base + "/");
-  await first.page.getByRole("heading", { name: /Farnfreund/ }).waitFor();
+  await first.page.locator("#question-body").waitFor();
   checks.push(
     "Onboarding: ten raw answers, avatar and explicit consent saved via real Next API",
   );
@@ -155,10 +155,10 @@ try {
       "Ich sage oft Ja, obwohl ich Nein meine. Was hat euch persönlich geholfen, Grenzen zu setzen?",
     );
   await first.page
-    .getByRole("button", { name: "Meine Frage losschicken", exact: true })
+    .getByRole("button", { name: "Frage senden", exact: true })
     .click();
   await first.page
-    .getByRole("heading", { name: "Deine Frage ist unterwegs." })
+    .getByText("Deine Frage wurde gesendet.")
     .waitFor();
   const own = await call(0, "snapshot");
   const q = own.questions[0];
@@ -184,10 +184,10 @@ try {
   });
   await second.page.goto(base, { waitUntil: "networkidle" });
   await second.page
-    .getByRole("button", { name: "Meine Erfahrung teilen", exact: true })
+    .getByRole("button", { name: "Antworten", exact: true })
     .click();
   await second.page
-    .getByLabel("Was hat dir persönlich geholfen?", { exact: true })
+    .getByLabel("Deine Antwort", { exact: true })
     .fill(
       "Mir hat es geholfen, erst einmal um Bedenkzeit zu bitten. So konnte ich später in Ruhe entscheiden, was sich für mich richtig anfühlt.",
     );
@@ -198,7 +198,7 @@ try {
   assert.ok(
     (
       await second.page
-        .getByLabel("Was hat dir persönlich geholfen?", { exact: true })
+        .getByLabel("Deine Antwort", { exact: true })
         .inputValue()
     ).includes("Bedenkzeit"),
   );
@@ -206,7 +206,7 @@ try {
     .getByRole("button", { name: "Antwort senden", exact: true })
     .click();
   await second.page
-    .getByRole("heading", { name: "Deine Erfahrung ist angekommen." })
+    .getByRole("heading", { name: "Antwort gesendet" })
     .waitFor();
   checks.push(
     "Second account reserved a slot and sent a real saved reply through the UI",
@@ -225,12 +225,12 @@ try {
     .getByRole("button", { name: "Danke sagen", exact: true })
     .click();
   await first.page
-    .getByLabel("Dein Danke (optional mit Nachricht)", { exact: true })
+    .getByLabel("Nachricht (optional)", { exact: true })
     .fill("Danke für deine Erfahrung, das werde ich ausprobieren.");
   await first.page
     .getByRole("button", { name: "Danke senden", exact: true })
     .click();
-  await first.page.getByText(/Ein persönliches Danke/).waitFor();
+  await first.page.locator(".tb-thanks").waitFor();
   assert.ok(
     (await call(1, "snapshot")).notifications.some((n) => n.kind === "thanks"),
   );
@@ -254,7 +254,7 @@ try {
   await screenshot(first.page, "entdecken", 390);
   await first.page.goto(base + "/me", { waitUntil: "networkidle" });
   await first.page
-    .getByRole("heading", { name: "Hallo, das bin ich." })
+    .getByRole("heading", { name: "Mein Profil" })
     .waitFor();
   await screenshot(first.page, "ich", 1440);
   await screenshot(first.page, "ich", 390);
@@ -264,7 +264,7 @@ try {
     .getByRole("button", { name: "English", exact: false })
     .click();
   await first.page
-    .getByRole("heading", { name: "A little about me." })
+    .getByRole("heading", { name: "My profile" })
     .waitFor();
   checks.push("Language switch changes V2 interface to English");
   await screenshot(first.page, "me-english", 390);

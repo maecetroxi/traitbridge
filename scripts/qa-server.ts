@@ -44,7 +44,7 @@ const call = async (
   id: string,
   action: string,
   data: Record<string, unknown> = {},
-  gateway: "tb_v2" | "tb_v2_save_assessment" | "tb_v2_discover" | "tb_v2_discover_profile" = "tb_v2",
+  gateway: "tb_v2" | "tb_v2_save_assessment" | "tb_v2_discover" | "tb_v2_discover_profile" | "tb_v2_moderation_workflow" = "tb_v2",
 ) =>
   (
     await db.query<{ value: unknown }>(
@@ -65,6 +65,7 @@ async function start() {
   await db.exec(readFileSync("supabase/migrations/20261125100010_v2_assessment_onboarding.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20261125104611_v2_discover_experiences.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20261125114044_v2_discover_personality.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20261125165424_v2_moderation_workflow.sql", "utf8"));
   for (const user of users) {
     await db.query("insert into auth.users(id) values($1)", [user.id]);
     if (user.id === qaIds[4]) continue;
@@ -161,7 +162,7 @@ async function start() {
         res.end(JSON.stringify({ message: "Server-only QA gateway" }));
         return;
       }
-      const gateway = (["tb_v2", "tb_v2_save_assessment", "tb_v2_discover", "tb_v2_discover_profile"] as const)
+      const gateway = (["tb_v2", "tb_v2_save_assessment", "tb_v2_discover", "tb_v2_discover_profile", "tb_v2_moderation_workflow"] as const)
         .find((name) => url.pathname === `/rest/v1/rpc/${name}`);
       if (gateway) {
         let raw = "";

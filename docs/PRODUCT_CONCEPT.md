@@ -10,8 +10,9 @@ Stand: 25. November 2026. „Umgesetzt“ bezeichnet den Funktionsstand der gesc
 
 ## Startseite und Navigation
 
-- **Umgesetzt:** „Frage stellen“ und „Jemandem helfen“ stehen direkt auf der Startseite. Es gibt keine vorgeschaltete Auswahl eines Nutzungsmodus.
-- **Umgesetzt:** „Entdecken“ ist eine eigenständige Seite, erreichbar über die Startseite. **Offen:** Die Hauptnavigation soll später **Start | Entdecken | Nachrichten | Ich** lauten.
+- **Umgesetzt:** „Frage stellen“ und „Jemandem helfen“ stehen direkt auf der Startseite. Freigeschaltete Mitglieder mit Profil sehen das Frageformular und, falls verfügbar, eine passende Frage. Gäste melden sich vor dem Schreiben an und gelangen zur gewählten Aktion zurück.
+- **Umgesetzt:** **Start | Entdecken | Nachrichten | Ich** sind direkt erreichbar. Auf dem Smartphone steht die Navigation unten, auf dem Laptop oben. Der aktive Bereich und die Zahl ungelesener Nachrichten sind sichtbar.
+- **Umgesetzt:** „Nachrichten“ bündelt eigene Fragen, erhaltene und geschriebene Antworten sowie Benachrichtigungen. „Ich“ bündelt das Profil, Persönlichkeitsergebnisse, Merkliste, eigene Erfahrungen, Lerninhalte, Buchempfehlungen und Kontoeinstellungen.
 
 ## Registrierung
 
@@ -37,12 +38,13 @@ Stand: 25. November 2026. „Umgesetzt“ bezeichnet den Funktionsstand der gesc
 ## Moderation
 
 - **Umgesetzt:** Fragen und Antworten melden, Nutzer blockieren, Inhalte ausblenden und Konten für die Beta sperren. Die Moderationsübersicht ist nur für freigeschaltete Moderationskonten zugänglich. Schreiblimits und Schutz vor doppelten Fragen bieten grundlegenden Spamschutz.
-- **Umgesetzt:** Erfahrungen melden, Personen blockieren und Inhalte über dieselbe Moderationsübersicht ausblenden. Feed und Merkliste berücksichtigen Sperren. Veröffentlichungslimits und Schutz vor wiederholtem Text gelten auch nach Löschung. Meldungen können durch Moderatoren geprüft werden.
+- **Umgesetzt:** Erfahrungen melden, Personen blockieren und Inhalte über dieselbe Moderationsübersicht ausblenden. Feed und Merkliste berücksichtigen Sperren. Veröffentlichungslimits und Schutz vor wiederholtem Text gelten auch nach Löschung.
+- **Umgesetzt:** Berechtigte Moderatoren sehen unter „Ich“ die Zahl offener Meldungen. In der Übersicht bearbeiten sie gemeldete Fragen, Antworten und Erfahrungen. Sie können Inhalte ausblenden, Meldungen ohne Massnahme abschliessen und den Beta-Zugang eines Kontos sperren. In der aktuellen Moderation erfasste Massnahmen können mit dem vorherigen Status rückgängig gemacht werden. [Anleitung für Betreiber](MODERATION.md)
 - **Produktentscheidung:** Menschliche Moderation mit einfachen Regeln genügt. Komplexe KI-Moderation ist nicht vorgesehen.
 
 ## Texte und Gestaltung
 
-- **Umgesetzt:** Deutsch und Englisch sowie eine Oberfläche für Smartphone und Laptop.
+- **Umgesetzt:** Deutsch und Englisch sowie eine Oberfläche für Smartphone und Laptop. Kurze Beschriftungen und kompakte Filter lassen mehr Platz für Fragen und Beiträge. [Aktuelle V2-Galerie](screenshots/v2/uebersicht/README.md)
 - **Leitlinie:** Kurze, verständliche Beschriftungen und ein freundlicher, sachlicher Ton. Floskeln, unnötig emotionale Texte und überflüssige Erklärungen beim Überarbeiten streichen. Beide Sprachen und Gerätegrössen mitpflegen.
 
 Die bestehende V2-Architektur und funktionierende Abläufe sind die Grundlage für die Weiterentwicklung. Technischer Stand und offene Betriebsprüfungen stehen in der [V2-Dokumentation](V2.md) und der [V2-Roadmap](V2_ROADMAP.md).

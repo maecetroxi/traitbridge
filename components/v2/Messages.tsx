@@ -8,7 +8,6 @@ import { v2Request, errorText } from "../../lib/v2/client";
 import { noticeLabels, topicLabels } from "../../lib/v2/copy";
 import { AccessGate, SafetyActions } from "./Shared";
 import BlobAvatar from "./BlobAvatar";
-import { generateAvatar } from "../../lib/v2/avatar";
 import Icon from "./Icon";
 import Link from "next/link";
 
@@ -36,6 +35,7 @@ export default function Messages() {
   const answers = snapshot.answers.filter(
     (a) => a.question_id === selected?.id,
   );
+  const unread = snapshot.notifications.filter((notice) => !notice.read_at);
   const run = async (action: string, data: Record<string, unknown>) => {
     setBusy(true);
     setError("");
@@ -63,15 +63,7 @@ export default function Messages() {
         <title>{(de ? "Nachrichten" : "Messages") + " | TraitBridge"}</title>
       </Head>
       <div className="tb-page-heading">
-        <div>
-          <span className="tb-eyebrow">
-            {de ? "DEINE KLEINEN VERBINDUNGEN" : "YOUR LITTLE CONNECTIONS"}
-          </span>
-          <h1>
-            {de ? "Nachrichten" : "Messages"}
-            <span className="tb-title-dot">.</span>
-          </h1>
-        </div>
+        <h1>{de ? "Nachrichten" : "Messages"}</h1>
         <button
           className="tb-button secondary small"
           disabled={busy}
@@ -81,27 +73,33 @@ export default function Messages() {
         </button>
       </div>
       <AccessGate>
-        {snapshot.notifications.some((n) => !n.read_at) && (
+        {unread.length > 0 && (
           <details className="tb-notices">
             <summary>
               <Icon name="bell" size={18} />
-              {snapshot.notifications.filter((n) => !n.read_at).length}{" "}
-              {de ? "neue Benachrichtigungen" : "new notifications"}
+              {de
+                ? unread.length === 1
+                  ? "1 neue Benachrichtigung"
+                  : `${unread.length} neue Benachrichtigungen`
+                : unread.length === 1
+                  ? "1 new notification"
+                  : `${unread.length} new notifications`}
             </summary>
-            {snapshot.notifications
-              .filter((n) => !n.read_at)
-              .map((n) => (
-                <button
-                  key={n.id}
-                  className="tb-notice"
-                  onClick={() => {
-                    if (n.question_id) setId(n.question_id);
-                  }}
-                >
-                  {noticeLabels[locale][n.kind]}
-                  <small>{date(n.created_at)}</small>
-                </button>
-              ))}
+            {unread.map((n) => (
+              <button
+                key={n.id}
+                className="tb-notice"
+                onClick={() => {
+                  if (n.question_id) {
+                    setFilter("all");
+                    setId(n.question_id);
+                  }
+                }}
+              >
+                {noticeLabels[locale][n.kind]}
+                <small>{date(n.created_at)}</small>
+              </button>
+            ))}
             <button
               className="tb-text-button"
               onClick={() => void run("read", {})}
@@ -117,12 +115,15 @@ export default function Messages() {
                 <button
                   key={f}
                   aria-pressed={filter === f}
-                  onClick={() => setFilter(f)}
+                  onClick={() => {
+                    setFilter(f);
+                    setId(null);
+                  }}
                 >
                   {
                     (de
-                      ? ["Alle", "Meine Fragen", "Geholfen"]
-                      : ["All", "My questions", "Helped"])[i]
+                      ? ["Alle", "Meine Fragen", "Meine Antworten"]
+                      : ["All", "My questions", "My replies"])[i]
                   }
                 </button>
               ))}
@@ -135,6 +136,7 @@ export default function Messages() {
                     setId(q.id);
                     setError("");
                   }}
+                  aria-pressed={q.id === selected?.id}
                   className={`tb-conversation ${q.id === selected?.id ? "selected" : ""}`}
                 >
                   <BlobAvatar
@@ -181,15 +183,11 @@ export default function Messages() {
             ) : (
               <div className="tb-empty compact">
                 <BlobAvatar size={85} />
-                <h3>
-                  {de
-                    ? "Noch ganz viel Platz."
-                    : "Room for your first conversation."}
-                </h3>
+                <h3>{de ? "Keine Nachrichten." : "No messages."}</h3>
                 <p>
                   {de
-                    ? "Deine Fragen und geteilten Erfahrungen findest du bald hier."
-                    : "Your questions and shared experiences will appear here."}
+                    ? "Hier erscheinen deine Fragen und Antworten."
+                    : "Your questions and replies appear here."}
                 </p>
                 <Link href="/" className="tb-text-link">
                   {de ? "Eine Frage stellen" : "Ask a question"} →
@@ -263,8 +261,8 @@ export default function Messages() {
                   <p className="tb-chat-info">
                     <Icon name="lock" size={14} />
                     {de
-                      ? "Jede Erfahrung wird einzeln zugestellt. Nur du und die jeweils andere Person lesen die Antwort."
-                      : "Each experience is delivered separately. Only you and the other person can read that reply."}
+                      ? "Antworten sind nur für die fragende und die antwortende Person sichtbar."
+                      : "Only the person asking and the person replying can read that reply."}
                   </p>
                   <article
                     className={`tb-bubble ${selected.author.id === user?.id ? "outgoing" : "incoming"}`}
@@ -308,9 +306,7 @@ export default function Messages() {
                         <div className="tb-thanks">
                           <Icon name="heart" size={16} />
                           <span>
-                            {de
-                              ? "Ein persönliches Danke"
-                              : "A personal thank you"}
+                            {de ? "Danke" : "Thanks"}
                             {a.thanks && `: ${a.thanks}`}
                           </span>
                         </div>
@@ -328,8 +324,8 @@ export default function Messages() {
                             >
                               <label>
                                 {de
-                                  ? "Dein Danke (optional mit Nachricht)"
-                                  : "Your thanks (optional message)"}
+                                  ? "Nachricht (optional)"
+                                  : "Message (optional)"}
                                 <input
                                   maxLength={500}
                                   value={thanks}
@@ -389,23 +385,11 @@ export default function Messages() {
                   ))}
                   {!answers.length && (
                     <div className="tb-waiting">
-                      <BlobAvatar size={82} />
-                      <h3>
-                        {de
-                          ? "Manche Verbindungen brauchen etwas Zeit."
-                          : "Some connections take a little time."}
-                      </h3>
                       <p>
                         {de
-                          ? "Noch hat niemand geantwortet. Wir zeigen dir hier, sobald eine echte Antwort eingeht. Es gibt keine garantierte Antwortzeit."
-                          : "No one has replied yet. You’ll see a real reply here when it arrives. There is no guaranteed response time."}
+                          ? "Noch keine Antwort. Die Antwortzeit ist offen."
+                          : "No replies yet. There is no guaranteed response time."}
                       </p>
-                      <Link href="/" className="tb-text-link">
-                        {de
-                          ? "Inzwischen jemandem helfen"
-                          : "Help someone in the meantime"}{" "}
-                        →
-                      </Link>
                     </div>
                   )}
                   {selected.author.id !== user?.id && (
@@ -415,27 +399,7 @@ export default function Messages() {
               </>
             ) : (
               <div className="tb-empty tb-chat-placeholder">
-                <div className="tb-two-blobs">
-                  <BlobAvatar size={110} />
-                  <BlobAvatar
-                    config={{
-                      ...(snapshot.profile?.avatar ||
-                        generateAvatar("messages")),
-                      color: 0,
-                    }}
-                    size={125}
-                  />
-                </div>
-                <h2>
-                  {de
-                    ? "Ein offenes Ohr, ganz ohne Eile."
-                    : "A listening ear, without the rush."}
-                </h2>
-                <p>
-                  {de
-                    ? "Wähle links eine Frage. Hier findest du deine persönlichen Antworten und kleine Dankesnachrichten."
-                    : "Choose a question on the left to read personal replies and thank-you messages."}
-                </p>
+                <h2>{de ? "Frage auswählen" : "Select a question"}</h2>
               </div>
             )}
           </section>

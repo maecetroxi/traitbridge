@@ -30,13 +30,23 @@ export default function DiscoverPage() {
   const owner = user && !user.is_anonymous ? user.id : null;
   const ready = Boolean(owner && snapshot.profile && !error);
   const writing = ready && router.query.write === "1";
-  const [own, setOwn] = useState(false);
+  const own = router.query.view === "mine";
   const [kind, setKind] = useState<DiscoverKind | "">("");
   const [topic, setTopic] = useState<Topic | "">("");
   const [perspective, setPerspective] = useState<DiscoverPerspective | "">("");
   const [posted, setPosted] = useState(0);
   const close = () =>
     void router.replace("/discover", undefined, { scroll: false });
+  const showOwn = (mine: boolean) => {
+    const query = {
+      ...(mine && { view: "mine" }),
+      ...(writing && { write: "1" }),
+    };
+    void router.replace({ pathname: "/discover", query }, undefined, {
+      scroll: false,
+      shallow: true,
+    });
+  };
   const writePath = ready
     ? participationPaths.publish
     : owner
@@ -67,7 +77,6 @@ export default function DiscoverPage() {
                 close={close}
                 saved={() => {
                   setPosted((value) => value + 1);
-                  setOwn(false);
                   setKind("");
                   setTopic("");
                   setPerspective("");
@@ -90,7 +99,7 @@ export default function DiscoverPage() {
                   type="button"
                   className="tb-button secondary small"
                   aria-pressed={!own}
-                  onClick={() => setOwn(false)}
+                  onClick={() => showOwn(false)}
                 >
                   {de ? "Übersicht" : "Feed"}
                 </button>
@@ -98,7 +107,7 @@ export default function DiscoverPage() {
                   type="button"
                   className="tb-button secondary small"
                   aria-pressed={own}
-                  onClick={() => setOwn(true)}
+                  onClick={() => showOwn(true)}
                 >
                   {de ? "Meine Erfahrungen" : "My experiences"}
                 </button>
@@ -128,6 +137,27 @@ export default function DiscoverPage() {
                     </select>
                   </div>
                   <div className="tb-label">
+                    <label htmlFor="discover-topic">
+                      {de ? "Thema" : "Topic"}
+                    </label>
+                    <select
+                      id="discover-topic"
+                      value={topic}
+                      onChange={(event) =>
+                        setTopic(event.target.value as Topic | "")
+                      }
+                    >
+                      <option value="">
+                        {de ? "Alle Themen" : "All topics"}
+                      </option>
+                      {topics.map((value) => (
+                        <option key={value} value={value}>
+                          {topicLabels[locale][value]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="tb-label">
                     <label htmlFor="discover-perspective">
                       {de ? "Persönlichkeit" : "Personality"}
                     </label>
@@ -149,27 +179,6 @@ export default function DiscoverPage() {
                       <option value="different">
                         {de ? "Andere Perspektiven" : "Different perspectives"}
                       </option>
-                    </select>
-                  </div>
-                  <div className="tb-label">
-                    <label htmlFor="discover-topic">
-                      {de ? "Thema" : "Topic"}
-                    </label>
-                    <select
-                      id="discover-topic"
-                      value={topic}
-                      onChange={(event) =>
-                        setTopic(event.target.value as Topic | "")
-                      }
-                    >
-                      <option value="">
-                        {de ? "Alle Themen" : "All topics"}
-                      </option>
-                      {topics.map((value) => (
-                        <option key={value} value={value}>
-                          {topicLabels[locale][value]}
-                        </option>
-                      ))}
                     </select>
                   </div>
                 </div>

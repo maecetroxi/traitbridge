@@ -15,19 +15,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const section =
     router.pathname === "/messages"
       ? "messages"
-      : [
-            "/me",
-            "/profile",
-            "/test",
-            "/results",
-            "/learn",
-            "/background",
-            "/onboarding",
-            "/privacy",
-            "/moderation",
-          ].some((p) => router.pathname.startsWith(p))
-        ? "me"
-        : "home";
+      : router.pathname === "/discover"
+        ? "discover"
+        : [
+              "/me",
+              "/profile",
+              "/test",
+              "/results",
+              "/learn",
+              "/background",
+              "/onboarding",
+              "/privacy",
+              "/moderation",
+            ].some((p) => router.pathname.startsWith(p))
+          ? "me"
+          : "home";
   return (
     <div className="tb-app">
       <a className="skip-link" href="#main-content">
@@ -49,6 +51,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             {[
               { id: "home", href: "/", label: de ? "Start" : "Home" },
+              {
+                id: "discover",
+                href: "/discover",
+                label: de ? "Entdecken" : "Discover",
+              },
               {
                 id: "messages",
                 href: "/messages",
@@ -77,37 +84,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="tb-utilities">
             <LocaleSwitcher />
-            {(!user || user.is_anonymous) && !router.pathname.startsWith("/login") && (
-              <Link href="/login" className="tb-login">
-                {de ? "Anmelden" : "Sign in"}
-                <Icon name="arrow" size={17} />
-              </Link>
-            )}
-            {user && !user.is_anonymous && (
-              <Link
-                href="/me"
-                className="tb-account"
-                aria-label={de ? "Mein Konto" : "My account"}
-              >
-                <Icon name="me" size={20} />
-              </Link>
-            )}
+            {(!user || user.is_anonymous) &&
+              !router.pathname.startsWith("/login") && (
+                <Link href="/login" className="tb-login">
+                  {de ? "Anmelden" : "Sign in"}
+                  <Icon name="arrow" size={17} />
+                </Link>
+              )}
           </div>
         </div>
       </header>
-      <main id="main-content" className="tb-main">
+      <main id="main-content" className="tb-main" tabIndex={-1}>
         <div className="container">{children}</div>
       </main>
       <footer className="tb-footer">
-        <span>
-          traitbridge <span aria-hidden="true">·</span>{" "}
-          {de
-            ? "Menschen. Gemeinsam weiter."
-            : "People. Moving forward together."}
-        </span>
+        <span>TraitBridge</span>
         <div>
           <Link href="/community-guidelines">
-            {de ? "Unser Miteinander" : "Our guidelines"}
+            {de ? "Community-Regeln" : "Community guidelines"}
           </Link>
           <Link href="/privacy">{de ? "Datenschutz" : "Privacy"}</Link>
           <Link href="/imprint">{de ? "Impressum" : "Legal notice"}</Link>
