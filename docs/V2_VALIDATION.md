@@ -1,5 +1,14 @@
 # TraitBridge V2 – Prüfprotokoll
 
+## Schritt 2 · Registrierung und Onboarding
+
+- **Automatisiert:** 68 Tests bestanden. Geprüft wurden unter anderem die sicheren Rücksprungziele, die Neuberechnung von Kurz- und Langtests, die Herkunft des Ergebnisses und der Zugriff auf die neue SQL-Funktion. TypeScript, Produktionsbuild und Prüfung des gepinnten Deno-Pakets waren erfolgreich. Der vollständige und der auf Produktion beschränkte npm-Audit meldeten 0 bekannte Schwachstellen.
+- **Browser, lokale Auth-Simulation und flüchtige Datenbank:** E-Mail-Registrierung mit PKCE-Bestätigung, Beta-Sperre, Passwort-Anmeldung und -Reset, Magic Link, simulierter Google-Callback, abgelaufene Links und Sitzung. Beide Startaktionen, bestehende Profile, V1-Kontoergebnis, Gasttestübernahme in einem neuen Tab, fortsetzbarer Entwurf, Abmeldung, Kontowechsel sowie Deutsch/Englisch und mobile bzw. Desktop-Ansichten wurden geprüft.
+- **Bestehender Browserablauf:** Frage, Antwortreservierung, Antwort, Nachrichten, Danke, Sichtbarkeit und Kontolöschung bestanden wieder mit der lokalen Datenbank. Beide Browserläufe meldeten keine JavaScript-Seitenfehler.
+- **Extern offen:** Echte E-Mail-Zustellung und Turnstile, Google und Apple. Die Browser-Simulation ersetzt den Test der Einstellungen im freigegebenen Zielprojekt nicht. [Auth-Einrichtung](AUTH_ONBOARDING.md) · [Screenshots](screenshots/v2/registrierung/README.md)
+
+## Ausgangsstand vom 15. November 2026
+
 15. November 2026, lokal unter Windows / Node.js 22.13.1. Ausschliesslich fiktive Daten in den Schreibtests.
 
 | Prüfung                         | Ergebnis                                                                                                                                                                                                                                                                                                                                           |

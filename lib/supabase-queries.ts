@@ -2,6 +2,7 @@ import type { BigFiveScores } from "../components/PersonalityBadge";
 import type { PersonalityResultVariant } from "./bigfive-results";
 import { supabase } from "./supabase";
 import type { Json } from "./database.types";
+import { assessmentVersions } from "./v2/assessment";
 export type AssessmentVariant = Exclude<PersonalityResultVariant, "demo">;
 export type PersonalityResult = {
   id: string;
@@ -25,7 +26,10 @@ export const savePersonalityResult = async (
     .insert({
       user_id: userId,
       scores: scores as Json,
-      calculated_scores: calculatedScores as Json | undefined,
+      calculated_scores: {
+        ...(calculatedScores && typeof calculatedScores === "object" ? calculatedScores : {}),
+        assessment_version: assessmentVersions[variant],
+      } as Json,
       variant,
       language,
     })

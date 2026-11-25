@@ -3,30 +3,30 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useLocale } from "../contexts/LocaleContext";
-import { DEMO_RESULTS, STORAGE_KEY_FULL } from "../lib/bigfive-results";
+import { DEMO_RESULTS, resultStorageKey, STORAGE_KEY_FULL } from "../lib/bigfive-results";
+import { useAuth } from "../contexts/AuthContext";
+import { sanitizeReturnPath } from "../lib/return-path";
 import { getTestDraftSummary, type TestDraftSummary } from "../lib/test-draft";
 import ShortBigFiveTest from "../components/ShortBigFiveTest";
 
 const TestPage: React.FC = () => {
   const { locale, copy } = useLocale();
   const router = useRouter();
+  const { user, loading } = useAuth();
+  const owner = user && !user.is_anonymous ? user.id : null;
   const [draft, setDraft] = useState<TestDraftSummary | null>(null);
   const [isShortTestOpen, setIsShortTestOpen] = useState(false);
   const showDemo = router.query.demo === "1";
-  const requestedReturnTo =
-    typeof router.query.returnTo === "string" &&
-    router.query.returnTo.startsWith("/") &&
-    !router.query.returnTo.startsWith("//")
-      ? router.query.returnTo
-      : undefined;
+  const requestedReturnTo = sanitizeReturnPath(router.query.returnTo, "") || undefined;
 
   useEffect(() => {
+    if (loading) return;
     try {
-      setDraft(getTestDraftSummary(window.localStorage));
+      setDraft(getTestDraftSummary(window.localStorage, owner));
     } catch {
       setDraft(null);
     }
-  }, []);
+  }, [loading, owner]);
 
   useEffect(() => {
     if (router.isReady && router.query.short === "1") {
@@ -49,7 +49,7 @@ const TestPage: React.FC = () => {
 
   const loadDemoResults = () => {
     window.localStorage.setItem(
-      STORAGE_KEY_FULL,
+      resultStorageKey(STORAGE_KEY_FULL, owner),
       JSON.stringify({
         ...DEMO_RESULTS,
         timestamp: new Date().toISOString(),

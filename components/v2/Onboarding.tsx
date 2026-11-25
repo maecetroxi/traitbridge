@@ -5,449 +5,328 @@ import {
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useBridge } from "../../contexts/BridgeContext";
 import {
-  calculateShortTestScores,
-  selectShortTestQuestions,
-} from "../../lib/short-test";
-import { generateAvatar, validAvatar } from "../../lib/v2/avatar";
-import { STORAGE_KEY_SHORT } from "../../lib/bigfive-results";
-import { topicLabels } from "../../lib/v2/copy";
+  availableAssessment,
+  forgetAssessment,
+} from "../../lib/assessment-draft";
+import { buildLoginPath, sanitizeReturnPath } from "../../lib/return-path";
+import { selectShortTestQuestions } from "../../lib/short-test";
+import { generateAvatar } from "../../lib/v2/avatar";
 import { errorText, v2Request } from "../../lib/v2/client";
-import {
-  topics,
-  traits,
-  type AvatarConfig,
-  type Topic,
-} from "../../lib/v2/types";
-import { AvatarEditor } from "./Shared";
+import type { AssessmentDraft } from "../../lib/v2/assessment";
+import type { AssessmentMetadata, AssessmentVariant } from "../../lib/v2/types";
 import BlobAvatar from "./BlobAvatar";
-import Icon from "./Icon";
 
 export default function Onboarding() {
   const { locale } = useLocale();
   const de = locale === "de";
-  const { user } = useAuth();
-  const { snapshot, refresh } = useBridge();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { snapshot, refresh, loading, error: accessError } = useBridge();
   const router = useRouter();
-  const [stage, setStage] = useState(-1);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [avatar, setAvatar] = useState<AvatarConfig>(
-    generateAvatar("first-bridge"),
-  );
-  const [name, setName] = useState("");
-  const [interests, setInterests] = useState<Topic[]>([]);
-  const [experiences, setExperiences] = useState<Topic[]>([]);
-  const [adult, setAdult] = useState(false);
-  const [consent, setConsent] = useState(false);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [loadedKey, setLoadedKey] = useState("");
+  const destination = sanitizeReturnPath(router.query.returnTo);
+  const owner = user && !user.is_anonymous ? user.id : null;
   const questions = useMemo(
     () => selectShortTestQuestions(getItems(locale, false) as TestQuestion[]),
     [locale],
   );
-  const key = `tb-v2-onboard:${user?.id || "visitor"}`;
+  const key = owner ? `tb-v2-onboard:${owner}` : null;
+  const eligible = Boolean(
+    owner && !loading && !accessError && !snapshot.profile,
+  );
+  const [ready, setReady] = useState(false);
+  const [candidate, setCandidate] = useState<AssessmentMetadata | null>(null);
+  const [candidateError, setCandidateError] = useState(false);
+  const [device, setDevice] = useState<AssessmentDraft | null>(null);
+  const [choice, setChoice] = useState<"new" | "account" | "device" | null>(
+    null,
+  );
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [index, setIndex] = useState(0);
+  const [name, setName] = useState("");
+  const [adult, setAdult] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const avatar = generateAvatar(owner ?? "visitor");
+
   useEffect(() => {
-    try {
-      const raw = JSON.parse(
-        sessionStorage.getItem(key) ||
-          sessionStorage.getItem("tb-v2-onboard:visitor") ||
-          "null",
-      );
-      if (raw && typeof raw === "object") {
-        const restored = Object.fromEntries(
-          questions.flatMap((q) =>
-            Number.isInteger(raw.answers?.[q.id]) &&
-            raw.answers[q.id] >= 1 &&
-            raw.answers[q.id] <= 5
-              ? [[q.id, raw.answers[q.id]]]
-              : [],
-          ),
-        );
-        setAnswers(restored);
-        const firstMissing = questions.findIndex((q) => !restored[q.id]);
-        if (Number.isInteger(raw.stage) && raw.stage >= -1 && raw.stage <= 10)
-          setStage(
-            Math.min(raw.stage, firstMissing === -1 ? 10 : firstMissing),
-          );
-        if (typeof raw.name === "string") setName(raw.name);
-        if (validAvatar(raw.avatar)) setAvatar(raw.avatar);
-        if (Array.isArray(raw.interests))
-          setInterests(raw.interests.filter((t: Topic) => topics.includes(t)));
-        if (Array.isArray(raw.experiences))
-          setExperiences(
-            raw.experiences.filter((t: Topic) => topics.includes(t)),
-          );
-      }
-    } catch {}
-    setLoadedKey(key);
-    try {
-      if (
-        !sessionStorage.getItem(key) &&
-        !sessionStorage.getItem("tb-v2-onboard:visitor")
-      )
-        setAvatar(generateAvatar(user?.id || crypto.randomUUID()));
-    } catch {}
-    setReady(true);
-  }, [key, user?.id]);
-  useEffect(() => {
-    if (ready && loadedKey === key)
-      try {
-        sessionStorage.setItem(
-          key,
-          JSON.stringify({
-            answers,
-            stage,
-            name,
-            avatar,
-            interests,
-            experiences,
-          }),
-        );
-      } catch {}
-  }, [
-    answers,
-    stage,
-    name,
-    key,
-    ready,
-    loadedKey,
-    avatar,
-    interests,
-    experiences,
-  ]);
-  const scores = questions.every(
-    (q) =>
-      Number.isInteger(answers[q.id]) &&
-      answers[q.id] >= 1 &&
-      answers[q.id] <= 5,
-  )
-    ? calculateShortTestScores(questions, answers)
-    : null;
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      await router.push("/login?returnTo=%2Fonboarding");
-      return;
+    if (!router.isReady || authLoading) return;
+    if (!owner) {
+      void router.replace(buildLoginPath(destination, "signup"));
+    } else if (snapshot.profile && !accessError) {
+      void router.replace(destination);
     }
-    setBusy(true);
-    setError("");
+  }, [
+    router,
+    router.isReady,
+    authLoading,
+    owner,
+    snapshot.profile,
+    accessError,
+    destination,
+  ]);
+
+  useEffect(() => {
+    if (!key) return;
     try {
-      await v2Request("onboard", {
-        pseudonym: name,
-        avatar,
-        answers,
-        language: locale,
-        interests,
-        experiences,
-        adult_consent: adult,
-        matching_consent: consent,
-      });
+      const draft = JSON.parse(sessionStorage.getItem(key) || "null");
+      if (!draft) return;
+      const restored = Object.fromEntries(
+        questions.flatMap(({ id }) => {
+          const answer = draft.answers?.[id];
+          return Number.isInteger(answer) && answer >= 1 && answer <= 5
+            ? [[id, answer]]
+            : [];
+        }),
+      );
+      setAnswers(restored);
+      const missing = questions.findIndex(({ id }) => !restored[id]);
+      setIndex(missing < 0 ? questions.length : missing);
+      if (typeof draft.name === "string") setName(draft.name.slice(0, 30));
+      if (draft.choice === "new" || missing === -1) setChoice("new");
+    } catch {
+    } finally {
+      setReady(true);
+    }
+    // Items have stable IDs in both languages.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  useEffect(() => {
+    if (!ready || !key || snapshot.profile) return;
+    try {
+      sessionStorage.setItem(key, JSON.stringify({ answers, name, choice }));
+    } catch {}
+  }, [ready, key, snapshot.profile, answers, name, choice]);
+
+  async function loadCandidate(id: string, signal?: AbortSignal) {
+    try {
+      const next = await v2Request<AssessmentMetadata | null>(
+        "assessment_candidate",
+        {},
+        signal,
+        id,
+      );
+      if (!signal?.aborted) setCandidate(next);
+    } catch {
+      if (!signal?.aborted) setCandidateError(true);
+    }
+  }
+
+  const [checking, setChecking] = useState(true);
+  useEffect(() => {
+    if (!eligible || !owner) return;
+    const controller = new AbortController();
+    setDevice(availableAssessment(owner));
+    setChecking(true);
+    void loadCandidate(owner, controller.signal).finally(() => {
+      if (!controller.signal.aborted) setChecking(false);
+    });
+    return () => controller.abort();
+  }, [eligible, owner]);
+
+  const profileStep =
+    choice === "account" ||
+    choice === "device" ||
+    (choice === "new" && index === questions.length);
+  const question = questions[index];
+  const label = (variant: AssessmentVariant) =>
+    variant === "full"
+      ? de
+        ? "Ausführlicher Big-Five-Test"
+        : "Full Big Five assessment"
+      : de
+        ? "Big-Five-Kurztest"
+        : "Big Five quick test";
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    if (!owner || !key || !eligible || !profileStep || busy) return;
+    const assessment =
+      choice === "account" && candidate?.resultId
+        ? { result_id: candidate.resultId }
+        : choice === "device" && device
+          ? { device_test: device }
+          : { answers };
+    setError("");
+    setBusy(true);
+    try {
+      await v2Request(
+        "onboard",
+        {
+          ...assessment,
+          pseudonym: name,
+          avatar,
+          language: locale,
+          interests: [],
+          experiences: [],
+          adult_consent: adult,
+          matching_consent: consent,
+        },
+        undefined,
+        owner,
+      );
       try {
         sessionStorage.removeItem(key);
-        sessionStorage.removeItem("tb-v2-onboard:visitor");
-        if (scores)
-          localStorage.setItem(
-            STORAGE_KEY_SHORT,
-            JSON.stringify({
-              scores,
-              timestamp: new Date().toISOString(),
-              variant: "short",
-              language: locale,
-            }),
-          );
-        const draft = sessionStorage.getItem("tb-v2-question:visitor");
-        if (draft) {
-          sessionStorage.setItem(`tb-v2-question:${user.id}`, draft);
-          sessionStorage.removeItem("tb-v2-question:visitor");
-        }
-      } catch {
-        /* Optional local copies must not turn a successful save into an error. */
-      }
+      } catch {}
+      forgetAssessment(owner);
       await refresh();
-      await router.push("/");
+      await router.replace(destination);
     } catch (err) {
-      setError(errorText(err, locale));
+      if (err instanceof Error && err.message === "ALREADY_ONBOARDED") {
+        await refresh();
+      } else {
+        setError(errorText(err, locale));
+      }
     } finally {
       setBusy(false);
     }
-  };
-  if (snapshot.profile)
+  }
+
+  if (authLoading || !owner || loading || snapshot.profile)
     return (
-      <div className="tb-empty">
-        <BlobAvatar config={snapshot.profile.avatar} size={130} />
-        <h1>{de ? "Du bist bereit." : "You’re ready."}</h1>
-        <Link href="/" className="tb-button">
-          {de ? "Zu den Fragen" : "Explore questions"}
-        </Link>
+      <div className="tb-empty" role="status">
+        {de ? "Wird geladen …" : "Loading …"}
       </div>
     );
+  if (accessError)
+    return (
+      <div className="page-card login-card">
+        <h1>{de ? "Beta-Zugang" : "Beta access"}</h1>
+        <p role="status">{errorText(accessError, locale)}</p>
+        <div className="login-actions">
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => void refresh()}
+          >
+            {de ? "Erneut prüfen" : "Check again"}
+          </button>
+          <button
+            type="button"
+            className="tb-text-button"
+            onClick={() =>
+              void signOut().catch((err) => setError(errorText(err, locale)))
+            }
+          >
+            {de ? "Abmelden" : "Sign out"}
+          </button>
+          <Link href="/test" className="tb-text-link">
+            {de ? "Zum Persönlichkeitstest" : "Try the personality test"}
+          </Link>
+        </div>
+        {error && (
+          <p role="alert" className="tb-error">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  if (!ready || checking)
+    return (
+      <div className="tb-empty" role="status">
+        {de ? "Testergebnisse werden geprüft …" : "Checking for test results …"}
+      </div>
+    );
+
+  const chooseTest =
+    choice === null && Boolean(candidate || device || candidateError);
   return (
     <div className="tb-onboarding">
       <Head>
         <title>
-          {(de ? "Lernen wir uns kennen" : "Let’s get acquainted") +
-            " | TraitBridge"}
+          {de ? "Profil einrichten" : "Set up your profile"} | TraitBridge
         </title>
       </Head>
-      <div className="tb-onboarding-side">
-        <span className="tb-eyebrow">
-          {de ? "DEINE BRÜCKE ZU ANDEREN" : "YOUR BRIDGE TO OTHERS"}
-        </span>
-        <h1>
-          {de ? (
-            <>
-              Ein bisschen du.
-              <br />
-              <em>Ein guter Anfang.</em>
-            </>
-          ) : (
-            <>
-              A little about you.
-              <br />
-              <em>A good beginning.</em>
-            </>
-          )}
-        </h1>
-        <BlobAvatar config={avatar} size={175} />
-        <p>
-          {de
-            ? "Die Big Five beschreiben fünf fliessende Dimensionen. Sie machen dich weder zu einem Typ noch sagen sie voraus, was du erleben wirst."
-            : "The Big Five describe five continuous dimensions. They don’t put you in a type or predict your experiences."}
-        </p>
-        <Link className="tb-text-link" href="/test/full">
-          {de
-            ? "Lieber den ausführlichen Test machen?"
-            : "Prefer the full assessment?"}
-        </Link>
-      </div>
+      <header className="tb-onboarding-side">
+        <h1>{de ? "Profil einrichten" : "Set up your profile"}</h1>
+        <BlobAvatar config={avatar} size={150} />
+      </header>
       <section className="tb-panel tb-onboarding-card">
-        {stage === -1 ? (
-          <>
-            <span className="tb-eyebrow">
-              {de ? "WILLKOMMEN BEI TRAITBRIDGE" : "WELCOME TO TRAITBRIDGE"}
+        <div className="tb-section-line">
+          <span className="tb-eyebrow">
+            {profileStep
+              ? de
+                ? "2 von 2 · Profil"
+                : "2 of 2 · Profile"
+              : de
+                ? "1 von 2 · Big Five"
+                : "1 of 2 · Big Five"}
+          </span>
+          {!chooseTest && !profileStep && (
+            <span>
+              {index + 1} / {questions.length}
             </span>
-            <h2>
-              {de
-                ? "Menschen verstehen Menschen."
-                : "People understand people."}
-            </h2>
-            <p>
-              {de
-                ? "Stelle eine persönliche Frage oder teile, was du selbst erlebt hast. Wir bieten deine Frage Menschen an, die bei diesem Thema ähnlich ticken."
-                : "Ask a personal question or share your experience. We offer your question to people with similar traits relevant to the topic."}
-            </p>
-            <div className="tb-note">
-              <Icon name="lock" />
+          )}
+        </div>
+        {chooseTest ? (
+          <>
+            <h2>{de ? "Testergebnis übernehmen" : "Use a test result"}</h2>
+            {candidate && (
               <p>
-                {de
-                  ? "Deine genauen Werte bleiben privat. Antworten stammen ausschliesslich von Menschen."
-                  : "Your exact scores stay private. Replies come exclusively from people."}
+                <button
+                  type="button"
+                  className="tb-button"
+                  onClick={() => setChoice("account")}
+                >
+                  {label(candidate.variant)}{" "}
+                  {de ? "aus dem Konto verwenden" : "from your account"}
+                </button>
               </p>
-            </div>
-            <h3>
-              {de
-                ? "Zuerst: zehn kleine Aussagen."
-                : "First: ten short statements."}
-            </h3>
-            <p>
-              {de
-                ? "Der bisherige Kurztest ist eine grobe Orientierung mit nur zwei Aussagen pro Dimension, keine validierte eigenständige Kurzskala. Du kannst ihn später durch den vollständigen Test ergänzen."
-                : "The existing quick test is a rough orientation with only two items per dimension, not a validated standalone short scale. You can add the full test later."}
-            </p>
-            <button className="tb-button" onClick={() => setStage(0)}>
-              {de ? "Mich kennenlernen" : "Get to know myself"}
-              <Icon name="arrow" size={18} />
-            </button>
-            <p className="tb-fine">
-              {de
-                ? "Geschlossene Beta · ab 18 Jahren · ohne Zeitdruck"
-                : "Closed beta · adults 18+ · no time pressure"}
-            </p>
-          </>
-        ) : stage < 10 ? (
-          <>
-            <div className="tb-section-line">
-              <span className="tb-eyebrow">
-                {de ? "KURZE ORIENTIERUNG" : "QUICK ORIENTATION"}
-              </span>
-              <span>{stage + 1} / 10</span>
-            </div>
-            <progress
-              value={Object.keys(answers).length}
-              max={10}
-              aria-label={de ? "Beantwortete Aussagen" : "Answered statements"}
-            />
-            <fieldset className="tb-test-question">
-              <legend>{questions[stage].text}</legend>
-              <p className="tb-muted">
-                {de
-                  ? "Wie gut passt das zu dir?"
-                  : "How well does this describe you?"}
-              </p>
-              <div className="tb-test-choices">
-                {questions[stage].choices.map((choice) => (
-                  <label key={choice.score}>
-                    <input
-                      type="radio"
-                      name={questions[stage].id}
-                      checked={answers[questions[stage].id] === choice.score}
-                      onChange={() =>
-                        setAnswers({
-                          ...answers,
-                          [questions[stage].id]: choice.score,
-                        })
-                      }
-                    />
-                    <span>{choice.text}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-            <div className="tb-section-line">
-              <button
-                className="tb-text-button"
-                onClick={() => setStage((n) => n - 1)}
-              >
-                {de ? "Zurück" : "Back"}
-              </button>
-              <button
-                className="tb-button"
-                disabled={!answers[questions[stage].id]}
-                onClick={() => setStage((n) => n + 1)}
-              >
-                {stage === 9
-                  ? de
-                    ? "Meine Orientierung"
-                    : "My orientation"
-                  : de
-                    ? "Weiter"
-                    : "Continue"}
-                <Icon name="arrow" size={18} />
-              </button>
-            </div>
-          </>
-        ) : (
-          <form onSubmit={save}>
-            <span className="tb-eyebrow">
-              {de ? "DAS BIST DU. VIELLEICHT." : "THIS MIGHT BE YOU."}
-            </span>
-            <h2>
-              {de
-                ? "Viel mehr als fünf Zahlen."
-                : "Much more than five numbers."}
-            </h2>
-            <p>
-              {de
-                ? "Deine grobe Orientierung hilft bei der Vermittlung. Sie ist keine Diagnose und kann sich verändern."
-                : "Your rough orientation helps with matching. It is not a diagnosis and may change."}
-            </p>
-            {scores && (
-              <div className="tb-mini-scores">
-                {traits.map((t, i) => {
-                  const value = scores[t];
-                  return (
-                    <div key={t}>
-                      <span>
-                        {
-                          (de
-                            ? [
-                                "Offenheit",
-                                "Gewissenhaftigkeit",
-                                "Extraversion",
-                                "Verträglichkeit",
-                                "Emotionale Empfindlichkeit",
-                              ]
-                            : [
-                                "Openness",
-                                "Conscientiousness",
-                                "Extraversion",
-                                "Agreeableness",
-                                "Emotional sensitivity",
-                              ])[i]
-                        }
-                      </span>
-                      <meter min={1} max={5} value={value} />
-                    </div>
-                  );
-                })}
-              </div>
             )}
-            <h3>
-              {de
-                ? "Gib deiner Perspektive ein Gesicht."
-                : "Give your perspective a face."}
-            </h3>
-            <AvatarEditor value={avatar} onChange={setAvatar} />
+            {device && (
+              <p>
+                <button
+                  type="button"
+                  className="tb-button secondary"
+                  onClick={() => setChoice("device")}
+                >
+                  {label(device.variant)}{" "}
+                  {de ? "aus diesem Browser verwenden" : "from this browser"}
+                </button>
+              </p>
+            )}
+            {candidateError && (
+              <p role="status">
+                {de
+                  ? "Kontotest konnte nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen."
+                  : "Your account result could not be loaded. Reload this page to try again."}
+              </p>
+            )}
+            <button
+              type="button"
+              className="tb-text-button"
+              onClick={() => setChoice("new")}
+            >
+              {de ? "Kurztest machen" : "Take the quick test"}
+            </button>
+          </>
+        ) : profileStep ? (
+          <form onSubmit={save}>
+            <h2>
+              {de ? "Pseudonym und Einwilligung" : "Pseudonym and consent"}
+            </h2>
             <label className="tb-label">
-              {de ? "Dein Pseudonym" : "Your pseudonym"}
+              {de ? "Pseudonym" : "Pseudonym"}
               <input
+                name="pseudonym"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 minLength={2}
                 maxLength={30}
                 autoComplete="nickname"
-                placeholder={
-                  de ? "Zum Beispiel: Moosfreund" : "For example: Mossfriend"
-                }
               />
             </label>
-            <fieldset className="tb-interest-group">
-              <legend>
-                {de
-                  ? "Was interessiert dich? (optional)"
-                  : "What interests you? (optional)"}
-              </legend>
-              <div className="tb-chips">
-                {topics.map((t) => (
-                  <button
-                    type="button"
-                    key={t}
-                    aria-pressed={interests.includes(t)}
-                    onClick={() =>
-                      setInterests(
-                        interests.includes(t)
-                          ? interests.filter((x) => x !== t)
-                          : [...interests, t],
-                      )
-                    }
-                  >
-                    {topicLabels[locale][t]}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-            <fieldset className="tb-interest-group">
-              <legend>
-                {de
-                  ? "Wo möchtest du Erfahrungen teilen? (optional)"
-                  : "Where would you like to share experience? (optional)"}
-              </legend>
-              <div className="tb-chips">
-                {topics.map((t) => (
-                  <button
-                    type="button"
-                    key={t}
-                    aria-pressed={experiences.includes(t)}
-                    onClick={() =>
-                      setExperiences(
-                        experiences.includes(t)
-                          ? experiences.filter((x) => x !== t)
-                          : [...experiences, t],
-                      )
-                    }
-                  >
-                    {topicLabels[locale][t]}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
+            <p className="tb-fine">
+              {de
+                ? "Avatar, Interessen und Erfahrungsthemen kannst du später unter „Ich“ ändern."
+                : "You can edit your avatar, interests and experience in Me."}
+            </p>
             <label className="tb-checkbox">
               <input
                 required
@@ -457,10 +336,10 @@ export default function Onboarding() {
               />
               <span>
                 {de
-                  ? "Ich bin mindestens 18 Jahre alt und akzeptiere die "
+                  ? "Ich bin mindestens 18 und akzeptiere die "
                   : "I am at least 18 and accept the "}
-                <Link href="/community-guidelines">
-                  {de ? "Regeln für unser Miteinander" : "community guidelines"}
+                <Link href="/community-guidelines" target="_blank">
+                  {de ? "Community-Regeln" : "community guidelines"}
                 </Link>
                 .
               </span>
@@ -474,10 +353,10 @@ export default function Onboarding() {
               />
               <span>
                 {de
-                  ? "Ich willige ein, dass mein privates Persönlichkeitsprofil zur Vermittlung verwendet wird. "
-                  : "I consent to using my private personality profile for matching. "}
-                <Link href="/privacy">
-                  {de ? "Datenschutz ansehen" : "Read the privacy notice"}
+                  ? "Ich stimme zu, dass mein privates Big-Five-Profil für das Matching verwendet wird. "
+                  : "I consent to using my private Big Five profile for matching. "}
+                <Link href="/privacy" target="_blank">
+                  {de ? "Datenschutz" : "Privacy notice"}
                 </Link>
               </span>
             </label>
@@ -486,26 +365,88 @@ export default function Onboarding() {
                 {error}
               </p>
             )}
-            <button className="tb-button" disabled={busy}>
-              {busy
-                ? de
-                  ? "Wird gespeichert …"
-                  : "Saving …"
-                : user
+            <div className="tb-section-line">
+              <button
+                type="button"
+                className="tb-text-button"
+                onClick={() => {
+                  setError("");
+                  if (choice === "new") setIndex(questions.length - 1);
+                  else setChoice(null);
+                }}
+              >
+                {de ? "Zurück" : "Back"}
+              </button>
+              <button className="tb-button" disabled={busy}>
+                {busy
                   ? de
-                    ? "Meine Brücke bauen"
-                    : "Build my bridge"
+                    ? "Speichert …"
+                    : "Saving …"
                   : de
-                    ? "Anmelden & abschliessen"
-                    : "Sign in & finish"}
-              <Icon name="arrow" size={18} />
-            </button>
-            <p className="tb-fine">
-              {de
-                ? "Du kannst die Vermittlung jederzeit unter „Ich“ pausieren und dein Konto löschen."
-                : "You can pause matching or delete your account in Me at any time."}
-            </p>
+                    ? "Profil speichern"
+                    : "Save profile"}
+              </button>
+            </div>
           </form>
+        ) : (
+          question && (
+            <>
+              <h2>{de ? "Big-Five-Kurztest" : "Big Five quick test"}</h2>
+              <progress
+                value={Object.keys(answers).length}
+                max={questions.length}
+                aria-label={
+                  de ? "Beantwortete Aussagen" : "Answered statements"
+                }
+              />
+              <fieldset className="tb-test-question">
+                <legend>{question.text}</legend>
+                <div className="tb-test-choices">
+                  {question.choices.map((option) => (
+                    <label key={option.score}>
+                      <input
+                        type="radio"
+                        name={question.id}
+                        checked={answers[question.id] === option.score}
+                        onChange={() =>
+                          setAnswers({
+                            ...answers,
+                            [question.id]: option.score,
+                          })
+                        }
+                      />
+                      <span>{option.text}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <div className="tb-section-line">
+                <button
+                  type="button"
+                  className="tb-text-button"
+                  disabled={
+                    index === 0 && !candidate && !device && !candidateError
+                  }
+                  onClick={() =>
+                    index > 0 ? setIndex(index - 1) : setChoice(null)
+                  }
+                >
+                  {de ? "Zurück" : "Back"}
+                </button>
+                <button
+                  type="button"
+                  className="tb-button"
+                  disabled={!answers[question.id]}
+                  onClick={() => {
+                    setChoice("new");
+                    setIndex(index + 1);
+                  }}
+                >
+                  {de ? "Weiter" : "Next"}
+                </button>
+              </div>
+            </>
+          )
         )}
       </section>
     </div>

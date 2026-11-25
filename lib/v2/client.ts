@@ -3,11 +3,18 @@ export async function v2Request<T>(
   action: string,
   data: Record<string, unknown> = {},
   signal?: AbortSignal,
+  expectedUserId?: string,
 ): Promise<T> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (!session) throw new Error("AUTH_REQUIRED");
+  if (
+    !session ||
+    session.user.is_anonymous ||
+    (session.expires_at ?? 0) * 1000 <= Date.now() ||
+    (expectedUserId && session.user.id !== expectedUserId)
+  )
+    throw new Error("AUTH_REQUIRED");
   const response = await fetch("/api/v2", {
     method: "POST",
     headers: {
@@ -53,6 +60,14 @@ export function errorText(error: unknown, locale: "de" | "en") {
     FULL_TEST_REQUIRED: [
       "Es wurde noch kein vollständiges Testergebnis in deinem Konto gefunden.",
       "No full test result was found in your account yet.",
+    ],
+    ASSESSMENT_NOT_FOUND: [
+      "Das ausgewählte Testergebnis ist nicht mehr verfügbar. Wähle ein anderes Ergebnis oder starte den Kurztest.",
+      "The selected result is unavailable. Choose another result or take the quick test.",
+    ],
+    ASSESSMENT_UNAVAILABLE: [
+      "Gespeicherte Testergebnisse konnten nicht geladen werden.",
+      "Saved test results could not be loaded.",
     ],
     CONSENT_REQUIRED: [
       "Bitte bestätige Volljährigkeit und die private Vermittlung.",

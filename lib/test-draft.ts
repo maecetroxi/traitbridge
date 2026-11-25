@@ -27,8 +27,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isAnswerScore = (value: unknown): value is number =>
   typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 5;
 
-export const getTestDraftStorageKey = (language: Locale) =>
-  `${TEST_DRAFT_STORAGE_PREFIX}-v${TEST_DRAFT_VERSION}-${language}`;
+export const getTestDraftStorageKey = (language: Locale, owner?: string | null) =>
+  `${TEST_DRAFT_STORAGE_PREFIX}-v${TEST_DRAFT_VERSION}-${language}${owner ? `:${owner}` : ""}`;
 
 export const splitIntoStages = <T>(items: T[], stageSize = TEST_STAGE_SIZE): T[][] => {
   if (!Number.isInteger(stageSize) || stageSize <= 0) {
@@ -107,6 +107,7 @@ export const saveTestDraft = (
   language: Locale,
   answers: Record<string, number>,
   currentStage: number,
+  owner?: string | null,
 ) => {
   const draft: TestDraft = {
     version: TEST_DRAFT_VERSION,
@@ -116,7 +117,7 @@ export const saveTestDraft = (
     updatedAt: new Date().toISOString(),
   };
 
-  storage.setItem(getTestDraftStorageKey(language), JSON.stringify(draft));
+  storage.setItem(getTestDraftStorageKey(language, owner), JSON.stringify(draft));
   return draft;
 };
 
@@ -124,8 +125,9 @@ export const loadTestDraft = (
   storage: StorageLike,
   language: Locale,
   questionIds: string[],
+  owner?: string | null,
 ) => {
-  const storageKey = getTestDraftStorageKey(language);
+  const storageKey = getTestDraftStorageKey(language, owner);
   const rawDraft = storage.getItem(storageKey);
 
   if (!rawDraft) {
@@ -146,17 +148,18 @@ export const loadTestDraft = (
   }
 };
 
-export const clearTestDraft = (storage: StorageLike, language: Locale) => {
-  storage.removeItem(getTestDraftStorageKey(language));
+export const clearTestDraft = (storage: StorageLike, language: Locale, owner?: string | null) => {
+  storage.removeItem(getTestDraftStorageKey(language, owner));
 };
 
 export const getTestDraftSummary = (
   storage: Pick<Storage, "getItem">,
+  owner?: string | null,
 ): TestDraftSummary | null => {
   const summaries: TestDraftSummary[] = [];
 
   for (const language of ["de", "en"] as const) {
-    const rawDraft = storage.getItem(getTestDraftStorageKey(language));
+    const rawDraft = storage.getItem(getTestDraftStorageKey(language, owner));
 
     if (!rawDraft) {
       continue;

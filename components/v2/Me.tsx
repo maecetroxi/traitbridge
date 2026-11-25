@@ -105,7 +105,7 @@ export default function Me() {
           </h1>
         </div>
         {user && (
-          <button className="tb-text-button" onClick={() => void signOut()}>
+          <button className="tb-text-button" onClick={() => void signOut().catch((err) => setError(errorText(err, locale)))}>
             {de ? "Abmelden" : "Sign out"}
           </button>
         )}

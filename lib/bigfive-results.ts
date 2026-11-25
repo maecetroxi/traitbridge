@@ -5,6 +5,8 @@ import { getTraitPole, type TraitBand } from "./trait-bridges";
 
 export const STORAGE_KEY_FULL = "bigfive-results-full-v1";
 export const STORAGE_KEY_SHORT = "bigfive-results-short-v1";
+export const resultStorageKey = (key: string, owner?: string | null) =>
+  owner ? `${key}:${owner}` : key;
 export type PersonalityResultVariant = "full" | "short" | "demo";
 
 export type CalculatedDomainScore = {
@@ -207,9 +209,9 @@ export const choosePreferredStoredResults = (
       return Date.parse(right.timestamp) - Date.parse(left.timestamp);
     })[0] ?? null;
 
-export const loadPreferredStoredResults = (storage: Pick<Storage, "getItem">) => {
+export const loadPreferredStoredResults = (storage: Pick<Storage, "getItem">, owner?: string | null) => {
   const read = (key: string) => {
-    const rawValue = storage.getItem(key);
+    const rawValue = storage.getItem(resultStorageKey(key, owner));
 
     if (!rawValue) {
       return null;

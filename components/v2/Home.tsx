@@ -13,12 +13,22 @@ import BlobAvatar from "./BlobAvatar";
 import Icon from "./Icon";
 import HelpCard from "./HelpCard";
 import SensitiveHint from "./SensitiveHint";
+import {
+  buildLoginPath,
+  buildOnboardingPath,
+  participationPaths,
+} from "../../lib/return-path";
 
 export default function Home() {
   const { locale } = useLocale();
   const de = locale === "de";
-  const { user } = useAuth();
-  const { snapshot, refresh, error: bridgeError } = useBridge();
+  const { user, loading: authLoading } = useAuth();
+  const {
+    snapshot,
+    refresh,
+    loading: bridgeLoading,
+    error: bridgeError,
+  } = useBridge();
   const router = useRouter();
   const [body, setBody] = useState("");
   const [topic, setTopic] = useState<Topic | "">("");
@@ -33,24 +43,47 @@ export default function Home() {
   const [selected, setSelected] = useState<Question | null>(null);
   const [feedError, setFeedError] = useState("");
   const [feedVersion, setFeedVersion] = useState(0);
-  const draftKey = `tb-v2-question:${user?.id || "visitor"}`;
+  const owner = user && !user.is_anonymous ? user.id : null;
+  const ready = Boolean(owner && snapshot.profile && !bridgeError);
+  const draftKey = owner ? `tb-v2-question:${owner}` : null;
+  const actionPath = (action: keyof typeof participationPaths) =>
+    owner
+      ? buildOnboardingPath(participationPaths[action])
+      : buildLoginPath(participationPaths[action], "signup");
   useEffect(() => {
+    if (!draftKey) return;
     try {
       setBody(sessionStorage.getItem(draftKey) || "");
     } catch {}
   }, [draftKey]);
   useEffect(() => {
-    if (router.query.view === "discover") setView("discover");
-  }, [router.query.view]);
+    if (router.query.action === "help") setView("help");
+    else if (router.query.view === "discover") setView("discover");
+  }, [router.query.action, router.query.view]);
   useEffect(() => {
-    if (!snapshot.profile) {
+    if (!ready) return;
+    if (router.query.action === "ask") {
+      document.getElementById("question-body")?.focus();
+    } else if (router.query.action === "help") {
+      document.getElementById("help-title")?.focus();
+    }
+  }, [ready, router.query.action]);
+  useEffect(() => {
+    if (!ready || !owner) {
       setQuestions([]);
+      setSelected(null);
+      setLoading(false);
       return;
     }
     let active = true;
     setLoading(true);
     setFeedError("");
-    void v2Request<Question[]>(view === "help" ? "help" : "discover")
+    void v2Request<Question[]>(
+      view === "help" ? "help" : "discover",
+      {},
+      undefined,
+      owner,
+    )
       .then((data) => {
         if (active) setQuestions(data);
       })
@@ -69,25 +102,25 @@ export default function Home() {
     snapshot.profile?.available,
     feedVersion,
     locale,
+    ready,
+    owner,
   ]);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!user) {
-      await router.push("/login?returnTo=%2Fonboarding");
-      return;
-    }
-    if (!snapshot.profile) {
-      await router.push("/onboarding");
-      return;
-    }
+    if (!ready || !owner || !draftKey) return;
     setBusy(true);
     try {
-      await v2Request("question", {
-        body,
-        topic: topic || undefined,
-        discoverable,
-      });
+      await v2Request(
+        "question",
+        {
+          body,
+          topic: topic || undefined,
+          discoverable,
+        },
+        undefined,
+        owner,
+      );
       setSent(true);
       setBody("");
       try {
@@ -213,6 +246,30 @@ export default function Home() {
                 {de ? "Jemand anderem helfen" : "Help someone else"}
               </button>
             </div>
+          ) : !ready ? (
+            <>
+              <h2 id="ask-title">{de ? "Frage stellen" : "Ask a question"}</h2>
+              <p className="tb-muted">
+                {de
+                  ? "Erhalte bis zu drei Antworten von echten Menschen."
+                  : "Get up to three replies from real people."}
+              </p>
+              {authLoading || bridgeLoading ? (
+                <p role="status">{de ? "Wird geladen …" : "Loading …"}</p>
+              ) : (
+                <Link
+                  href={actionPath("ask")}
+                  className="tb-button tb-ask-button"
+                >
+                  {de ? "Frage stellen" : "Ask a question"}
+                </Link>
+              )}
+              <Link href="/test" className="tb-text-link">
+                {de
+                  ? "Persönlichkeitstest ausprobieren"
+                  : "Try the personality test"}
+              </Link>
+            </>
           ) : (
             <>
               <h2 id="ask-title">
@@ -237,7 +294,8 @@ export default function Home() {
                   onChange={(e) => {
                     setBody(e.target.value);
                     try {
-                      sessionStorage.setItem(draftKey, e.target.value);
+                      if (draftKey)
+                        sessionStorage.setItem(draftKey, e.target.value);
                     } catch {}
                   }}
                   placeholder={
@@ -323,8 +381,8 @@ export default function Home() {
             </span>
             <Icon name="heart" size={21} />
           </div>
-          <h2 id="help-title">
-            {de ? "Vielleicht kennst du das." : "Maybe you’ve been there."}
+          <h2 id="help-title" tabIndex={-1}>
+            {de ? "Jemandem helfen" : "Help someone"}
           </h2>
           <p className="tb-muted">
             {de
@@ -469,13 +527,8 @@ export default function Home() {
                   ? "Eine Erfahrung kann einen Unterschied machen."
                   : "One experience can make a difference."}
               </div>
-              <Link
-                href={user ? "/onboarding" : "/login?returnTo=%2Fonboarding"}
-                className="tb-button secondary"
-              >
-                {de
-                  ? "Mit eigener Erfahrung helfen"
-                  : "Help with your experience"}
+              <Link href={actionPath("help")} className="tb-button secondary">
+                {de ? "Jemandem helfen" : "Help someone"}
                 <Icon name="arrow" size={18} />
               </Link>
               {Boolean(bridgeError) && (

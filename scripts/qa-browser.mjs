@@ -48,11 +48,11 @@ async function context(index) {
   });
   if (index !== undefined)
     await ctx.addInitScript(
-      ({ id, access_token }) => {
+      ({ id, access_token, storageKey }) => {
         localStorage.setItem("traitbridge-locale", "de");
-        if (!localStorage.getItem("sb-127-auth-token"))
+        if (!localStorage.getItem(storageKey))
           localStorage.setItem(
-            "sb-127-auth-token",
+            storageKey,
             JSON.stringify({
               access_token,
               refresh_token: "local-qa",
@@ -72,7 +72,7 @@ async function context(index) {
             }),
           );
       },
-      { id: ids[index], access_token: token(ids[index]) },
+      { id: ids[index], access_token: token(ids[index]), storageKey: process.env.QA_AUTH_STORAGE_KEY || "sb-127-auth-token" },
     );
   const page = await ctx.newPage();
   pages.push(page);
@@ -99,7 +99,7 @@ async function screenshot(page, name, width = 1440) {
     () => document.documentElement.scrollWidth > window.innerWidth,
   );
   assert.equal(overflow, false, `${name} overflows at ${width}`);
-  const folder = `docs/screenshots/v2/${width < 641 ? "mobile" : "desktop"}`;
+  const folder = `test-results/v2-browser/${width < 641 ? "mobile" : "desktop"}`;
   await fs.mkdir(folder, { recursive: true });
   await page.screenshot({
     path: `${folder}/${name}-${width}.png`,
@@ -121,30 +121,28 @@ try {
     await screenshot(guest.page, "start-guest", width);
   const first = await context(0);
   await first.page.goto(base + "/onboarding", { waitUntil: "networkidle" });
-  await first.page
-    .getByRole("button", { name: "Mich kennenlernen", exact: true })
-    .click();
+  await first.page.getByRole("heading", { name: "Big-Five-Kurztest", exact: true }).waitFor();
   for (let i = 0; i < 10; i++) {
     await first.page.getByRole("radio").nth(2).check();
     await first.page
       .getByRole("button", {
-        name: i === 9 ? "Meine Orientierung" : "Weiter",
+        name: "Weiter",
         exact: true,
       })
       .click();
   }
   await first.page
-    .getByRole("heading", { name: "Viel mehr als fünf Zahlen." })
+    .getByRole("heading", { name: "Pseudonym und Einwilligung" })
     .waitFor();
   await screenshot(first.page, "onboarding", 1440);
   await screenshot(first.page, "onboarding", 390);
   await first.page
-    .getByLabel("Dein Pseudonym", { exact: true })
+    .getByLabel("Pseudonym", { exact: true })
     .fill("Farnfreund");
   await first.page.getByRole("checkbox").nth(0).check();
   await first.page.getByRole("checkbox").nth(1).check();
   await first.page
-    .getByRole("button", { name: "Meine Brücke bauen", exact: true })
+    .getByRole("button", { name: "Profil speichern", exact: true })
     .click();
   await first.page.waitForURL(base + "/");
   await first.page.getByRole("heading", { name: /Farnfreund/ }).waitFor();

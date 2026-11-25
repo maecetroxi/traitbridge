@@ -1,3 +1,4 @@
+import { useAuth } from "../../contexts/AuthContext";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -230,6 +231,8 @@ const libraryCopy: Record<
 export default function MediaLibraryPage() {
   const router = useRouter();
   const { locale, copy: globalCopy } = useLocale();
+  const { user, loading: authLoading } = useAuth();
+  const owner = user && !user.is_anonymous ? user.id : null;
   const copy = libraryCopy[locale];
   const [scores, setScores] = useState<BigFiveScores>({
     ...NEUTRAL_BOOK_PROFILE,
@@ -242,7 +245,7 @@ export default function MediaLibraryPage() {
 
   useEffect(() => {
     try {
-      const result = loadPreferredStoredResults(window.localStorage);
+      const result = authLoading ? null : loadPreferredStoredResults(window.localStorage, owner);
 
       if (result) {
         setScores(result.scores);
@@ -252,7 +255,7 @@ export default function MediaLibraryPage() {
       setScores({ ...NEUTRAL_BOOK_PROFILE });
       setHasTestProfile(false);
     }
-  }, []);
+  }, [authLoading, owner]);
 
   useEffect(() => {
     if (!router.isReady) {

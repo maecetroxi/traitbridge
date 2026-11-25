@@ -1,21 +1,52 @@
 export const sanitizeReturnPath = (value: unknown, fallback = "/") => {
+  if (typeof value !== "string" || value.length > 512) return fallback;
+  const path = value.split(/[?#]/, 1)[0];
   if (
-    typeof value === "string" &&
-    value.startsWith("/") &&
-    !value.startsWith("//") &&
-    !value.includes("\\") &&
-    !/[\u0000-\u001F\u007F]/.test(value)
-  ) {
-    return value;
-  }
-
-  return fallback;
+    !path.startsWith("/") ||
+    path.startsWith("//") ||
+    /[\\%\s\u0000-\u001f\u007f]/.test(path) ||
+    path.split("/").some((part) => part === "." || part === "..") ||
+    /[\u0000-\u001f\u007f]/.test(value) ||
+    /^\/login(?:\/|$)/i.test(path)
+  )
+    return fallback;
+  return value;
 };
 
-export const buildLoginPath = (returnTo: string) =>
-  `/login?returnTo=${encodeURIComponent(sanitizeReturnPath(returnTo))}`;
+export type LoginMode = "signin" | "signup" | "forgot" | "magic";
+export const buildLoginPath = (returnTo: string, mode: LoginMode = "signin") =>
+  `/login?returnTo=${encodeURIComponent(sanitizeReturnPath(returnTo))}${mode === "signin" ? "" : `&mode=${mode}`}`;
 
-export const AUTH_RETURN_PATH_KEY = "traitbridge.auth.returnTo";
+export const participationPaths = {
+  ask: "/?action=ask",
+  help: "/?action=help",
+} as const;
+export const buildOnboardingPath = (returnTo: string) =>
+  `/onboarding?returnTo=${encodeURIComponent(sanitizeReturnPath(returnTo))}`;
+
+export function authCallbackUrl(
+  origin: string,
+  recovery: boolean,
+  returnTo: string,
+  assessmentTransfer?: string | null,
+) {
+  const url = new URL(recovery ? "/login/reset" : "/login/confirm", origin);
+  url.searchParams.set("returnTo", sanitizeReturnPath(returnTo));
+  if (!recovery && assessmentTransfer)
+    url.searchParams.set("test", assessmentTransfer);
+  return url.toString();
+}
+
+export function afterSignIn(
+  returnTo: unknown,
+  hasProfile: boolean,
+  betaReady: boolean,
+) {
+  const path = sanitizeReturnPath(returnTo);
+  if (path !== participationPaths.ask && path !== participationPaths.help)
+    return path;
+  return hasProfile && betaReady ? path : buildOnboardingPath(path);
+}
 
 export const getAuthCallbackErrorCode = (hash: string) => {
   if (!hash.startsWith("#")) {

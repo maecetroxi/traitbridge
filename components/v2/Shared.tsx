@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useBridge } from "../../contexts/BridgeContext";
 import { useLocale } from "../../contexts/LocaleContext";
@@ -7,11 +8,13 @@ import { generateAvatar, avatarColors } from "../../lib/v2/avatar";
 import type { AvatarConfig, Question } from "../../lib/v2/types";
 import BlobAvatar from "./BlobAvatar";
 import { useState } from "react";
+import { buildLoginPath, buildOnboardingPath } from "../../lib/return-path";
 
 export function AccessGate({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const { snapshot, loading, error, refresh } = useBridge();
   const { locale } = useLocale();
+  const router = useRouter();
   const de = locale === "de";
   if (authLoading || (loading && !snapshot.profile))
     return (
@@ -33,8 +36,8 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
             ? "Melde dich an, damit deine Fragen und Antworten privat bei dir ankommen."
             : "Sign in to receive your questions and replies privately."}
         </p>
-        <Link className="tb-button" href="/login?returnTo=%2Fonboarding">
-          {de ? "Anmelden & kennenlernen" : "Sign in & get started"}
+        <Link className="tb-button" href={buildLoginPath(router.asPath)}>
+          {de ? "Anmelden" : "Sign in"}
         </Link>
       </div>
     );
@@ -66,8 +69,8 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
             ? "Zehn Aussagen, ein kleiner Avatar – und schon kannst du mitmachen."
             : "Ten statements, a little avatar, and you’re ready to join."}
         </p>
-        <Link className="tb-button" href="/onboarding">
-          {de ? "Los geht’s" : "Let’s go"}
+        <Link className="tb-button" href={buildOnboardingPath(router.asPath)}>
+          {de ? "Profil einrichten" : "Set up your profile"}
         </Link>
       </div>
     );

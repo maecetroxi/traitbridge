@@ -10,6 +10,9 @@ export const qaIds = [
   "10000000-0000-4000-8000-000000000001",
   "10000000-0000-4000-8000-000000000002",
   "10000000-0000-4000-8000-000000000003",
+  "10000000-0000-4000-8000-000000000004",
+  "10000000-0000-4000-8000-000000000005",
+  "10000000-0000-4000-8000-000000000006",
 ];
 const users = qaIds.map((id, i) => ({
   id,
@@ -17,6 +20,7 @@ const users = qaIds.map((id, i) => ({
   aud: "authenticated",
   role: "authenticated",
   is_anonymous: false,
+  email_confirmed_at: "2026-11-15T09:00:00Z",
   app_metadata: { provider: "email" },
   user_metadata: {},
   created_at: "2026-11-15T09:00:00Z",
@@ -40,10 +44,11 @@ const call = async (
   id: string,
   action: string,
   data: Record<string, unknown> = {},
+  gateway: "tb_v2" | "tb_v2_save_assessment" = "tb_v2",
 ) =>
   (
     await db.query<{ value: unknown }>(
-      "select public.tb_v2($1::uuid,$2::text,$3::jsonb) as value",
+      `select public.${gateway}($1::uuid,$2::text,$3::jsonb) as value`,
       [id, action, JSON.stringify(data)],
     )
   ).rows[0].value;
@@ -57,8 +62,10 @@ async function start() {
       "utf8",
     ),
   );
+  await db.exec(readFileSync("supabase/migrations/20261125100010_v2_assessment_onboarding.sql", "utf8"));
   for (const user of users) {
     await db.query("insert into auth.users(id) values($1)", [user.id]);
+    if (user.id === qaIds[4]) continue;
     await db.query(
       "insert into tb_private.beta_members(user_id,moderator) values($1,$2)",
       [user.id, user.id === qaIds[2]],
@@ -152,11 +159,12 @@ async function start() {
         res.end(JSON.stringify({ message: "Server-only QA gateway" }));
         return;
       }
-      if (url.pathname === "/rest/v1/rpc/tb_v2") {
+      if (url.pathname === "/rest/v1/rpc/tb_v2" || url.pathname === "/rest/v1/rpc/tb_v2_save_assessment") {
         let raw = "";
         for await (const chunk of req) raw += chunk;
         const body = JSON.parse(raw);
-        const result = await call(body.p_actor, body.p_action, body.p_data);
+        const result = await call(body.p_actor, body.p_action, body.p_data,
+          url.pathname.endsWith("_save_assessment") ? "tb_v2_save_assessment" : "tb_v2");
         res.end(JSON.stringify(result));
         return;
       }
@@ -171,7 +179,16 @@ async function start() {
         return;
       }
       if (url.pathname === "/rest/v1/personality_results") {
-        res.end("[]");
+        const id = "20000000-0000-4000-8000-000000000004";
+        const matchingPerson = url.searchParams.get("user_id") === `eq.${qaIds[3]}`;
+        const requested = url.searchParams.get("id");
+        const result = {
+          id, user_id: qaIds[3], variant: "full", language: "de",
+          created_at: "2026-11-15T09:00:00.000Z",
+          scores: { O: 3, C: 4, E: 3, A: 3, N: 2 },
+          assessment_version: null,
+        };
+        res.end(JSON.stringify(matchingPerson && (!requested || requested === `eq.${id}`) ? [result] : []));
         return;
       }
       res.writeHead(404);

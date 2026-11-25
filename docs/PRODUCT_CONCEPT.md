@@ -15,16 +15,23 @@ Stand: 25. November 2026. „Umgesetzt“ bezeichnet den Funktionsstand der gesc
 
 ## Registrierung
 
-- **Umgesetzt:** E-Mail-Anmeldung per Magic Link. Gäste können aktuell einen Fragenentwurf eingeben. Zum Absenden von Fragen sowie zum Beantworten sind Anmeldung, Beta-Freigabe und ein eingerichtetes V2-Profil erforderlich. Wer bereits ein V2-Profil hat, durchläuft das Onboarding nicht erneut. Ein bestehendes Konto ohne V2-Profil richtet es einmalig ein.
-- **Offen:** Die Registrierung soll vor dem Schreiben einer Frage oder Antwort liegen. Den Einstieg dafür möglichst einfach gestalten und Pflichtangaben auf das Nötige beschränken. Google- und Apple-Anmeldung auf Eignung prüfen und gegebenenfalls neben E-Mail anbieten. Den E-Mail-Ablauf in der Beta praktisch prüfen.
+- **Im Entwicklungsstand umgesetzt:** E-Mail und Passwort mit Bestätigungslink und Passwortzurücksetzung. Der optionale Magic Link meldet bestehende Konten an. Vor dem Schreiben einer Frage oder Antwort sind Anmeldung, Beta-Freigabe und ein V2-Profil nötig. Der Einstieg führt nach der Anmeldung direkt zu „Frage stellen“ oder „Jemandem helfen“ zurück. Bestehende V2-Profile überspringen das Onboarding.
+- **Umgesetzt:** Besucher können den Persönlichkeitstest freiwillig vor der Registrierung machen. Beim Einstieg kann ein geeignetes Kontoergebnis oder ein neuer, vollständig beantworteter Test aus demselben Browser nach bewusster Bestätigung übernommen werden. Pflicht sind ein geeignetes Ergebnis, Pseudonym, automatisch erstellter Blob-Avatar, Altersbestätigung und Einwilligungen. Interessen, Erfahrungsthemen und Avatar-Anpassungen sind später unter „Ich“ verfügbar.
+- **Offen:** Tatsächliche E-Mail-Zustellung und Provider-Callbacks in einer freigegebenen Zielumgebung prüfen. Google und Apple sind vorbereitet und werden bis zur Einrichtung und Prüfung ausgeblendet. [Externe Einstellungen](AUTH_ONBOARDING.md)
 
 ## Entdecken
 
 - **Umgesetzt:** Fragen sind standardmässig privat. Verfasser können ihre Frage bewusst für „Entdecken“ freigeben. Der Themenfilter ist vorhanden. Private Antworten werden nicht automatisch veröffentlicht.
 - **Offen:** Eigenständige Erfahrungsbeiträge erstellen und lesen. Für den Feed zusätzlich die Auswahl „Ähnliche Persönlichkeiten“, „Andere Perspektiven“ und „Alle Beiträge“ anbieten.
+- **Geplant:** „Entdecken“ soll perspektivisch öffentlich lesbar sein. Während der Testphase bleibt der Bereich Teil der geschlossenen Beta. In der ersten Version der Erfahrungsbeiträge gibt es keine öffentlichen Kommentare.
 - **Offen:** Bei freigegebenen Beiträgen höchstens ein bis zwei auffällige Big-Five-Merkmale zeigen, sofern die Person ihre Anzeige freigegeben hat. Auf Wunsch alle fünf Eigenschaften aufklappen. Vereinfachte Ausprägungen statt exakter Testwerte verwenden.
-- **Offen:** Freiwillige Aktionen „Hat mir geholfen“ und „Merken“ für Beiträge. Das bestehende private „Danke“ für Antworten bleibt davon getrennt.
+- **Offen:** Freiwillige Aktionen „Hat mir geholfen“ und „Merken“ für Beiträge. Gemerkte Beiträge sollen später unter „Ich“ erscheinen. Das bestehende private „Danke“ gilt für Antworten.
 - **Produktgrenzen:** Keine öffentlichen Like-Zahlen, Rankings, wissenschaftlich unbegründeten Kompatibilitätsprozente oder öffentlichen Profilseiten.
+
+## Benachrichtigungen
+
+- **Umgesetzt:** Benachrichtigungen in der App.
+- **Geplant:** Optionale E-Mail-Benachrichtigungen mit persönlichen Einstellungen.
 
 ## Moderation
 

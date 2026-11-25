@@ -62,7 +62,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <LocaleProvider>
         <AuthProvider>
-          <BridgeProvider>
+          <BridgeProvider keepMounted={router.pathname.startsWith("/login")}>
             <Layout>
               {router.pathname.startsWith("/learn") ? (
                 <LearningNavigation>

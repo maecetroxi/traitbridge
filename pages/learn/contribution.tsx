@@ -1,3 +1,4 @@
+import { useAuth } from "../../contexts/AuthContext";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
@@ -174,6 +175,8 @@ const copyScores = (scores: BigFiveScores): BigFiveScores => ({ ...scores });
 
 const ContributionPage: React.FC = () => {
   const { locale, copy: globalCopy } = useLocale();
+  const { user, loading: authLoading } = useAuth();
+  const owner = user && !user.is_anonymous ? user.id : null;
   const copy = PAGE_COPY[locale];
   const [scores, setScores] = useState<BigFiveScores>(() =>
     copyScores(NEUTRAL_CONTRIBUTION_PROFILE),
@@ -183,7 +186,7 @@ const ContributionPage: React.FC = () => {
 
   useEffect(() => {
     try {
-      const storedResults = loadPreferredStoredResults(window.localStorage);
+      const storedResults = authLoading ? null : loadPreferredStoredResults(window.localStorage, owner);
 
       if (storedResults) {
         const localScores = copyScores(storedResults.scores);
@@ -199,7 +202,7 @@ const ContributionPage: React.FC = () => {
     setScores(copyScores(NEUTRAL_CONTRIBUTION_PROFILE));
     setSavedScores(null);
     setProfileSource("neutral");
-  }, []);
+  }, [authLoading, owner]);
 
   const selectedPatterns = useMemo(
     () => selectContributionPatterns(scores),

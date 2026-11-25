@@ -77,13 +77,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="tb-utilities">
             <LocaleSwitcher />
-            {!user && (
-              <Link href="/login?returnTo=%2Fonboarding" className="tb-login">
+            {(!user || user.is_anonymous) && !router.pathname.startsWith("/login") && (
+              <Link href="/login" className="tb-login">
                 {de ? "Anmelden" : "Sign in"}
                 <Icon name="arrow" size={17} />
               </Link>
             )}
-            {user && (
+            {user && !user.is_anonymous && (
               <Link
                 href="/me"
                 className="tb-account"

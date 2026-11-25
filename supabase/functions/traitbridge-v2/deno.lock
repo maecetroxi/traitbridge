@@ -1,9 +1,13 @@
 {
   "version": "5",
   "specifiers": {
+    "npm:@bigfive-org/questions@1.2.1": "1.2.1",
     "npm:@supabase/supabase-js@2.112.4": "2.112.4"
   },
   "npm": {
+    "@bigfive-org/questions@1.2.1": {
+      "integrity": "sha512-YTZk+1eK6Iqy9oT+M+4cw/0JyZNVweqY89d6ovtSNSwgABIAGS4qehJD6mwYx5iJlXjA4YeT1MWS5lq2jrbQpA=="
+    },
     "@supabase/auth-js@2.112.4": {
       "integrity": "sha512-z8DesgwLzKM5PiT0yNmJU8VJyh1zAhYi+20Z7drdJQLXg/wWW4yGt/un+He5ERYUo94Vz66t5aeyr1DIDemI5A==",
       "dependencies": [
@@ -58,6 +62,7 @@
   },
   "workspace": {
     "dependencies": [
+      "npm:@bigfive-org/questions@1.2.1",
       "npm:@supabase/supabase-js@2.112.4"
     ]
   }

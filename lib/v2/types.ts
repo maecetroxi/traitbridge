@@ -1,6 +1,15 @@
 export const traits = ["O", "C", "E", "A", "N"] as const;
 export type Trait = (typeof traits)[number];
 export type Scores = Record<Trait, number>;
+export type AssessmentVariant = "short" | "full";
+export type AssessmentMetadata = {
+  source: "onboarding" | "device_test" | "account_result";
+  variant: AssessmentVariant;
+  version: string | null;
+  language: "de" | "en" | null;
+  resultId?: string;
+  createdAt?: string | null;
+};
 export const topics = [
   "relationships",
   "work",
@@ -30,6 +39,7 @@ export type Profile = {
   available: boolean;
   notifications: boolean;
   variant: "short" | "full";
+  assessment?: AssessmentMetadata | null;
 };
 export type Person = { id: string; pseudonym: string; avatar: AvatarConfig };
 export type Question = {

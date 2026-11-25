@@ -1,3 +1,4 @@
+import { useAuth } from "../contexts/AuthContext";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
@@ -14,6 +15,8 @@ import { getSuggestedLearningSlug } from "../lib/profile-content";
 
 const BigFiveResults: React.FC = () => {
   const { locale, copy } = useLocale();
+  const { user, loading: authLoading } = useAuth();
+  const owner = user && !user.is_anonymous ? user.id : null;
   const [storedResults, setStoredResults] = useState<StoredResults | null>(
     null,
   );
@@ -26,7 +29,7 @@ const BigFiveResults: React.FC = () => {
     }
 
     try {
-      const parsedResults = loadPreferredStoredResults(window.localStorage);
+      const parsedResults = authLoading ? null : loadPreferredStoredResults(window.localStorage, owner);
       if (!parsedResults) {
         setStoredResults(null);
         setDetailedResults(null);
@@ -42,7 +45,7 @@ const BigFiveResults: React.FC = () => {
       setStoredResults(null);
       setDetailedResults(null);
     }
-  }, [locale]);
+  }, [locale, authLoading, owner]);
 
   if (!storedResults) {
     return (

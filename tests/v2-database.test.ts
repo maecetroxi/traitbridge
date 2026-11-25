@@ -22,6 +22,9 @@ async function setup() {
     `create role anon;create role authenticated;create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key,is_anonymous boolean not null default false);grant usage on schema auth to service_role;create table public.questions(id int);create table public.answers(id int);create table public.community_profiles(id int);grant select,insert,update,delete on public.questions,public.answers,public.community_profiles to authenticated;`,
   );
   await db.exec(migration);
+  await db.exec(readFileSync(new URL(
+    "../supabase/migrations/20261125100010_v2_assessment_onboarding.sql", import.meta.url,
+  ), "utf8"));
   for (const id of ids) {
     await db.query("insert into auth.users(id) values($1)", [id]);
     await db.query("insert into tb_private.beta_members(user_id) values($1)", [
@@ -50,6 +53,32 @@ async function setup() {
     });
   return { db, call };
 }
+
+test("assessment updates are atomic and unavailable to browser roles", async (t) => {
+  const { db, call } = await setup();
+  t.after(() => db.close());
+  const actor = ids[0];
+  const profile = (await call(actor, "snapshot")).profile;
+  assert.equal(profile.assessment, null);
+  const full = { source: "account_result", variant: "full", version: null, language: "de" };
+  const save = (actorId: string, action: string, data: unknown) => db.query(
+    "select public.tb_v2_save_assessment($1::uuid,$2::text,$3::jsonb)",
+    [actorId, action, JSON.stringify(data)],
+  );
+  const grants = await db.query(
+    "select has_function_privilege('anon','public.tb_v2_save_assessment(uuid,text,jsonb)','execute') as anon, has_function_privilege('authenticated','public.tb_v2_save_assessment(uuid,text,jsonb)','execute') as browser, has_function_privilege('service_role','public.tb_v2_save_assessment(uuid,text,jsonb)','execute') as service",
+  );
+  assert.deepEqual(grants.rows[0], { anon: false, browser: false, service: true });
+  await db.exec("set role service_role");
+  await assert.rejects(() => save(actor, "onboard", { scores, assessment: full }), /ALREADY_ONBOARDED/);
+  await save(actor, "sync_full", { scores, assessment: full });
+  const after = (await call(actor, "snapshot")).profile;
+  assert.equal(after.variant, "full");
+  assert.deepEqual(after.assessment, full);
+  await db.exec("reset role");
+  await db.query("update tb_private.beta_members set enabled=false where user_id=$1", [actor]);
+  await assert.rejects(() => save(actor, "sync_full", { scores, assessment: full }), /BETA_REQUIRED/);
+});
 test("database: isolated grants, private visibility, reservations, moderation and deletion", async (t) => {
   const { db, call } = await setup();
   t.after(() => db.close());

@@ -9,7 +9,9 @@ import TestQuestionStage from "./test/TestQuestionStage";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
 import { Locale, formatTranslation } from "../lib/i18n";
-import { normalizeCalculatedScores, STORAGE_KEY_FULL } from "../lib/bigfive-results";
+import { normalizeCalculatedScores, resultStorageKey, STORAGE_KEY_FULL } from "../lib/bigfive-results";
+import { rememberAssessment } from "../lib/assessment-draft";
+import { sanitizeReturnPath } from "../lib/return-path";
 import {
   calculateTestProgress,
   clearTestDraft,
@@ -31,7 +33,8 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
   onChangeLanguage,
 }) => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const owner = user && !user.is_anonymous ? user.id : null;
   const { copy } = useLocale();
   const [questions, setQuestions] = useState<PackageQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,14 +46,10 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const stageStartRef = useRef<HTMLDivElement>(null);
-  const requestedReturnTo =
-    typeof router.query.returnTo === "string" &&
-    router.query.returnTo.startsWith("/") &&
-    !router.query.returnTo.startsWith("//")
-      ? router.query.returnTo
-      : null;
+  const requestedReturnTo = sanitizeReturnPath(router.query.returnTo, "");
 
   useEffect(() => {
+    if (authLoading) return;
     try {
       setIsLoading(true);
       setLoadError(null);
@@ -73,6 +72,7 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
           window.localStorage,
           language,
           loadedQuestions.map((question) => question.id),
+          owner,
         );
 
         if (draft && Object.keys(draft.answers).length > 0) {
@@ -90,7 +90,7 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [copy.test.draftRestored, copy.test.noQuestionsTitle, language]);
+  }, [copy.test.draftRestored, copy.test.noQuestionsTitle, language, authLoading, owner]);
 
   useEffect(() => {
     if (
@@ -101,8 +101,8 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
       return;
     }
 
-    saveTestDraft(window.localStorage, language, answers, currentStage);
-  }, [answers, currentStage, isDraftReady, language]);
+    saveTestDraft(window.localStorage, language, answers, currentStage, owner);
+  }, [answers, currentStage, isDraftReady, language, owner]);
 
   const stages = useMemo(() => splitIntoStages(questions), [questions]);
   const questionIds = useMemo(
@@ -170,7 +170,7 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
       return;
     }
 
-    clearTestDraft(window.localStorage, language);
+    clearTestDraft(window.localStorage, language, owner);
     setAnswers({});
     setCurrentStage(0);
     setFormError(null);
@@ -231,7 +231,7 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
 
       if (typeof window !== "undefined") {
         window.localStorage.setItem(
-          STORAGE_KEY_FULL,
+          resultStorageKey(STORAGE_KEY_FULL, owner),
           JSON.stringify({
             scores,
             calculatedScores,
@@ -240,7 +240,8 @@ const BigFiveTest: React.FC<BigFiveTestProps> = ({
             language,
           }),
         );
-        clearTestDraft(window.localStorage, language);
+        rememberAssessment(owner, "full", language, answers);
+        clearTestDraft(window.localStorage, language, owner);
       }
 
       await router.push(requestedReturnTo || (permanentUser ? "/profile" : "/results"));

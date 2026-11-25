@@ -6,6 +6,7 @@ import { useLocale } from "../contexts/LocaleContext";
 import {
   getScoreBands,
   STORAGE_KEY_SHORT,
+  resultStorageKey,
   type StoredResults,
 } from "../lib/bigfive-results";
 import type { Locale } from "../lib/i18n";
@@ -14,6 +15,7 @@ import {
   selectShortTestQuestions,
 } from "../lib/short-test";
 import { savePersonalityResult } from "../lib/supabase-queries";
+import { rememberAssessment } from "../lib/assessment-draft";
 import PersonalityBadge, { type BigFiveScores } from "./PersonalityBadge";
 
 type ShortBigFiveTestProps = {
@@ -204,7 +206,9 @@ const ShortBigFiveTest: React.FC<ShortBigFiveTestProps> = ({
         language: locale,
       };
 
-      window.localStorage.setItem(STORAGE_KEY_SHORT, JSON.stringify(result));
+      const owner = user && !user.is_anonymous ? user.id : null;
+      window.localStorage.setItem(resultStorageKey(STORAGE_KEY_SHORT, owner), JSON.stringify(result));
+      rememberAssessment(owner, "short", locale, answers);
 
       if (user && !user.is_anonymous) {
         try {

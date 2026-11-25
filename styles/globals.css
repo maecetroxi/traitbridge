@@ -1120,6 +1120,11 @@ textarea {
   margin: 0 auto;
 }
 
+.login-card .page-title {
+  font-size: clamp(2rem, 5vw, 3.15rem);
+  overflow-wrap: anywhere;
+}
+
 .login-email {
   margin: 1.5rem 0 0;
   padding: 0.75rem 1rem;

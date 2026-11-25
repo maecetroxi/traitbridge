@@ -1,3 +1,4 @@
+import { useAuth } from "../../contexts/AuthContext";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
@@ -124,6 +125,8 @@ type ProfileSource = "neutral" | "test" | "manual";
 
 export default function TraitOppositesPage() {
   const { locale } = useLocale();
+  const { user, loading: authLoading } = useAuth();
+  const owner = user && !user.is_anonymous ? user.id : null;
   const copy = pageCopy[locale];
   const [selectedTrait, setSelectedTrait] = useState<TraitDimension>("O");
   const [scores, setScores] =
@@ -132,7 +135,7 @@ export default function TraitOppositesPage() {
 
   useEffect(() => {
     try {
-      const storedResult = loadPreferredStoredResults(window.localStorage);
+      const storedResult = authLoading ? null : loadPreferredStoredResults(window.localStorage, owner);
 
       if (storedResult) {
         setScores(storedResult.scores);
@@ -142,7 +145,7 @@ export default function TraitOppositesPage() {
       setScores({ ...NEUTRAL_SCORES });
       setProfileSource("neutral");
     }
-  }, []);
+  }, [authLoading, owner]);
 
   const bridge = useMemo(() => getTraitBridge(selectedTrait), [selectedTrait]);
   const score = scores[selectedTrait];

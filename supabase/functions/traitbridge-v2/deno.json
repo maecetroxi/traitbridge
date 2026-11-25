@@ -1,1 +1,1 @@
-{"imports":{"@supabase/supabase-js":"npm:@supabase/supabase-js@2.112.4"},"compilerOptions":{"strict":true}}
+{"imports":{"@supabase/supabase-js":"npm:@supabase/supabase-js@2.112.4","@bigfive-org/questions":"npm:@bigfive-org/questions@1.2.1"},"compilerOptions":{"strict":true}}

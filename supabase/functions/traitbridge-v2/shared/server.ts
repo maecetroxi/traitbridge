@@ -1,6 +1,10 @@
 // Server imports only. Never import this module into a component or browser helper.
 import { createClient } from "@supabase/supabase-js";
-import { scoreOrientation } from "./orientation.ts";
+import {
+  assessmentVersions,
+  parseAssessmentDraft,
+  scoreAssessment,
+} from "./assessment.ts";
 import { validAvatar } from "./avatar.ts";
 import {
   classifyTopic,
@@ -9,7 +13,11 @@ import {
   type MatchCandidate,
   type MatchReader,
 } from "./matching.ts";
-import { topics } from "./types.ts";
+import {
+  topics,
+  type AssessmentMetadata,
+  type AssessmentVariant,
+} from "./types.ts";
 
 export class V2Error extends Error {
   constructor(
@@ -70,6 +78,7 @@ export function validateAction(
       "discover",
       "read",
       "moderation",
+      "assessment_candidate",
       "sync_full",
       "delete_account_prepare",
     ].includes(action)
@@ -77,26 +86,29 @@ export function validateAction(
     return {};
   if (action === "onboard") {
     const profile = validateProfile(data);
-    if (
-      data.adult_consent !== true ||
-      data.matching_consent !== true ||
-      !data.answers ||
-      typeof data.answers !== "object" ||
-      Array.isArray(data.answers)
-    )
+    if (data.adult_consent !== true || data.matching_consent !== true)
       throw new V2Error("CONSENT_REQUIRED");
-    const answers = data.answers as Record<string, number>;
-    if (
-      Object.values(answers).some((n) => !Number.isInteger(n) || n < 1 || n > 5)
-    )
-      throw new V2Error("INVALID_INPUT");
-    let scores;
-    try {
-      scores = scoreOrientation(answers);
-    } catch {
-      throw new V2Error("INVALID_INPUT");
-    }
-    return { ...profile, scores, adult_consent: true, matching_consent: true };
+    const base = { ...profile, adult_consent: true, matching_consent: true };
+    if (data.result_id !== undefined)
+      return { ...base, result_id: uuid(data.result_id) };
+    const draft = parseAssessmentDraft(
+      data.device_test === undefined
+        ? {
+            variant: "short",
+            version: assessmentVersions.short,
+            language: data.language,
+            answers: data.answers,
+          }
+        : data.device_test,
+    );
+    if (!draft) throw new V2Error("INVALID_INPUT");
+    const assessment: AssessmentMetadata = {
+      source: data.device_test === undefined ? "onboarding" : "device_test",
+      variant: draft.variant,
+      version: draft.version,
+      language: draft.language,
+    };
+    return { ...base, scores: scoreAssessment(draft), assessment };
   }
   if (action === "preferences") {
     if (
@@ -176,7 +188,17 @@ export async function rpc(
   action: string,
   data: Record<string, unknown> = {},
 ) {
-  const result = await admin.rpc("tb_v2", {
+  return gateway(admin, "tb_v2", actor, action, data);
+}
+
+async function gateway(
+  admin: Admin,
+  name: "tb_v2" | "tb_v2_save_assessment",
+  actor: string,
+  action: string,
+  data: Record<string, unknown>,
+) {
+  const result = await admin.rpc(name, {
     p_actor: actor,
     p_action: action,
     p_data: data,
@@ -210,6 +232,52 @@ export async function rpc(
   }
   return result.data;
 }
+
+async function ownAssessment(
+  admin: Admin,
+  actor: string,
+  options: { resultId?: string; fullOnly?: boolean } = {},
+) {
+  let query = admin
+    .from("personality_results")
+    .select(
+      "id,variant,scores,language,created_at,calculated_scores->assessment_version",
+    )
+    .eq("user_id", actor)
+    .in("variant", options.fullOnly ? ["full"] : ["full", "short"]);
+  if (options.resultId) query = query.eq("id", options.resultId);
+  const { data, error } = await query
+    .order("variant", { ascending: true })
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) throw new V2Error("ASSESSMENT_UNAVAILABLE", 503);
+  const result = data?.find(
+    (row) =>
+      validScores(row.scores) &&
+      (row.variant === "full" ||
+        (row.variant === "short" &&
+          Object.values(row.scores).every((score) =>
+            Number.isInteger(score * 2),
+          ))),
+  );
+  if (!result) return null;
+  const variant = result.variant as AssessmentVariant;
+  const assessment: AssessmentMetadata = {
+    source: "account_result",
+    resultId: result.id,
+    variant,
+    version:
+      result.assessment_version === assessmentVersions[variant]
+        ? assessmentVersions[variant]
+        : null,
+    language:
+      result.language === "de" || result.language === "en"
+        ? result.language
+        : null,
+    createdAt: result.created_at ?? null,
+  };
+  return { scores: result.scores, assessment };
+}
 export async function runAction(
   admin: Admin,
   actor: string,
@@ -228,18 +296,30 @@ export async function runAction(
     if (matches.length) await rpc(admin, actor, "assign", { matches });
     return rpc(admin, actor, "help");
   }
-  if (action === "sync_full") {
-    const { data: result, error } = await admin
-      .from("personality_results")
-      .select("scores")
-      .eq("user_id", actor)
-      .eq("variant", "full")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error || !validScores(result?.scores))
-      throw new V2Error("FULL_TEST_REQUIRED");
-    return rpc(admin, actor, action, { scores: result.scores });
+  if (action === "assessment_candidate") {
+    await rpc(admin, actor, "snapshot");
+    return (await ownAssessment(admin, actor))?.assessment ?? null;
+  }
+  if (action === "onboard" || action === "sync_full") {
+    if (action === "sync_full" || typeof data.result_id === "string") {
+      await rpc(admin, actor, "snapshot");
+      const result = await ownAssessment(admin, actor, {
+        fullOnly: action === "sync_full",
+        resultId:
+          typeof data.result_id === "string" ? data.result_id : undefined,
+      });
+      if (!result)
+        throw new V2Error(
+          action === "sync_full"
+            ? "FULL_TEST_REQUIRED"
+            : "ASSESSMENT_NOT_FOUND",
+        );
+      return gateway(admin, "tb_v2_save_assessment", actor, action, {
+        ...data,
+        ...result,
+      });
+    }
+    return gateway(admin, "tb_v2_save_assessment", actor, action, data);
   }
   return rpc(admin, actor, action, data);
 }
